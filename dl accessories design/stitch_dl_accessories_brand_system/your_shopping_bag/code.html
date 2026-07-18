@@ -1,0 +1,391 @@
+<!DOCTYPE html><html class="scroll-smooth" lang="en"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>Your Bag | DL Accessories</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&amp;family=Plus+Jakarta+Sans:wght@300;400;500;600&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "on-background": "#1c1b1b",
+                      "error-container": "#ffdad6",
+                      "on-surface": "#1c1b1b",
+                      "on-secondary-fixed": "#1f1a1d",
+                      "on-tertiary-fixed": "#1a1c1c",
+                      "primary": "#785560",
+                      "on-primary-container": "#75515d",
+                      "on-primary-fixed": "#2d131d",
+                      "secondary-container": "#e7dde0",
+                      "surface-container-highest": "#e5e2e1",
+                      "surface-container": "#f0eded",
+                      "error": "#ba1a1a",
+                      "on-surface-variant": "#4f4447",
+                      "secondary": "#645c5f",
+                      "secondary-fixed-dim": "#cec4c7",
+                      "on-error": "#ffffff",
+                      "tertiary-fixed": "#e2e2e2",
+                      "tertiary": "#5d5f5f",
+                      "surface": "#fcf9f8",
+                      "surface-container-low": "#f6f3f2",
+                      "primary-container": "#f6c8d5",
+                      "on-primary": "#ffffff",
+                      "on-secondary-container": "#686163",
+                      "on-secondary-fixed-variant": "#4b4548",
+                      "primary-fixed-dim": "#e8bbc8",
+                      "on-secondary": "#ffffff",
+                      "inverse-surface": "#313030",
+                      "inverse-on-surface": "#f3f0ef",
+                      "on-tertiary-container": "#5a5b5c",
+                      "surface-container-lowest": "#ffffff",
+                      "surface-variant": "#e5e2e1",
+                      "tertiary-fixed-dim": "#c6c6c7",
+                      "on-error-container": "#93000a",
+                      "surface-container-high": "#eae7e7",
+                      "on-primary-fixed-variant": "#5e3d48",
+                      "on-tertiary": "#ffffff",
+                      "secondary-fixed": "#eae0e3",
+                      "outline": "#817477",
+                      "surface-bright": "#fcf9f8",
+                      "outline-variant": "#d3c3c6",
+                      "on-tertiary-fixed-variant": "#454747",
+                      "surface-tint": "#785560",
+                      "surface-dim": "#dcd9d9",
+                      "tertiary-container": "#d3d4d4",
+                      "background": "#fcf9f8",
+                      "inverse-primary": "#e8bbc8",
+                      "primary-fixed": "#ffd9e3"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.25rem",
+                      "lg": "0.5rem",
+                      "xl": "0.75rem",
+                      "full": "9999px"
+              },
+              "spacing": {
+                      "margin-desktop": "64px",
+                      "unit": "8px",
+                      "container-max": "1280px",
+                      "margin-mobile": "20px",
+                      "section-gap": "120px",
+                      "gutter": "32px"
+              },
+              "fontFamily": {
+                      "display-lg": ["Playfair Display"],
+                      "body-lg": ["Plus Jakarta Sans"],
+                      "headline-sm": ["Playfair Display"],
+                      "body-md": ["Plus Jakarta Sans"],
+                      "display-lg-mobile": ["Playfair Display"],
+                      "label-md": ["Plus Jakarta Sans"],
+                      "label-sm": ["Plus Jakarta Sans"],
+                      "headline-md": ["Playfair Display"]
+              },
+              "fontSize": {
+                      "display-lg": ["48px", {"lineHeight": "1.1", "letterSpacing": "-0.02em", "fontWeight": "600"}],
+                      "body-lg": ["18px", {"lineHeight": "1.8", "letterSpacing": "0.01em", "fontWeight": "400"}],
+                      "headline-sm": ["24px", {"lineHeight": "1.4", "fontWeight": "500"}],
+                      "body-md": ["16px", {"lineHeight": "1.7", "fontWeight": "400"}],
+                      "display-lg-mobile": ["32px", {"lineHeight": "1.2", "fontWeight": "600"}],
+                      "label-md": ["14px", {"lineHeight": "1.2", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                      "label-sm": ["12px", {"lineHeight": "1.2", "fontWeight": "500"}],
+                      "headline-md": ["32px", {"lineHeight": "1.3", "fontWeight": "500"}]
+              }
+            },
+          },
+        }
+      </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
+        }
+        .soft-glow {
+            box-shadow: 0 10px 30px -5px rgba(246, 200, 213, 0.2);
+        }
+        .item-row:hover .remove-btn {
+            opacity: 1;
+        }
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #fcf9f8;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #f6c8d5;
+            border-radius: 10px;
+        }
+    </style>
+</head>
+<body class="bg-surface text-on-surface font-body-md selection:bg-primary-container selection:text-primary">
+<!-- TopNavBar -->
+<header class="fixed top-0 w-full z-50 bg-surface/80 dark:bg-surface/80 backdrop-blur-xl">
+<nav class="flex justify-between items-center w-full px-margin-mobile md:px-margin-desktop py-6 max-w-container-max mx-auto">
+<div class="flex items-center gap-8">
+<a class="flex items-center gap-2" href="#">
+<img alt="DL Accessories Logo" class="h-10 w-auto" src="https://lh3.googleusercontent.com/aida/AP1WRLu-xqsy8nz4-6xrYhRfVW18xiMTECb4b7zkhUj3gbxSsTC7Uu0LuX_cTX5cMgC71iDaLWmgP6tJJi1d3YjhdLYMBT2Uuiui5GA8kCOwrJW6pdKQ4FsBPXwjZbqbvi5gvoteuL5lFg3wrs3UWExESZcPkVn2rf0P-gcnAz2fYwh3rMt0D_aoLDwymPLOjC4RU2TKMJJ1wNbnqpchrndImLC8zpTC8cnjwuJrVinCmzPqKIkhchsjPKJ_lmI">
+<span class="font-display-lg text-display-lg-mobile md:text-display-lg tracking-tight text-on-background dark:text-surface-bright">DL Accessories</span>
+</a>
+<div class="hidden md:flex gap-8 items-center">
+<a class="text-on-surface-variant dark:text-on-surface-variant hover:text-primary dark:hover:text-primary-fixed-dim transition-colors duration-300 font-label-md text-label-md" href="#">Collections</a>
+<a class="text-on-surface-variant dark:text-on-surface-variant hover:text-primary dark:hover:text-primary-fixed-dim transition-colors duration-300 font-label-md text-label-md" href="#">Watches</a>
+<a class="text-on-surface-variant dark:text-on-surface-variant hover:text-primary dark:hover:text-primary-fixed-dim transition-colors duration-300 font-label-md text-label-md" href="#">Jewelry</a>
+<a class="text-on-surface-variant dark:text-on-surface-variant hover:text-primary dark:hover:text-primary-fixed-dim transition-colors duration-300 font-label-md text-label-md" href="#">Lashes</a>
+</div>
+</div>
+<div class="flex items-center gap-6">
+<button class="hover:opacity-70 transition-opacity duration-300 active:scale-95 transition-transform duration-200">
+<span class="material-symbols-outlined text-on-surface">search</span>
+</button>
+<button class="hover:opacity-70 transition-opacity duration-300 active:scale-95 transition-transform duration-200">
+<span class="material-symbols-outlined text-on-surface">favorite</span>
+</button>
+<button class="hover:opacity-70 transition-opacity duration-300 active:scale-95 transition-transform duration-200 relative">
+<span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 1;">shopping_bag</span>
+<span class="absolute -top-1 -right-1 bg-primary text-white text-[10px] w-4 h-4 rounded-full flex items-center justify-center font-bold">2</span>
+</button>
+</div>
+</nav>
+</header>
+<main class="pt-32 pb-section-gap px-margin-mobile md:px-margin-desktop max-w-container-max mx-auto">
+<div class="mb-12">
+<h1 class="font-display-lg text-display-lg-mobile md:text-display-lg mb-2">Shopping Bag</h1>
+<p class="text-on-surface-variant font-body-md">2 items in your cart. Secure checkout is just a step away.</p>
+</div>
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-gutter items-start">
+<!-- Line Items -->
+<div class="lg:col-span-8 space-y-8">
+<!-- Item 1 -->
+<div class="item-row flex gap-6 pb-8 border-b border-outline-variant/30 group">
+<div class="w-32 h-40 bg-surface-container-low rounded-xl overflow-hidden flex-shrink-0 soft-glow">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" data-alt="A close-up editorial shot of a minimal rose gold watch with a white leather strap, resting on a soft blush pink velvet surface. High-key lighting highlights the polished metal texture and elegant serif typography on the watch face. Soft-minimalist Japanese aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAf3PD6iqCg4HCzGwiFlH2EK__QarU6nXvOTpu8TMsa5ibC5dxoCjQzG4DgtiVsAqcheGDK3ZwChvKBhzZLkkKaHviSYtgxahHOtSCccWBsxnU6UgvM7cn9LfZ0UoJBT_GRNE5KwRtB6-ycQK7Ij0yN8HiHiB7brzJN2tM7Z8S4nd-AtGeH4wTumNxOa_V-b6mKUTviAUTL8cAtoszmoJ_jY4AgvXpoKxdRWsIluUebhp3AwnNte7ry">
+</div>
+<div class="flex-grow flex flex-col justify-between py-2">
+<div class="flex justify-between items-start">
+<div>
+<h3 class="font-headline-sm text-headline-sm mb-1">Ethereal Rose Gold Watch</h3>
+<p class="text-on-surface-variant font-label-md mb-2">Color: Champagne Blush / One Size</p>
+</div>
+<span class="font-headline-sm text-headline-sm">$185.00</span>
+</div>
+<div class="flex justify-between items-end">
+<div class="flex items-center bg-surface-container rounded-full px-3 py-1 gap-4 border border-outline-variant/20">
+<button class="hover:text-primary transition-colors"><span class="material-symbols-outlined text-[20px]">remove</span></button>
+<span class="font-label-md w-4 text-center">1</span>
+<button class="hover:text-primary transition-colors"><span class="material-symbols-outlined text-[20px]">add</span></button>
+</div>
+<button class="remove-btn opacity-40 hover:opacity-100 text-on-surface-variant flex items-center gap-1 transition-all duration-300">
+<span class="material-symbols-outlined text-[18px]">delete</span>
+<span class="font-label-sm">Remove</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Item 2 -->
+<div class="item-row flex gap-6 pb-8 border-b border-outline-variant/30 group">
+<div class="w-32 h-40 bg-surface-container-low rounded-xl overflow-hidden flex-shrink-0 soft-glow">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" data-alt="Exquisite minimalist pearl earrings with a thin gold hoop setting, displayed on a clean white marble pedestal. The background is a soft, out-of-focus beige curtain with warm, natural sunlight casting gentle shadows. Elegant and serene luxury jewelry photography." src="https://lh3.googleusercontent.com/aida-public/AB6AXuB-RT79BVzHd0AW1bIQuGt59bukCqH7VsFRn5T2VDR8NhOcAlljlmCNS_npKeQzUe4aTIttzXD4s1wSZRkQploYOUij9FzijAfcxpQdLLY7fnBIPZ6-8_TkwfkIFw1QokAAcfIRVpeQV2_oWwcEaURhAZcn0LHOt9-8Mfklngt_wYu4K7cDevgverU58WdF_XF8TecseodyqiGwEriFm5XYVWMBmTUePekY0UbpfHzrHTJdVtCoaGby">
+</div>
+<div class="flex-grow flex flex-col justify-between py-2">
+<div class="flex justify-between items-start">
+<div>
+<h3 class="font-headline-sm text-headline-sm mb-1">Luna Pearl Hoops</h3>
+<p class="text-on-surface-variant font-label-md mb-2">Material: 18k Gold Plated / Freshwater Pearl</p>
+</div>
+<span class="font-headline-sm text-headline-sm">$120.00</span>
+</div>
+<div class="flex justify-between items-end">
+<div class="flex items-center bg-surface-container rounded-full px-3 py-1 gap-4 border border-outline-variant/20">
+<button class="hover:text-primary transition-colors"><span class="material-symbols-outlined text-[20px]">remove</span></button>
+<span class="font-label-md w-4 text-center">1</span>
+<button class="hover:text-primary transition-colors"><span class="material-symbols-outlined text-[20px]">add</span></button>
+</div>
+<button class="remove-btn opacity-40 hover:opacity-100 text-on-surface-variant flex items-center gap-1 transition-all duration-300">
+<span class="material-symbols-outlined text-[18px]">delete</span>
+<span class="font-label-sm">Remove</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Gift Option -->
+<div class="bg-primary-container/20 p-6 rounded-xl flex items-center justify-between border border-primary-container/40">
+<div class="flex items-center gap-4">
+<span class="material-symbols-outlined text-primary text-[28px]">redeem</span>
+<div>
+<p class="font-label-md text-primary">Add Gift Wrapping</p>
+<p class="text-on-surface-variant text-label-sm">Complimentary silk ribbon and luxury box.</p>
+</div>
+</div>
+<button class="bg-white px-4 py-2 rounded-full font-label-sm border border-outline-variant/20 hover:shadow-sm transition-all active:scale-95">Add</button>
+</div>
+</div>
+<!-- Order Summary -->
+<aside class="lg:col-span-4 space-y-6">
+<div class="bg-white p-8 rounded-xl soft-glow border border-surface-container">
+<h2 class="font-headline-sm text-headline-sm mb-6">Order Summary</h2>
+<div class="space-y-4 mb-6">
+<div class="flex justify-between text-on-surface-variant">
+<span class="font-body-md">Subtotal</span>
+<span class="font-body-md">$305.00</span>
+</div>
+<div class="flex justify-between text-on-surface-variant">
+<span class="font-body-md">Estimated Shipping</span>
+<span class="font-body-md">Free</span>
+</div>
+<div class="flex justify-between text-on-surface-variant">
+<span class="font-body-md">Estimated Taxes</span>
+<span class="font-body-md">$24.40</span>
+</div>
+</div>
+<div class="pt-6 border-t border-outline-variant/20 mb-8 flex justify-between items-end">
+<span class="font-headline-sm text-headline-sm">Total</span>
+<span class="font-display-lg text-display-lg-mobile text-primary">$329.40</span>
+</div>
+<button class="w-full bg-primary-container text-on-background py-5 rounded-full font-label-md tracking-wider hover:opacity-90 transition-all active:scale-95 mb-4 uppercase">
+                        Checkout Securely
+                    </button>
+<button class="w-full bg-white text-on-surface border border-outline-variant/30 py-4 rounded-full font-label-md hover:bg-surface transition-all mb-8 flex items-center justify-center gap-2">
+<span class="material-symbols-outlined text-[20px]">account_balance_wallet</span>
+                        Apple Pay
+                    </button>
+<!-- Trust Signals -->
+<div class="space-y-4 pt-4 border-t border-outline-variant/10">
+<div class="flex items-center gap-3 text-on-surface-variant">
+<span class="material-symbols-outlined text-[20px] text-primary">verified_user</span>
+<span class="text-label-sm">Secure 256-bit SSL encrypted checkout</span>
+</div>
+<div class="flex items-center gap-3 text-on-surface-variant">
+<span class="material-symbols-outlined text-[20px] text-primary">local_shipping</span>
+<span class="text-label-sm">Free carbon-neutral shipping on all orders</span>
+</div>
+<div class="flex items-center gap-3 text-on-surface-variant">
+<span class="material-symbols-outlined text-[20px] text-primary">published_with_changes</span>
+<span class="text-label-sm">Easy 30-day returns and exchanges</span>
+</div>
+</div>
+<div class="mt-8 flex justify-center gap-4 grayscale opacity-40">
+<span class="material-symbols-outlined">payments</span>
+<span class="material-symbols-outlined">credit_card</span>
+<span class="material-symbols-outlined">account_balance</span>
+</div>
+</div>
+<!-- Support Card -->
+<div class="bg-surface-container p-6 rounded-xl flex flex-col items-center text-center">
+<p class="font-label-md mb-2">Need help with your order?</p>
+<p class="text-on-surface-variant text-label-sm mb-4">Our concierge is available Mon-Fri, 9am-6pm PST.</p>
+<a class="text-primary font-label-md underline underline-offset-4 decoration-primary-container hover:text-on-primary-container transition-colors" href="mailto:hello@dlaccessories.com">Contact Concierge</a>
+</div>
+</aside>
+</div>
+<!-- Complementary Items (Bento Style) -->
+<section class="mt-section-gap">
+<h2 class="font-display-lg text-display-lg-mobile mb-8">You might also love</h2>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-gutter">
+<div class="group relative overflow-hidden rounded-xl bg-surface-container-low p-6 soft-glow">
+<div class="aspect-[4/5] rounded-lg overflow-hidden mb-4">
+<img class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-1000" data-alt="Minimalist gold cuff bracelet with a subtle hammered texture, worn by a model with elegant, clean skin. The setting is a bright, airy studio with soft shadows. Modern aesthetic, editorial style jewelry photography." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDisU9TrG_0TOTOYsAYexa5f06QKAvUFKWh2c0aD1XXiwzbyRvdmHLKAA9wwDaCe9aQoGw9mBqaSn6dPM77794fhHNEcauRhEbYD-qqkbsO45yYE7EXCqcH6YW8mlXzwajBZ_9-XjomTUp829DyDUITQBqbYdx3EeNj1uZ-AxTyuG7_dIKEsv-ElARF5r0XkOH4uJol69Ea4hvFC8F2nfmI7Nluu1vTRN4vL878cTDpRMywvTu415JV">
+</div>
+<h4 class="font-headline-sm text-headline-sm mb-1">Aura Gold Cuff</h4>
+<p class="text-on-surface-variant font-label-md mb-4">$85.00</p>
+<button class="w-full py-3 rounded-full border border-primary text-primary font-label-sm group-hover:bg-primary group-hover:text-white transition-all">Add to Bag</button>
+</div>
+<div class="group relative overflow-hidden rounded-xl bg-surface-container-low p-6 soft-glow">
+<div class="aspect-[4/5] rounded-lg overflow-hidden mb-4">
+<img class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-1000" data-alt="Artistic shot of premium silk lashes in a minimalist white packaging tray. The lighting is ethereal and soft, creating a dreamy mood. The focus is on the intricate detail of the lash fibers. High-end beauty branding photography." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBumkWHjy5_KenGu0ka3efppYXGrnhZ3QMvqG-ssFai2YHI9_4OpdPa2Ho50I6nnUwUXecTsR2RL6PJR2nItUaQRHn5JTHg6VVQ3pC524YYnoJovhf9pLMZK_FvrN4jmEnrrR-5iVOKyIilQaKRM5aC8OtUO9fdKc_exJNOKsOYOPszTsN81a5igeW_HchOo-NaaYfadF4fAXRR361bD95k0iIM_BG5Aiq4c4X9X8mHzJxpWx6RywdS">
+</div>
+<h4 class="font-headline-sm text-headline-sm mb-1">Silk Flutter Lashes</h4>
+<p class="text-on-surface-variant font-label-md mb-4">$32.00</p>
+<button class="w-full py-3 rounded-full border border-primary text-primary font-label-sm group-hover:bg-primary group-hover:text-white transition-all">Add to Bag</button>
+</div>
+<div class="group relative overflow-hidden rounded-xl bg-surface-container-low p-6 soft-glow">
+<div class="aspect-[4/5] rounded-lg overflow-hidden mb-4">
+<img class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-1000" data-alt="A delicate silver chain necklace with a single tiny diamond pendant, catching the light beautifully. The model is wearing a white linen shirt in a sun-drenched outdoor setting. Soft focus background, premium lifestyle aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDbR6a8HuJkOA82D_WX4lnd2eLp7uOVnFWZaWyL4y5H84av6keDU5R4kg_cYP3jICLxLkEY1NGe0KSTfAVNzR4ZS6Ht0BzWmxw-c-k1H5jcFmA7MNzNdkMNZQ2tbsa4ReWMwgE989sSFvW5WA1ShsmVkHCM-g7AzPliNSVqa0s_RvK5MJHz-lI0d35_hoYmz-x6U_JRsu-F5I8gNsG0WgZQolIQFOPkBs8_tdIwl9BW7QtgD1iIICUC">
+</div>
+<h4 class="font-headline-sm text-headline-sm mb-1">Petite Diamond Chain</h4>
+<p class="text-on-surface-variant font-label-md mb-4">$210.00</p>
+<button class="w-full py-3 rounded-full border border-primary text-primary font-label-sm group-hover:bg-primary group-hover:text-white transition-all">Add to Bag</button>
+</div>
+</div>
+</section>
+</main>
+<!-- Footer -->
+<footer class="w-full mt-section-gap bg-surface-container dark:bg-surface-container-high">
+<div class="grid grid-cols-1 md:grid-cols-4 gap-gutter px-margin-mobile md:px-margin-desktop py-section-gap max-w-container-max mx-auto">
+<div class="col-span-1 md:col-span-1">
+<div class="flex items-center gap-2 mb-6">
+<img alt="DL Accessories Logo" class="h-8 w-auto" src="https://lh3.googleusercontent.com/aida/AP1WRLu-xqsy8nz4-6xrYhRfVW18xiMTECb4b7zkhUj3gbxSsTC7Uu0LuX_cTX5cMgC71iDaLWmgP6tJJi1d3YjhdLYMBT2Uuiui5GA8kCOwrJW6pdKQ4FsBPXwjZbqbvi5gvoteuL5lFg3wrs3UWExESZcPkVn2rf0P-gcnAz2fYwh3rMt0D_aoLDwymPLOjC4RU2TKMJJ1wNbnqpchrndImLC8zpTC8cnjwuJrVinCmzPqKIkhchsjPKJ_lmI">
+<span class="font-display-lg text-display-lg-mobile text-primary dark:text-primary-fixed-dim">DL Accessories</span>
+</div>
+<p class="text-on-surface-variant font-body-md mb-8">Curating timeless beauty for the modern woman. Sophistication in every detail.</p>
+<div class="flex gap-4">
+<a class="w-10 h-10 rounded-full border border-outline-variant/30 flex items-center justify-center hover:bg-primary-container hover:border-primary-container transition-all" href="#"><span class="material-symbols-outlined text-[18px]">public</span></a>
+<a class="w-10 h-10 rounded-full border border-outline-variant/30 flex items-center justify-center hover:bg-primary-container hover:border-primary-container transition-all" href="#"><span class="material-symbols-outlined text-[18px]">photo_camera</span></a>
+<a class="w-10 h-10 rounded-full border border-outline-variant/30 flex items-center justify-center hover:bg-primary-container hover:border-primary-container transition-all" href="#"><span class="material-symbols-outlined text-[18px]">play_circle</span></a>
+</div>
+</div>
+<div class="md:col-start-3">
+<h5 class="font-headline-sm text-headline-sm mb-6">Navigation</h5>
+<ul class="space-y-4">
+<li><a class="text-on-surface-variant hover:text-primary transition-colors font-label-sm text-label-sm" href="#">Brand Mission</a></li>
+<li><a class="text-on-surface-variant hover:text-primary transition-colors font-label-sm text-label-sm" href="#">Newsletter</a></li>
+<li><a class="text-on-surface-variant hover:text-primary transition-colors font-label-sm text-label-sm" href="#">Privacy Policy</a></li>
+<li><a class="text-on-surface-variant hover:text-primary transition-colors font-label-sm text-label-sm" href="#">Shipping</a></li>
+</ul>
+</div>
+<div>
+<h5 class="font-headline-sm text-headline-sm mb-6">Newsletter</h5>
+<p class="text-on-surface-variant font-body-md mb-4">Join our inner circle for exclusive previews.</p>
+<div class="relative">
+<input class="w-full bg-white border-0 py-4 px-6 rounded-full focus:ring-2 focus:ring-primary-container font-label-sm" placeholder="Your email address" type="email">
+<button class="absolute right-2 top-2 bottom-2 bg-primary text-white px-6 rounded-full font-label-sm active:scale-95 transition-transform">Join</button>
+</div>
+</div>
+</div>
+<div class="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop py-8 border-t border-outline-variant/10 text-center md:text-left">
+<p class="text-on-surface-variant font-label-sm">© 2024 DL Accessories. All rights reserved.</p>
+</div>
+</footer>
+<script>
+        // Micro-interactions for quantity selectors
+        document.querySelectorAll('.item-row').forEach(row => {
+            const countDisplay = row.querySelector('.font-label-md.w-4');
+            const addBtn = row.querySelector('.material-symbols-outlined:contains("add")')?.parentElement;
+            const removeBtn = row.querySelector('.material-symbols-outlined:contains("remove")')?.parentElement;
+            
+            // Logic would be here for actual state management
+        });
+
+        // Add to Bag animation
+        document.querySelectorAll('button:contains("Add to Bag")').forEach(btn => {
+            btn.addEventListener('click', function() {
+                this.textContent = 'Added';
+                this.classList.add('bg-primary', 'text-white');
+                setTimeout(() => {
+                    this.textContent = 'Add to Bag';
+                    this.classList.remove('bg-primary', 'text-white');
+                }, 2000);
+            });
+        });
+
+        // Search for button text content selector helper
+        window.addEventListener('DOMContentLoaded', () => {
+            // Fix for the contains selector in vanilla JS for simplicity
+            document.querySelectorAll('button').forEach(button => {
+               if(button.textContent.includes('Add to Bag')) {
+                   button.addEventListener('click', function() {
+                        const originalText = this.textContent;
+                        this.textContent = 'Added';
+                        this.classList.add('bg-primary', 'text-white');
+                        setTimeout(() => {
+                            this.textContent = originalText;
+                            this.classList.remove('bg-primary', 'text-white');
+                        }, 2000);
+                    });
+               }
+            });
+        });
+    </script>
+</body></html>

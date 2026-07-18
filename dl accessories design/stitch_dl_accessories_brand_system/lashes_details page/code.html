@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+
+<html class="scroll-smooth" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Midnight Glamour | DL Accessories</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600&family=Plus+Jakarta+Sans:wght@400;500;600&family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@100..900&family=Plus+Jakarta+Sans:wght@100..900&display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "tertiary-fixed-dim": "#c6c6c7",
+                    "primary": "#785560",
+                    "surface-variant": "#e5e2e1",
+                    "on-background": "#1c1b1b",
+                    "outline-variant": "#d3c3c6",
+                    "secondary-container": "#e7dde0",
+                    "on-primary-container": "#75515d",
+                    "on-error": "#ffffff",
+                    "on-secondary": "#ffffff",
+                    "tertiary-container": "#d3d4d4",
+                    "tertiary-fixed": "#e2e2e2",
+                    "background": "#fcf9f8",
+                    "on-tertiary": "#ffffff",
+                    "surface-dim": "#dcd9d9",
+                    "secondary": "#645c5f",
+                    "primary-fixed-dim": "#e8bbc8",
+                    "on-secondary-fixed-variant": "#4b4548",
+                    "surface-container-lowest": "#ffffff",
+                    "on-secondary-fixed": "#1f1a1d",
+                    "surface-container": "#f0eded",
+                    "primary-container": "#f6c8d5",
+                    "tertiary": "#5d5f5f",
+                    "secondary-fixed-dim": "#cec4c7",
+                    "on-secondary-container": "#686163",
+                    "surface-bright": "#fcf9f8",
+                    "on-surface": "#1c1b1b",
+                    "outline": "#817477",
+                    "inverse-on-surface": "#f3f0ef",
+                    "inverse-primary": "#e8bbc8",
+                    "on-primary-fixed-variant": "#5e3d48",
+                    "on-tertiary-fixed": "#1a1c1c",
+                    "surface-container-low": "#f6f3f2",
+                    "surface": "#fcf9f8",
+                    "on-tertiary-fixed-variant": "#454747",
+                    "error-container": "#ffdad6",
+                    "surface-container-highest": "#e5e2e1",
+                    "on-primary-fixed": "#2d131d",
+                    "on-surface-variant": "#4f4447",
+                    "on-primary": "#ffffff",
+                    "secondary-fixed": "#eae0e3",
+                    "on-tertiary-container": "#5a5b5c",
+                    "on-error-container": "#93000a",
+                    "inverse-surface": "#313030",
+                    "surface-tint": "#785560",
+                    "surface-container-high": "#eae7e7",
+                    "primary-fixed": "#ffd9e3",
+                    "error": "#ba1a1a"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "section-gap": "120px",
+                    "gutter": "32px",
+                    "unit": "8px",
+                    "margin-desktop": "64px",
+                    "margin-mobile": "20px",
+                    "container-max": "1280px"
+            },
+            "fontFamily": {
+                    "headline-md": ["Playfair Display"],
+                    "body-md": ["Plus Jakarta Sans"],
+                    "label-sm": ["Plus Jakarta Sans"],
+                    "label-md": ["Plus Jakarta Sans"],
+                    "display-lg-mobile": ["Playfair Display"],
+                    "display-lg": ["Playfair Display"],
+                    "headline-sm": ["Playfair Display"],
+                    "body-lg": ["Plus Jakarta Sans"]
+            },
+            "fontSize": {
+                    "headline-md": ["32px", {"lineHeight": "1.3", "fontWeight": "500"}],
+                    "body-md": ["16px", {"lineHeight": "1.7", "fontWeight": "400"}],
+                    "label-sm": ["12px", {"lineHeight": "1.2", "fontWeight": "500"}],
+                    "label-md": ["14px", {"lineHeight": "1.2", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                    "display-lg-mobile": ["32px", {"lineHeight": "1.2", "fontWeight": "600"}],
+                    "display-lg": ["48px", {"lineHeight": "1.1", "letterSpacing": "-0.02em", "fontWeight": "600"}],
+                    "headline-sm": ["24px", {"lineHeight": "1.4", "fontWeight": "500"}],
+                    "body-lg": ["18px", {"lineHeight": "1.8", "letterSpacing": "0.01em", "fontWeight": "400"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
+        }
+        .editorial-image-zoom {
+            transition: transform 1.2s cubic-bezier(0.25, 1, 0.5, 1);
+        }
+        .editorial-image-zoom:hover {
+            transform: scale(1.03);
+        }
+        .soft-glow-shadow {
+            box-shadow: 0 10px 40px -10px rgba(246, 200, 213, 0.3);
+        }
+        .active-dot {
+            width: 6px;
+            height: 6px;
+            background-color: #785560;
+            border-radius: 50%;
+            display: block;
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background font-body-md antialiased">
+<!-- TopNavBar -->
+<nav class="fixed top-0 w-full z-50 bg-surface/80 backdrop-blur-xl dark:bg-surface-dim/80 shadow-sm shadow-primary/5">
+<div class="flex justify-between items-center px-margin-desktop py-4 max-w-container-max mx-auto">
+<div class="font-display-lg text-display-lg text-primary dark:text-primary-fixed-dim cursor-pointer active:scale-95 transition-all">DL Accessories</div>
+<div class="hidden md:flex gap-10 items-center">
+<a class="font-label-md text-label-md uppercase tracking-widest text-on-surface-variant hover:text-primary transition-colors duration-300" href="#">Collections</a>
+<a class="font-label-md text-label-md uppercase tracking-widest text-on-surface-variant hover:text-primary transition-colors duration-300" href="#">Watches</a>
+<a class="font-label-md text-label-md uppercase tracking-widest text-on-surface-variant hover:text-primary transition-colors duration-300" href="#">Jewelry</a>
+<a class="font-label-md text-label-md uppercase tracking-widest text-primary border-b border-primary/30 pb-1" href="#">Lashes</a>
+</div>
+<div class="flex gap-6 items-center">
+<span class="material-symbols-outlined text-primary cursor-pointer hover:opacity-70 transition-opacity duration-300">search</span>
+<span class="material-symbols-outlined text-primary cursor-pointer hover:opacity-70 transition-opacity duration-300">shopping_bag</span>
+</div>
+</div>
+</nav>
+<main class="pt-32 pb-section-gap">
+<div class="max-w-container-max mx-auto px-margin-desktop">
+<!-- Breadcrumbs -->
+<div class="mb-12 flex gap-4 font-label-sm text-label-sm text-secondary uppercase tracking-widest">
+<span>Collections</span>
+<span>/</span>
+<span>Lashes</span>
+<span>/</span>
+<span class="text-primary">Midnight Glamour</span>
+</div>
+<!-- Product Layout -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-gutter">
+<!-- Imagery Column (Asymmetric Editorial Style) -->
+<div class="lg:col-span-7 grid grid-cols-1 md:grid-cols-2 gap-4 h-fit">
+<div class="md:col-span-2 overflow-hidden bg-surface-container-low aspect-[4/5] relative">
+<img class="w-full h-full object-cover editorial-image-zoom" data-alt="A cinematic, editorial fashion portrait of a model with ethereal skin and dramatic false lashes. The 'Midnight Glamour' lashes are long and voluminous, catching soft studio light. The background is a serene, warm cream color, emphasizing the sophisticated and feminine luxury of the DL Accessories brand. High-end magazine photography style." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCK7NCiMIFYmO-R4dpduk1vhikUMCMyEq5MpoYcqxvt_aQ2Jmmt0NDLYHrdMhR_PIb8hfC5XakoXYtPyWeBc8pB6_UEDJL3BmUWqTTT48qxICITErORh9cmwornnboEdfVIc4GFevFNIJMh0PRi8iEyebgQjDPciPuCiYn_D2Ui_MnNLFkvay-1CX8Fjgg4PUtGc9D498aVPCsReUpGsdQ2pFiUs2pJlxxWtu6Ihy1FmkhDx69tgC6S"/>
+<div class="absolute bottom-6 left-6 bg-white/20 backdrop-blur-md px-4 py-2 rounded-full font-label-sm text-label-sm uppercase tracking-widest text-white">Editorial Look 01</div>
+</div>
+<div class="overflow-hidden bg-surface-container-low aspect-square">
+<img class="w-full h-full object-cover editorial-image-zoom" data-alt="A high-fidelity close-up shot of the 'Midnight Glamour' false lashes resting inside a premium, minimalist storage case. The case has a soft pink velvet lining and a clean white exterior. The lashes are perfectly fanned out, showing off the dramatic faux mink fibers and multi-layered volume. Soft, diffused lighting creates a gentle glow around the product." src="https://lh3.googleusercontent.com/aida-public/AB6AXuD5Qs1AWMNVe1tiPSs9cp96PPW58lIog3tYzIi68DhiZrX-YcfNrH36tEUrQCUmTJbtN0Ybz56TsCpC5uZlaOo4J6v5Yomsx-FlOSBrzWdw6oE7W4DO5xMsiQTcqkGSV7Q2ugWloyzVsNiC0s74ME7mJvsS4WCXOFH5Hx8cFqMNEMr9w_VGZ6qh6PF8UBCC1ej0Ce7792X9vWPUGklB5o9gv0pf8cYsBEQC1STdGkAvm-DJBawlMSgu"/>
+</div>
+<div class="overflow-hidden bg-surface-container-low aspect-square">
+<img class="w-full h-full object-cover editorial-image-zoom" data-alt="An extreme macro photograph of the 'Midnight Glamour' lash band and fibers. The detail reveals the high-quality faux mink material with tapered ends, suggesting a natural yet dramatic finish. The lighting is crisp, highlighting the delicate texture of each hair against a soft-focus background of muted blush tones." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAcD6vP0_xW4wrR5aSI1YDuSW24UCjv4ZXucEdBfwx-NXyBYVI8mYny5ij8tWCWUW6k2n6MKNGO00g8VPfLlUEKfSqHzSYBiH9kqBk2gF_DgZTtDiPU0shKNf6Ztc_yV3fwNidAaUOwo0uAw0YWedHtAUSq4LAGfaP30JgXxk6JFOpASOyG1ayKkqxPO8SM039pB2NqUghXWjIJUxjaHYSLqGuWKzWhvrSb9urOFIIc7cz9zyoQ0wt5"/>
+</div>
+</div>
+<!-- Content Column -->
+<div class="lg:col-span-5 h-fit sticky top-32">
+<div class="mb-10">
+<h1 class="font-display-lg text-display-lg text-on-background mb-2">Midnight Glamour</h1>
+<p class="font-headline-sm text-headline-sm text-primary">$32.00</p>
+</div>
+<div class="mb-10 flex gap-8 items-center border-y border-outline-variant/30 py-6">
+<div class="text-center">
+<p class="font-label-sm text-label-sm text-secondary uppercase mb-1">Volume</p>
+<p class="font-label-md text-label-md text-on-background">Dramatic</p>
+</div>
+<div class="w-px h-8 bg-outline-variant/30"></div>
+<div class="text-center">
+<p class="font-label-sm text-label-sm text-secondary uppercase mb-1">Length</p>
+<p class="font-label-md text-label-md text-on-background">11-13mm</p>
+</div>
+<div class="w-px h-8 bg-outline-variant/30"></div>
+<div class="text-center">
+<p class="font-label-sm text-label-sm text-secondary uppercase mb-1">Material</p>
+<p class="font-label-md text-label-md text-on-background">Faux Mink</p>
+</div>
+</div>
+<div class="mb-10">
+<p class="font-body-lg text-body-lg text-secondary mb-6 leading-relaxed">
+                            Crafted for the bold and the beautiful, the Midnight Glamour lashes offer unparalleled depth and dimension. Featuring multi-layered fibers for a fluffy, high-volume finish that transitions effortlessly from twilight cocktails to midnight galas.
+                        </p>
+<div class="space-y-4">
+<button class="w-full py-5 px-8 rounded-full bg-primary-container text-on-primary-container font-label-md text-label-md uppercase tracking-widest soft-glow-shadow hover:opacity-90 active:scale-95 transition-all">
+                                Add to Bag
+                            </button>
+<button class="w-full py-5 px-8 rounded-full bg-white border border-outline-variant text-on-background font-label-md text-label-md uppercase tracking-widest hover:bg-surface-container-low active:scale-95 transition-all">
+                                Wishlist
+                            </button>
+</div>
+</div>
+<!-- Lash Care Accordion (Simplified Luxe Style) -->
+<div class="border-t border-outline-variant/30">
+<details class="group py-6 cursor-pointer">
+<summary class="flex justify-between items-center list-none">
+<span class="font-label-md text-label-md uppercase tracking-widest text-on-background">Lash Care Guide</span>
+<span class="material-symbols-outlined transition-transform group-open:rotate-180">expand_more</span>
+</summary>
+<div class="pt-6 font-body-md text-body-md text-secondary space-y-3">
+<p>1. Gently remove from the tray starting from the outer corner.</p>
+<p>2. Measure against your eye and trim the band if necessary.</p>
+<p>3. Apply a thin layer of adhesive and wait 30 seconds to become tacky.</p>
+<p>4. Place as close to your natural lash line as possible.</p>
+</div>
+</details>
+<details class="group py-6 border-t border-outline-variant/30 cursor-pointer">
+<summary class="flex justify-between items-center list-none">
+<span class="font-label-md text-label-md uppercase tracking-widest text-on-background">Shipping & Returns</span>
+<span class="material-symbols-outlined transition-transform group-open:rotate-180">expand_more</span>
+</summary>
+<div class="pt-6 font-body-md text-body-md text-secondary">
+                                Complimentary standard shipping on all orders over $75. Due to hygienic reasons, lashes are final sale unless defective.
+                            </div>
+</details>
+</div>
+</div>
+</div>
+<!-- Frequently Bought Together Section -->
+<section class="mt-section-gap pt-section-gap border-t border-outline-variant/20">
+<div class="mb-16 text-center">
+<h2 class="font-headline-md text-headline-md text-on-background mb-4">Complete the Look</h2>
+<p class="font-body-md text-body-md text-secondary">Essential companions for a seamless application.</p>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-gutter">
+<!-- Accessory Card 1 -->
+<div class="group cursor-pointer">
+<div class="aspect-square bg-surface-container-low overflow-hidden mb-6">
+<img class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" data-alt="A sleek, minimalist tube of DL Accessories lash adhesive. The packaging is a matte white with subtle rose gold lettering. It sits elegantly on a textured stone surface with soft morning light creating long, peaceful shadows. The aesthetic is clean, professional, and luxurious." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCC6pvaqVPV5trPWg-ivkPSLIgf6yZpByvxJ6pni4Jh5toeBf6wew1JWLvkw5BElsT5NfrhpV-SMN_JSBwZE0SxagwNWH9pD5T_MSvgmAQq8r8I8wTEkJJSOUqnpxyXAa_7eKjjq9l39tpHU5zcywM0D6tuhVBcsmvAkbSRKsCN75TEw6IQBY3UMG0FgIKQOlAqjhQsSbZlwlOz8-1359vpLxr29Ejj-ZBNKm-Nfb6GvD_Shzo0Az00"/>
+</div>
+<h3 class="font-label-md text-label-md uppercase mb-2">Precision Lash Adhesive</h3>
+<p class="font-body-md text-body-md text-secondary mb-4">$18.00</p>
+<button class="font-label-sm text-label-sm uppercase tracking-widest text-primary border-b border-primary/30 pb-1 hover:border-primary transition-all">Add Bundle +</button>
+</div>
+<!-- Accessory Card 2 -->
+<div class="group cursor-pointer">
+<div class="aspect-square bg-surface-container-low overflow-hidden mb-6">
+<img class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" data-alt="A pair of ergonomic lash applicator tweezers in a polished rose gold finish. The tool is showcased against a soft pink fabric background, emphasizing its sleek curves and high-end manufacturing. The lighting is soft and flattering, highlighting the metallic sheen and the DL Accessories logo." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDqOwW7itlzvp7ruhn0tozm6LBu3DXpkS7USahF0vigvX7AD63oGZPx-kHzet0For0D5rHgpa43GvZ699kCcowQ_atNAz0dxZExybgrJBc8nc1iyKgN-xjwEpSSeJwg7RvShLCWVR6M4rsEk0wSBDvJCzgXnsHqbFpsZt_gjsY9Ce15-fYjj00yoo7XqAQF_-F3206bQqz1Ml4FGMtGa8cktvnzPiR74AzlHQfTOT-XyLBjY4fkbRxQ"/>
+</div>
+<h3 class="font-label-md text-label-md uppercase mb-2">Gold Lash Applicator</h3>
+<p class="font-body-md text-body-md text-secondary mb-4">$22.00</p>
+<button class="font-label-sm text-label-sm uppercase tracking-widest text-primary border-b border-primary/30 pb-1 hover:border-primary transition-all">Add Bundle +</button>
+</div>
+<!-- Accessory Card 3 -->
+<div class="group cursor-pointer">
+<div class="aspect-square bg-surface-container-low overflow-hidden mb-6">
+<img class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" data-alt="A luxurious lash storage box with a crystal-clear lid and a plush velvet base. Inside, three pairs of different lash styles are displayed. The box is set in a modern, bright bathroom or vanity setting with a hint of a marble countertop and a soft green plant in the corner for a fresh, lifestyle feel." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDVrRD28wcRKmGSCkgTTVmdoTH8NXEGGnbw9MnaqCofB5AuMxxLF6tMohDKdHKrwE__h8e4dxCBM0f5TOiqHMYJ2dhaLwCDg-_GHsMRqDnBARs8ReoAw4t5j9J95JuWW9AHjAHu5GunFAxckPIjtPGlXaiiW83KzFvKkktJlMCPu2KX71depQ-JToZLzWiN0b5QYiiXdTNQ7qFmdqRUM6qJI8cuwBcT8AaS3HfRxLEVi-1O5tpE9NT7"/>
+</div>
+<h3 class="font-label-md text-label-md uppercase mb-2">Signature Lash Case</h3>
+<p class="font-body-md text-body-md text-secondary mb-4">$45.00</p>
+<button class="font-label-sm text-label-sm uppercase tracking-widest text-primary border-b border-primary/30 pb-1 hover:border-primary transition-all">Add Bundle +</button>
+</div>
+</div>
+</section>
+</div>
+</main>
+<!-- Footer -->
+<footer class="bg-surface-container-low dark:bg-surface-container-lowest w-full py-section-gap px-margin-desktop">
+<div class="grid grid-cols-1 md:grid-cols-4 gap-gutter max-w-container-max mx-auto">
+<div class="md:col-span-1">
+<div class="font-display-lg-mobile text-display-lg-mobile text-primary mb-8">DL Accessories</div>
+<p class="font-body-md text-body-md text-secondary max-w-xs">Elevating your natural beauty with curated elegance and modern precision.</p>
+</div>
+<div class="md:col-span-1">
+<h4 class="font-label-md text-label-md uppercase tracking-widest text-on-background mb-6">Shop</h4>
+<ul class="space-y-4 font-body-md text-body-md text-secondary">
+<li><a class="hover:text-primary transition-colors" href="#">New Arrivals</a></li>
+<li><a class="hover:text-primary transition-colors" href="#">Best Sellers</a></li>
+<li><a class="hover:text-primary transition-colors" href="#">Gift Cards</a></li>
+</ul>
+</div>
+<div class="md:col-span-1">
+<h4 class="font-label-md text-label-md uppercase tracking-widest text-on-background mb-6">Explore</h4>
+<ul class="space-y-4 font-body-md text-body-md text-secondary">
+<li><a class="hover:text-primary transition-colors" href="#">Our Story</a></li>
+<li><a class="hover:text-primary transition-colors" href="#">Sustainability</a></li>
+<li><a class="hover:text-primary transition-colors" href="#">Artisan Care</a></li>
+</ul>
+</div>
+<div class="md:col-span-1">
+<h4 class="font-label-md text-label-md uppercase tracking-widest text-on-background mb-6">Support</h4>
+<ul class="space-y-4 font-body-md text-body-md text-secondary">
+<li><a class="hover:text-primary transition-colors" href="#">Shipping & Returns</a></li>
+<li><a class="hover:text-primary transition-colors" href="#">Privacy Policy</a></li>
+<li><a class="hover:text-primary transition-colors" href="#">Contact Us</a></li>
+</ul>
+</div>
+</div>
+<div class="mt-20 pt-10 border-t border-outline-variant/30 flex flex-col md:flex-row justify-between items-center gap-6 max-w-container-max mx-auto">
+<p class="font-body-md text-body-md text-secondary">© 2024 DL Accessories. Crafted for the Modern Muse.</p>
+<div class="flex gap-8">
+<span class="material-symbols-outlined text-secondary cursor-pointer hover:text-primary duration-300">brand_awareness</span>
+<span class="material-symbols-outlined text-secondary cursor-pointer hover:text-primary duration-300">share</span>
+<span class="material-symbols-outlined text-secondary cursor-pointer hover:text-primary duration-300">mail</span>
+</div>
+</div>
+</footer>
+<script>
+        // Micro-interactions
+        document.querySelectorAll('details').forEach((el) => {
+            el.addEventListener('click', (e) => {
+                if (el.open) {
+                    // Pre-close logic if needed
+                }
+            });
+        });
+
+        // Simple scroll reveal for editorial images
+        const observerOptions = {
+            threshold: 0.1
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.editorial-image-zoom').forEach(img => {
+            img.parentElement.style.opacity = '0';
+            img.parentElement.style.transform = 'translateY(20px)';
+            img.parentElement.style.transition = 'opacity 1s ease-out, transform 1s ease-out';
+            observer.observe(img.parentElement);
+        });
+    </script>
+</body></html>
