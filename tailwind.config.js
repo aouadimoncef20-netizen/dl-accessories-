@@ -1,79 +1,102 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
-  content: [
-    "./src/**/*.{js,jsx,ts,tsx}",
-  ],
-  darkMode: "media", // Changed to media for automatic dark mode based on system preference
+  content: ["./src/**/*.{js,jsx,ts,tsx}"],
+  darkMode: "class",
   theme: {
     extend: {
       colors: {
-        "primary": "#D4AF37", // Refined Gold
-        "secondary": "#2C2C2C", // Deep Charcoal
-        "accent": "#8B4513", // Rich Brown
-        "background-light": "#FAF9F6", // Ivory
-        "background-dark": "#1A1A1A", // Deep Black
-        "text-light": "#2C2C2C", // Charcoal Text
-        "text-dark": "#FAF9F6", // Ivory Text
-        "card-light": "#FFFFFF", // Pure White
-        "card-dark": "#2A2A2A", // Dark Gray
-        "border-light": "#E8E8E8", // Light Gray
-        "border-dark": "#404040", // Medium Gray
-        "luxury-gold": "#D4AF37",
-        "luxury-brown": "#8B4513",
-        "luxury-cream": "#FAF9F6",
-        "luxury-charcoal": "#2C2C2C",
-      },
-      fontFamily: {
-        "display": ["Playfair Display", "serif"],
-        "sans": ["Inter", "sans-serif"],
-        "luxury": ["Playfair Display", "serif"],
-      },
-      fontSize: {
-        "luxury-sm": ["0.875rem", { lineHeight: "1.25rem", letterSpacing: "0.025em" }],
-        "luxury-base": ["1rem", { lineHeight: "1.5rem", letterSpacing: "0.025em" }],
-        "luxury-lg": ["1.125rem", { lineHeight: "1.75rem", letterSpacing: "0.025em" }],
-        "luxury-xl": ["1.25rem", { lineHeight: "1.75rem", letterSpacing: "0.025em" }],
-        "luxury-2xl": ["1.5rem", { lineHeight: "2rem", letterSpacing: "0.025em" }],
-        "luxury-3xl": ["1.875rem", { lineHeight: "2.25rem", letterSpacing: "0.025em" }],
-        "luxury-4xl": ["2.25rem", { lineHeight: "2.5rem", letterSpacing: "0.025em" }],
-        "luxury-5xl": ["3rem", { lineHeight: "1", letterSpacing: "0.025em" }],
-      },
-      spacing: {
-        "luxury-xs": "0.5rem",
-        "luxury-sm": "0.75rem",
-        "luxury-md": "1rem",
-        "luxury-lg": "1.5rem",
-        "luxury-xl": "2rem",
-        "luxury-2xl": "3rem",
-        "luxury-3xl": "4rem",
+        "on-secondary-fixed-variant": "#4b4548",
+        "surface-container-low": "#f6f3f2",
+        "surface-tint": "#785560",
+        "secondary-fixed": "#eae0e3",
+        "on-primary-container": "#75515d",
+        "on-tertiary": "#ffffff",
+        "inverse-primary": "#e8bbc8",
+        "surface-container": "#f0eded",
+        "surface-dim": "#dcd9d9",
+        "on-error-container": "#93000a",
+        "error": "#ba1a1a",
+        "on-background": "#1c1b1b",
+        "primary-fixed-dim": "#e8bbc8",
+        "on-surface": "#1c1b1b",
+        "surface-bright": "#fcf9f8",
+        "on-tertiary-container": "#5a5b5c",
+        "on-primary-fixed": "#2d131d",
+        "on-secondary-fixed": "#1f1a1d",
+        "tertiary-container": "#d3d4d4",
+        "outline-variant": "#d3c3c6",
+        "surface-container-high": "#eae7e7",
+        "on-tertiary-fixed-variant": "#454747",
+        "inverse-surface": "#313030",
+        "primary-fixed": "#ffd9e3",
+        "on-surface-variant": "#4f4447",
+        "tertiary-fixed-dim": "#c6c6c7",
+        "tertiary": "#5d5f5f",
+        "surface-variant": "#e5e2e1",
+        "surface": "#fcf9f8",
+        "primary": "#785560",
+        "on-primary-fixed-variant": "#5e3d48",
+        "on-error": "#ffffff",
+        "secondary": "#645c5f",
+        "on-tertiary-fixed": "#1a1c1c",
+        "secondary-fixed-dim": "#cec4c7",
+        "tertiary-fixed": "#e2e2e2",
+        "surface-container-lowest": "#ffffff",
+        "error-container": "#ffdad6",
+        "background": "#fcf9f8",
+        "on-primary": "#ffffff",
+        "secondary-container": "#e7dde0",
+        "primary-container": "#f6c8d5",
+        "on-secondary": "#ffffff",
+        "inverse-on-surface": "#f3f0ef",
+        "surface-container-highest": "#e5e2e1",
+        "outline": "#817477",
+        "on-secondary-container": "#686163",
       },
       borderRadius: {
-        "luxury": "0.5rem",
-        "luxury-lg": "0.75rem",
-        "luxury-xl": "1rem",
+        DEFAULT: "0.25rem",
+        lg: "0.5rem",
+        xl: "0.75rem",
+        full: "9999px",
       },
-      boxShadow: {
-        "luxury": "0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)",
-        "luxury-lg": "0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)",
-        "luxury-xl": "0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)",
+      spacing: {
+        "margin-desktop": "64px",
+        gutter: "32px",
+        unit: "8px",
+        "section-gap": "120px",
+        "margin-mobile": "20px",
+        "container-max": "1280px",
       },
-      // Added brand-specific animations for luxury feel
-      animation: {
-        "luxury-fade-in": "fadeIn 0.6s ease-in-out",
-        "luxury-slide-up": "slideUp 0.8s ease-out",
+      fontFamily: {
+        "display-lg": ["Playfair Display", "serif"],
+        "label-md": ["Plus Jakarta Sans", "sans-serif"],
+        "body-md": ["Plus Jakarta Sans", "sans-serif"],
+        "headline-sm": ["Playfair Display", "serif"],
+        "display-lg-mobile": ["Playfair Display", "serif"],
+        "label-sm": ["Plus Jakarta Sans", "sans-serif"],
+        "body-lg": ["Plus Jakarta Sans", "sans-serif"],
+        "headline-md": ["Playfair Display", "serif"],
+      },
+      fontSize: {
+        "display-lg": ["48px", { lineHeight: "1.1", letterSpacing: "-0.02em", fontWeight: "600" }],
+        "label-md": ["14px", { lineHeight: "1.2", letterSpacing: "0.05em", fontWeight: "600" }],
+        "body-md": ["16px", { lineHeight: "1.7", fontWeight: "400" }],
+        "headline-sm": ["24px", { lineHeight: "1.4", fontWeight: "500" }],
+        "display-lg-mobile": ["32px", { lineHeight: "1.2", fontWeight: "600" }],
+        "label-sm": ["12px", { lineHeight: "1.2", fontWeight: "500" }],
+        "body-lg": ["18px", { lineHeight: "1.8", letterSpacing: "0.01em", fontWeight: "400" }],
+        "headline-md": ["32px", { lineHeight: "1.3", fontWeight: "500" }],
       },
       keyframes: {
-        fadeIn: {
-          "0%": { opacity: "0" },
-          "100%": { opacity: "1" },
+        fadeInUp: {
+          from: { opacity: "0", transform: "translateY(20px)" },
+          to: { opacity: "1", transform: "translateY(0)" },
         },
-        slideUp: {
-          "0%": { opacity: "0", transform: "translateY(20px)" },
-          "100%": { opacity: "1", transform: "translateY(0)" },
-        },
+      },
+      animation: {
+        "fade-in-up": "fadeInUp 0.8s ease forwards",
       },
     },
   },
   plugins: [],
-}
-
+};
