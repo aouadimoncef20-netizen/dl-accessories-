@@ -14,12 +14,12 @@ export default function Newsletter() {
           }}
         >
           <input
-            className="flex-1 bg-white border border-outline-variant/30 rounded-full px-8 py-4 focus:outline-none focus:ring-2 focus:ring-primary-container"
+            className="flex-1 bg-white rounded-lg px-8 py-4 border border-[#EFEFEF] focus:outline-none focus:border-primary-container focus:ring-4 focus:ring-primary-container/20 transition-all duration-300"
             placeholder="Email address"
             type="email"
           />
           <button
-            className="px-10 py-4 bg-primary text-white rounded-full font-label-md uppercase tracking-widest hover:opacity-90 transition-opacity"
+            className="px-10 py-4 bg-primary-container text-on-background rounded-full font-label-md uppercase tracking-widest hover:shadow-lg hover:shadow-primary/10 active:scale-95 transition-all"
             type="submit"
           >
             Subscribe

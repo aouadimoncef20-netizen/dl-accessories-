@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import useCartStore from "../stores/cartStore";
 import useWishlistStore from "../stores/wishlistStore";
@@ -6,159 +6,7 @@ import Breadcrumb from "../Component/Breadcrumb";
 import ProductCard from "../Component/ProductCard";
 import Newsletter from "../Component/Newsletter";
 import SizeGuideModal from "../Component/SizeGuideModal";
-import products from "../Data/products";
-
-/* ─────────────────────────────────────────────
-   Cross‑sell product pools per category
-   ───────────────────────────────────────────── */
-const crossSell = {
-  Watches: [
-    {
-      id: "cross-watch-1",
-      name: "Solace Chain Bracelet",
-      category: "Jewelry",
-      price: 120.0,
-      image:
-        "https://lh3.googleusercontent.com/aida-public/AB6AXuD-LauwMQ0Y32VpVswrt6hJJtUuYbJYpVEYYhuxe66FpASAnP_LsKNvohgUeEP97pNPiAF-CFx6RzZ1T6Mz99rn6SResPXhzMFwiVhoCQBy6jhkY5oBB09nlXdN-d2D0lK4c3rAtcXlSbK-6v6H7LzzEu-YevHB6gTMeqqgcPhOnQWYYt-0gNBa0H4HG0XvVQptsubOGHMVB9ie5mXxTSpD7umGUs1XFWrGBLTVGvRRLxwO9xEmWZcf",
-    },
-    {
-      id: "cross-watch-2",
-      name: "Aura Hoops",
-      category: "Jewelry",
-      price: 85.0,
-      image:
-        "https://lh3.googleusercontent.com/aida-public/AB6AXuCrNEqu8iRIMc_4IVnXOqYqoBUUAdrvumYV60xeWgE_ZPZbQEFXy08HNyxz7WB5w3c4BKs_W_J4inOYmRbWHUl9nutxkLKMZIImNXG9HPPyQaLs57oDkQL0UiFj5qYz7KIT5AqXZNmFzpDGf0522XkvLstj46DLf5x_070JCVH0i8rVaDaB9brTVLGDLzORsjYRDHsOJRvxLAwK7ch9sqjCnIj5CisoBEGEqKM2PASQy2i6rTSWg4A-",
-    },
-    {
-      id: "cross-watch-3",
-      name: "Petite Muse Bag",
-      category: "Collections",
-      price: 490.0,
-      image:
-        "https://lh3.googleusercontent.com/aida-public/AB6AXuBlWWnEBmhY07XLxWgnYg-O4sstnA2kD63pshQ0A3k4ppztGQk6lFJ4Z7K0Rs83kkX1aP3OiHhVkrkj7DaE-5ftUgrxXua43KJVcYDptH3AuyIJNN5QSWA4nueYjzxhqhC_38iQmHxZxMDqXDfEXMHrGSBVdgXSixanUPz1Vmh3r_L17FYKFZp5QnACaG84UqdqpIPHCtBjgT5LaKxdMBLPSXzFk_X4enn_PunpfqgzqcukrPSmHRYg",
-    },
-    {
-      id: "cross-watch-4",
-      name: "Aurelia Hoops",
-      category: "Jewelry",
-      price: 88.0,
-      image:
-        "https://lh3.googleusercontent.com/aida-public/AB6AXuBUzB1KeWpQsMcyyCVOGXH6erISiMOlDNPdqwUx_gO0ZNr9XWn-8JGY2QFiupmhQH-PLu_WX2wS9VkWxUFZpqIFbpVqMsfg_4Zg8y-v4DaAwh9IKbPGeuX6InSKkU5oox_UF-wHIE5ypxO8SF4VVM4dffqODn4N1rzNyxzzfS7XDOkkip0Om6qjVLd-PiT1RMJjZQo6ngj9Wp9rd0cnaR7XJO0g5iclCn0YVXN2IOE3rgD1FG5BOuKp",
-    },
-  ],
-  Bracelets: [
-    {
-      id: "cross-bracelet-1",
-      name: "Solace Chain Bracelet",
-      category: "Jewelry",
-      price: 120.0,
-      image:
-        "https://lh3.googleusercontent.com/aida-public/AB6AXuD-LauwMQ0Y32VpVswrt6hJJtUuYbJYpVEYYhuxe66FpASAnP_LsKNvohgUeEP97pNPiAF-CFx6RzZ1T6Mz99rn6SResPXhzMFwiVhoCQBy6jhkY5oBB09nlXdN-d2D0lK4c3rAtcXlSbK-6v6H7LzzEu-YevHB6gTMeqqgcPhOnQWYYt-0gNBa0H4HG0XvVQptsubOGHMVB9ie5mXxTSpD7umGUs1XFWrGBLTVGvRRLxwO9xEmWZcf",
-    },
-    {
-      id: "cross-bracelet-2",
-      name: "Aurelia Hoops",
-      category: "Jewelry",
-      price: 88.0,
-      image:
-        "https://lh3.googleusercontent.com/aida-public/AB6AXuBUzB1KeWpQsMcyyCVOGXH6erISiMOlDNPdqwUx_gO0ZNr9XWn-8JGY2QFiupmhQH-PLu_WX2wS9VkWxUFZpqIFbpVqMsfg_4Zg8y-v4DaAwh9IKbPGeuX6InSKkU5oox_UF-wHIE5ypxO8SF4VVM4dffqODn4N1rzNyxzzfS7XDOkkip0Om6qjVLd-PiT1RMJjZQo6ngj9Wp9rd0cnaR7XJO0g5iclCn0YVXN2IOE3rgD1FG5BOuKp",
-    },
-    {
-      id: "cross-bracelet-3",
-      name: "Ethereal Gold Stacker",
-      category: "Rings",
-      price: 120.0,
-      image:
-        "https://lh3.googleusercontent.com/aida-public/AB6AXuBCMzPIhCUEHPBOoMKXgl50IfCXQu7fcx1XRN51PAWkfzAgh0JELhu0XS3V_1AIvitKEprtOlxI_Cwguwoc1oxQi0tOyJIt3R1au1N35TJxXBKjd5XKkOT6E91bmCC7oj1BE6YEDMYUwr8bNGipyeFMV1CIIH-y0u_KdZMjW6w8w2OJau0-L2cH8b9-77uUjhTx90ujIFFDmjUztsn32Zme6YHPXGClQX-jvyEOwT5lITFYPheA1555",
-    },
-    {
-      id: "cross-bracelet-4",
-      name: "Cloud Silk Lashes",
-      category: "Lashes",
-      price: 28.0,
-      image:
-        "https://lh3.googleusercontent.com/aida-public/AB6AXuCYIG6gVJKDb3ipN7uh6-kOzf8u9uIAU_Urg6XoggDOW5eyF0uhjqzBjiT6W7y6NJzRaEKjUPXVmJf4RnBZLsTYE53Q4XnrOVE5WcBI78suXMUzuRODnjin_fvfmh7IMKkFsG-G2mrHCGvkoG95YVCLAqPE089JbHozOWrFCV1UCRCMALGduST1KqFtMnVAcTY6gTJy0EPi3EvOhQSBtKSS49iEVJ0PebUoVtb1z_19HHgC1UuRawH1",
-    },
-  ],
-  Rings: [
-    {
-      id: "cross-ring-1",
-      name: "Ethereal Gold Stacker",
-      category: "Rings",
-      price: 120.0,
-      image:
-        "https://lh3.googleusercontent.com/aida-public/AB6AXuBCMzPIhCUEHPBOoMKXgl50IfCXQu7fcx1XRN51PAWkfzAgh0JELhu0XS3V_1AIvitKEprtOlxI_Cwguwoc1oxQi0tOyJIt3R1au1N35TJxXBKjd5XKkOT6E91bmCC7oj1BE6YEDMYUwr8bNGipyeFMV1CIIH-y0u_KdZMjW6w8w2OJau0-L2cH8b9-77uUjhTx90ujIFFDmjUztsn32Zme6YHPXGClQX-jvyEOwT5lITFYPheA1555",
-    },
-    {
-      id: "cross-ring-2",
-      name: "Solace Chain Bracelet",
-      category: "Jewelry",
-      price: 120.0,
-      image:
-        "https://lh3.googleusercontent.com/aida-public/AB6AXuD-LauwMQ0Y32VpVswrt6hJJtUuYbJYpVEYYhuxe66FpASAnP_LsKNvohgUeEP97pNPiAF-CFx6RzZ1T6Mz99rn6SResPXhzMFwiVhoCQBy6jhkY5oBB09nlXdN-d2D0lK4c3rAtcXlSbK-6v6H7LzzEu-YevHB6gTMeqqgcPhOnQWYYt-0gNBa0H4HG0XvVQptsubOGHMVB9ie5mXxTSpD7umGUs1XFWrGBLTVGvRRLxwO9xEmWZcf",
-    },
-    {
-      id: "cross-ring-3",
-      name: "Aura Hoops",
-      category: "Jewelry",
-      price: 85.0,
-      image:
-        "https://lh3.googleusercontent.com/aida-public/AB6AXuCrNEqu8iRIMc_4IVnXOqYqoBUUAdrvumYV60xeWgE_ZPZbQEFXy08HNyxz7WB5w3c4BKs_W_J4inOYmRbWHUl9nutxkLKMZIImNXG9HPPyQaLs57oDkQL0UiFj5qYz7KIT5AqXZNmFzpDGf0522XkvLstj46DLf5x_070JCVH0i8rVaDaB9brTVLGDLzORsjYRDHsOJRvxLAwK7ch9sqjCnIj5CisoBEGEqKM2PASQy2i6rTSWg4A-",
-    },
-  ],
-  Nails: [
-    {
-      id: "cross-nails-1",
-      name: "Cloud Silk Lashes",
-      category: "Lashes",
-      price: 28.0,
-      image:
-        "https://lh3.googleusercontent.com/aida-public/AB6AXuCYIG6gVJKDb3ipN7uh6-kOzf8u9uIAU_Urg6XoggDOW5eyF0uhjqzBjiT6W7y6NJzRaEKjUPXVmJf4RnBZLsTYE53Q4XnrOVE5WcBI78suXMUzuRODnjin_fvfmh7IMKkFsG-G2mrHCGvkoG95YVCLAqPE089JbHozOWrFCV1UCRCMALGduST1KqFtMnVAcTY6gTJy0EPi3EvOhQSBtKSS49iEVJ0PebUoVtb1z_19HHgC1UuRawH1",
-    },
-    {
-      id: "cross-nails-2",
-      name: "Aurelia Hoops",
-      category: "Jewelry",
-      price: 88.0,
-      image:
-        "https://lh3.googleusercontent.com/aida-public/AB6AXuBUzB1KeWpQsMcyyCVOGXH6erISiMOlDNPdqwUx_gO0ZNr9XWn-8JGY2QFiupmhQH-PLu_WX2wS9VkWxUFZpqIFbpVqMsfg_4Zg8y-v4DaAwh9IKbPGeuX6InSKkU5oox_UF-wHIE5ypxO8SF4VVM4dffqODn4N1rzNyxzzfS7XDOkkip0Om6qjVLd-PiT1RMJjZQo6ngj9Wp9rd0cnaR7XJO0g5iclCn0YVXN2IOE3rgD1FG5BOuKp",
-    },
-    {
-      id: "cross-nails-3",
-      name: "Petite Muse Bag",
-      category: "Collections",
-      price: 490.0,
-      image:
-        "https://lh3.googleusercontent.com/aida-public/AB6AXuBlWWnEBmhY07XLxWgnYg-O4sstnA2kD63pshQ0A3k4ppztGQk6lFJ4Z7K0Rs83kkX1aP3OiHhVkrkj7DaE-5ftUgrxXua43KJVcYDptH3AuyIJNN5QSWA4nueYjzxhqhC_38iQmHxZxMDqXDfEXMHrGSBVdgXSixanUPz1Vmh3r_L17FYKFZp5QnACaG84UqdqpIPHCtBjgT5LaKxdMBLPSXzFk_X4enn_PunpfqgzqcukrPSmHRYg",
-    },
-  ],
-  Lashes: [
-    {
-      id: "cross-lashes-1",
-      name: "Cloud Silk Lashes",
-      category: "Lashes",
-      price: 28.0,
-      image:
-        "https://lh3.googleusercontent.com/aida-public/AB6AXuCYIG6gVJKDb3ipN7uh6-kOzf8u9uIAU_Urg6XoggDOW5eyF0uhjqzBjiT6W7y6NJzRaEKjUPXVmJf4RnBZLsTYE53Q4XnrOVE5WcBI78suXMUzuRODnjin_fvfmh7IMKkFsG-G2mrHCGvkoG95YVCLAqPE089JbHozOWrFCV1UCRCMALGduST1KqFtMnVAcTY6gTJy0EPi3EvOhQSBtKSS49iEVJ0PebUoVtb1z_19HHgC1UuRawH1",
-    },
-    {
-      id: "cross-lashes-2",
-      name: "Aurelia Hoops",
-      category: "Jewelry",
-      price: 88.0,
-      image:
-        "https://lh3.googleusercontent.com/aida-public/AB6AXuBUzB1KeWpQsMcyyCVOGXH6erISiMOlDNPdqwUx_gO0ZNr9XWn-8JGY2QFiupmhQH-PLu_WX2wS9VkWxUFZpqIFbpVqMsfg_4Zg8y-v4DaAwh9IKbPGeuX6InSKkU5oox_UF-wHIE5ypxO8SF4VVM4dffqODn4N1rzNyxzzfS7XDOkkip0Om6qjVLd-PiT1RMJjZQo6ngj9Wp9rd0cnaR7XJO0g5iclCn0YVXN2IOE3rgD1FG5BOuKp",
-    },
-    {
-      id: "cross-lashes-3",
-      name: "Solace Chain Bracelet",
-      category: "Jewelry",
-      price: 120.0,
-      image:
-        "https://lh3.googleusercontent.com/aida-public/AB6AXuD-LauwMQ0Y32VpVswrt6hJJtUuYbJYpVEYYhuxe66FpASAnP_LsKNvohgUeEP97pNPiAF-CFx6RzZ1T6Mz99rn6SResPXhzMFwiVhoCQBy6jhkY5oBB09nlXdN-d2D0lK4c3rAtcXlSbK-6v6H7LzzEu-YevHB6gTMeqqgcPhOnQWYYt-0gNBa0H4HG0XvVQptsubOGHMVB9ie5mXxTSpD7umGUs1XFWrGBLTVGvRRLxwO9xEmWZcf",
-    },
-  ],
-};
+import useProductStore from "../stores/productStore";
 
 /* ─────────────────────────────────────────────
    Reusable sub‑components
@@ -322,7 +170,7 @@ function WatchDetails({ product }) {
           You may also like
         </h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-gutter">
-          {crossSell.Watches.map((p) => (
+              {[].map((p) => (
             <ProductCard key={p.id} {...p} link={`/product/${p.id}`} />
           ))}
         </div>
@@ -445,7 +293,7 @@ function BraceletDetails({ product }) {
           Complete the look
         </h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-gutter">
-          {crossSell.Bracelets.map((p) => (
+          {[].map((p) => (
             <ProductCard key={p.id} {...p} link={`/product/${p.id}`} />
           ))}
         </div>
@@ -590,7 +438,7 @@ function RingDetails({ product }) {
           The Art of Stacking
         </h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-gutter">
-          {crossSell.Rings.map((p) => (
+          {[].map((p) => (
             <ProductCard key={p.id} {...p} link={`/product/${p.id}`} />
           ))}
         </div>
@@ -749,7 +597,7 @@ function NailsDetails({ product }) {
           Complete the Look
         </h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-gutter">
-          {crossSell.Nails.map((p) => (
+          {[].map((p) => (
             <ProductCard key={p.id} {...p} link={`/product/${p.id}`} />
           ))}
         </div>
@@ -882,7 +730,7 @@ function LashesDetails({ product }) {
           Complete the Look
         </h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-gutter">
-          {crossSell.Lashes.map((p) => (
+          {[].map((p) => (
             <div key={p.id}>
               <ProductCard {...p} link={`/product/${p.id}`} />
               <button
@@ -905,14 +753,35 @@ function LashesDetails({ product }) {
 
 export default function ProductDetails() {
   const { id } = useParams();
-  const product = products.find((p) => p.id === id);
+  const [product, setProduct] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const { fetchById } = useProductStore();
+
+  useEffect(() => {
+    if (id) {
+      setLoading(true);
+      fetchById(id).then((data) => {
+        setProduct(data);
+        setLoading(false);
+      });
+    }
+  }, [id, fetchById]);
+
+  if (loading) {
+    return (
+      <main className="pt-32 pb-section-gap px-margin-mobile md:px-margin-desktop max-w-container-max mx-auto">
+        <div className="animate-pulse grid grid-cols-1 lg:grid-cols-12 gap-gutter">
+          <div className="lg:col-span-7"><div className="aspect-[4/5] bg-surface-container-low rounded-2xl" /></div>
+          <div className="lg:col-span-5 space-y-4"><div className="h-8 bg-surface-container-low rounded w-3/4" /><div className="h-6 bg-surface-container-low rounded w-1/3" /><div className="h-32 bg-surface-container-low rounded" /></div>
+        </div>
+      </main>
+    );
+  }
 
   if (!product) {
     return (
       <main className="pt-32 pb-section-gap px-margin-mobile md:px-margin-desktop max-w-container-max mx-auto text-center">
-        <p className="font-headline-md text-on-surface-variant">
-          Product not found.
-        </p>
+        <p className="font-headline-md text-on-surface-variant">Product not found.</p>
       </main>
     );
   }

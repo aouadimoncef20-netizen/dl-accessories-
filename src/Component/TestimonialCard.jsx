@@ -1,6 +1,6 @@
 function TestimonialCard({ quote, name, image, verified = true }) {
   return (
-    <div className="bg-white p-6 md:p-10 rounded-2xl shadow-sm ambient-glow border border-white">
+    <div className="bg-white p-6 md:p-10 rounded-2xl shadow-sm ambient-glow">
       {/* Stars */}
       <div className="flex gap-1 mb-6 text-primary-container">
         {[...Array(5)].map((_, i) => (
