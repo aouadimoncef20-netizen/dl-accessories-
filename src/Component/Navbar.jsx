@@ -5,10 +5,10 @@ import useWishlistStore from "../stores/wishlistStore";
 import MobileMenu from "./MobileMenu";
 
 const navLinks = [
-  // { label: "Collections", to: "/collections" },
-  // { label: "Watches", to: "/watches" },
-  // { label: "Jewelry", to: "/jewelry" },
-  // { label: "Lashes", to: "/lashes" },
+  { label: "Collections", to: "/collections" },
+  { label: "Watches", to: "/watches" },
+  { label: "Jewelry", to: "/jewelry" },
+  { label: "Lashes", to: "/lashes" },
 ];
 
 function Navbar() {

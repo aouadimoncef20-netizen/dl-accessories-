@@ -3,7 +3,6 @@ import { Routes, Route, Navigate } from "react-router-dom";
 import MainLayout from "./Layouts/MainLayout";
 import AuthGuard from "./Component/AuthGuard";
 import useAuthStore from "./stores/authStore";
-import { supabase } from "./lib/supabase";
 
 // Public pages
 import Home from "./Pages/Home";
@@ -37,12 +36,6 @@ function App() {
 
   useEffect(() => {
     initialize();
-
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      useAuthStore.setState({ user: session?.user || null, loading: false });
-    });
-
-    return () => subscription?.unsubscribe();
   }, [initialize]);
 
   if (loading) {

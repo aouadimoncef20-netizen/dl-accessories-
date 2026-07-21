@@ -1,11 +1,14 @@
-import { useEffect, useRef } from "react";
+import { useRef } from "react";
 import { Link } from "react-router-dom";
 import CategoryCard from "../Component/CategoryCard";
 import TestimonialCard from "../Component/TestimonialCard";
 import Newsletter from "../Component/Newsletter";
+import HomeProductCard from "../Component/HomeProductCard";
+import { CardSkeleton } from "../Component/LoadingSkeleton";
 import PageTransition from "../Component/PageTransition";
 import { images } from "../Data/images";
-import useProductStore from "../stores/productStore";
+import useProducts from "../Hooks/useProducts";
+import DebugOverlay from "../Component/DebugOverlay";
 
 const categories = [
   { name: "Watches", image: images.categories.Watches },
@@ -24,7 +27,7 @@ const testimonials = [
 ];
 
 const instagramImages = [
-  "https://lh3.googleusercontent.com/aida-public/AB6AXuCOQTU1ESJhF1jmypkLJSVAzG9VMZo02a5J2HhOLyypxfvrbwxtFQVmesyw7TsNuwiB2HMYuAi7PYZ9WQnrCobP66WadqF4vsuoERZ97Z_vaOA2yjDDrMeisl1gAZ80vuhLjJE1JAY3ZhvSfFWo-Fs5edcn82EYhILwUM0bpMZQY-O12v0ruDU0B-q0-Z4ZKHceS1RWJdbKz6ErjNju-n7cwWriax0B3fQGicLtjbnWlvAOBEaxstUf",
+  "https://lh3.googleusercontent.com/aida-public/AB6AXuCOQTU1ESJhF1jmypkLJSVAzG9VMZo02a5J2HhOLyypxfvrbwxtFQVmesyw7TsNuwiB2HMYuAi7PYZ9QWnrCobP66WadqF4vsuoERZ97Z_vaOA2yjDDrMeisl1gAZ80vuhLjJE1JAY3ZhvSfFWo-Fs5edcn82EYhILwUM0bpMZQY-O12v0ruDU0B-q0-Z4ZKHceS1RWJdbKz6ErjNju-n7cwWriax0B3fQGicLtjbnWlvAOBEaxstUf",
   "https://lh3.googleusercontent.com/aida-public/AB6AXuDaZIlJMXOmGrMgmLG_kwc2Ouj8H5kaOK2HKCFLmrmpRWOFzozUhUMyZPzoFGizvh9AB7BjVkR9peVjaHtj3uxcO2cspVmXSLoDJuK9kLRDrkznKRCt2rPXnM4hDBrcTGnxU-GtEMLwfO-lqbqd5HcbzpGq1fmbgBjrYi1M9pn5nKHC23XmR44-iTcM-eTZMxep10mBlekrgsNToKJsw2uh7xnN8Ud5WzBd8d1F0WrpamS9ukB6ZaAm",
   "https://lh3.googleusercontent.com/aida-public/AB6AXuBO63obDnF7ABtksR8TEjzkMg4WuaFSxm74gc2reNG3HVXfn_O2Aari920MQT67cAaihswPKRL_cFR7mPWBq932EYpfdZ00uvpcNGXJfjNA4x5v6Boqv_G3wt_f7O3NrwJL8ZsfAAyR04OKuFc4WautIMbG5hy8fQYW9SKX0OpTk_-3T4ScfVmaiXuMuw9GiU6bEtM6vjOvUihLPnRGDa5uvg0ZluA4FpfVZ-YaA-BUImFYFayh-uJp",
   "https://lh3.googleusercontent.com/aida-public/AB6AXuCgUxzrMmDAayPLb2292dgn0W1TBYzTxham5VF5kJEhMgSAivcwcq_04oSJCH6tr1SNDLcY_KDz16OLHHcK36oxHpRUEdBpwFOeSXMbOd0gn25NXl_ahCtilbPWowA8DDFiCaxyFccL6tIGtJ1Y6ZQzrpR89gmsGj_wDn4ScQpuW9cNGujj07Qg0Miwt1lLYvJqAgw9BCPtESwfNeT7J6cBVA27BTjDC4q0uA5sXLNLgnkVz42wRlMc",
@@ -43,21 +46,16 @@ const moodImages = [
 
 const Home = () => {
   const scrollRef = useRef(null);
-  const { newArrivals, featured, fetchNewArrivals, fetchFeatured } = useProductStore();
-
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  useEffect(() => { fetchNewArrivals(); fetchFeatured(); }, []);
+  const { products: newArrivals, loading: arrivalsLoading } = useProducts({ newArrival: true });
+  const { products: bestSellers, loading: sellersLoading } = useProducts({ bestSeller: true });
 
   const handleScroll = (dir) => {
     scrollRef.current?.scrollBy({ left: dir === "left" ? -300 : 300, behavior: "smooth" });
   };
 
-  // Fallback if Supabase not yet connected
-  const arrivals = newArrivals.length > 0 ? newArrivals : null;
-  const sellers = featured.length > 0 ? featured : null;
-
   return (
     <PageTransition>
+    <DebugOverlay />
     <div className="Home">
 
       {/* SECTION 1: HERO */}
@@ -73,7 +71,7 @@ const Home = () => {
               DL Accessories — New Season
             </span>
             <h1 className="font-display-lg text-[44px] md:text-display-lg text-white mb-6 leading-tight drop-shadow-lg">
-              Details Make You{" "}<span className="italic font-light">Shine</span>
+              Details Make You <span className="italic font-light">Shine</span>
             </h1>
             <p className="font-body-lg text-body-lg text-white/90 mb-10 max-w-lg drop-shadow-md leading-relaxed">
               Curated accessories for the modern muse — where every detail speaks of timeless elegance and quiet confidence.
@@ -121,77 +119,77 @@ const Home = () => {
         </div>
       </section>
 
-      {/* SECTION 3: NEW ARRIVALS (Supabase-connected) */}
-      {arrivals && (
-        <section className="bg-surface-container-low py-section-gap overflow-hidden">
-          <div className="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop">
-            <div className="flex justify-between items-center mb-12">
-              <div>
-                <span className="font-label-sm text-primary uppercase tracking-[0.25em] mb-2 block">Just Dropped</span>
-                <h2 className="font-display-lg text-display-lg-mobile md:text-headline-md text-on-surface">New Arrivals</h2>
-              </div>
-              <div className="flex items-center gap-4">
-                <Link to="/collections" className="hidden md:flex items-center gap-1.5 font-label-sm text-secondary uppercase tracking-widest hover:text-primary transition-colors border-b border-outline-variant/30 pb-0.5 hover:border-primary/30">Shop All</Link>
-                <div className="hidden md:flex gap-2">
-                  <button onClick={() => handleScroll("left")} className="w-10 h-10 rounded-full border border-outline/20 flex items-center justify-center text-on-surface-variant hover:bg-white hover:border-primary/30 hover:text-primary transition-all duration-300" aria-label="Scroll left"><span className="material-symbols-outlined text-lg">chevron_left</span></button>
-                  <button onClick={() => handleScroll("right")} className="w-10 h-10 rounded-full border border-outline/20 flex items-center justify-center text-on-surface-variant hover:bg-white hover:border-primary/30 hover:text-primary transition-all duration-300" aria-label="Scroll right"><span className="material-symbols-outlined text-lg">chevron_right</span></button>
-                </div>
+      {/* SECTION 3: NEW ARRIVALS */}
+      <section className="bg-surface-container-low py-section-gap overflow-hidden">
+        <div className="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop">
+          <div className="flex justify-between items-center mb-12">
+            <div>
+              <span className="font-label-sm text-primary uppercase tracking-[0.25em] mb-2 block">Just Dropped</span>
+              <h2 className="font-display-lg text-display-lg-mobile md:text-headline-md text-on-surface">New Arrivals</h2>
+            </div>
+            <div className="flex items-center gap-4">
+              <Link to="/collections" className="hidden md:flex items-center gap-1.5 font-label-sm text-secondary uppercase tracking-widest hover:text-primary transition-colors border-b border-outline-variant/30 pb-0.5 hover:border-primary/30">Shop All</Link>
+              <div className="hidden md:flex gap-2">
+                <button onClick={() => handleScroll("left")} className="w-10 h-10 rounded-full border border-outline/20 flex items-center justify-center text-on-surface-variant hover:bg-white hover:border-primary/30 hover:text-primary transition-all duration-300" aria-label="Scroll left"><span className="material-symbols-outlined text-lg">chevron_left</span></button>
+                <button onClick={() => handleScroll("right")} className="w-10 h-10 rounded-full border border-outline/20 flex items-center justify-center text-on-surface-variant hover:bg-white hover:border-primary/30 hover:text-primary transition-all duration-300" aria-label="Scroll right"><span className="material-symbols-outlined text-lg">chevron_right</span></button>
               </div>
             </div>
-            <div ref={scrollRef} className="flex gap-4 overflow-x-auto hide-scrollbar scroll-smooth pb-2 -mx-4 px-4">
-              {arrivals.map((item) => (
+          </div>
+          <div ref={scrollRef} className="flex gap-4 overflow-x-auto hide-scrollbar scroll-smooth pb-2 -mx-4 px-4">
+            {arrivalsLoading ? (
+              Array.from({ length: 4 }).map((_, i) => (
+                <div key={i} className="min-w-[200px] md:min-w-[220px] flex-shrink-0"><CardSkeleton /></div>
+              ))
+            ) : (
+              newArrivals.map((item) => (
                 <div key={item.id} className="min-w-[200px] md:min-w-[220px] flex-shrink-0">
-                  <div className="bg-white p-4 rounded-xl ambient-glow group">
-                    <div className="aspect-[4/5] rounded-lg overflow-hidden mb-3 relative">
-                      <Link to={`/product/${item.id}`}><img src={item.images?.[0] || item.image} alt={item.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" /></Link>
-                      <span className="absolute top-2 left-2 bg-primary-container/20 text-on-background text-[10px] font-label-sm uppercase tracking-widest px-2 py-0.5 rounded-full">New</span>
-                    </div>
-                    <Link to={`/product/${item.id}`} className="block">
-                      <h3 className="font-headline-sm text-sm text-on-surface mb-0.5 leading-tight truncate">{item.name}</h3>
-                      <p className="font-label-sm text-[10px] text-secondary uppercase tracking-widest mb-1.5">{item.category}</p>
-                      <p className="font-label-md text-primary font-semibold">${(item.sale_price || item.price)?.toFixed(2) || "—"}</p>
-                    </Link>
-                  </div>
+                  <HomeProductCard product={item} />
                 </div>
-              ))}
-            </div>
-            <div className="flex justify-center mt-8 md:hidden">
-              <Link to="/collections" className="inline-flex items-center gap-1.5 font-label-sm text-primary uppercase tracking-widest border-b border-primary/30 pb-0.5 hover:border-primary transition-all">Shop All New Arrivals<span className="material-symbols-outlined text-base">arrow_forward</span></Link>
-            </div>
+              ))
+            )}
           </div>
-        </section>
-      )}
+          <div className="flex justify-center mt-8 md:hidden">
+            <Link to="/collections" className="inline-flex items-center gap-1.5 font-label-sm text-primary uppercase tracking-widest border-b border-primary/30 pb-0.5 hover:border-primary transition-all">Shop All New Arrivals<span className="material-symbols-outlined text-base">arrow_forward</span></Link>
+          </div>
+        </div>
+      </section>
 
-      {/* SECTION 4: BEST SELLERS (Supabase-connected) */}
-      {sellers && (
-        <section className="py-section-gap">
-          <div className="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop">
-            <div className="text-center mb-16">
-              <span className="font-label-sm text-primary uppercase tracking-[0.25em] mb-3 block">Most Loved</span>
-              <h2 className="font-display-lg text-display-lg text-on-surface">Your favorites</h2>
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8">
-              {sellers.map((item, idx) => {
-                const isOffset = idx === 1;
-                const img = item.images?.[0] || item.image;
-                return (
-                  <Link key={item.id} to={`/product/${item.id}`}
-                    className={`group cursor-pointer block ${isOffset ? "md:mt-10" : ""}`}>
-                    <div className="relative aspect-[3/4] bg-surface-container-low rounded-2xl overflow-hidden mb-5 shadow-sm">
-                      <img src={img} alt={item.name} className="absolute inset-0 w-full h-full object-cover" />
-                      <span className="absolute top-4 left-4 bg-primary-container/20 text-on-background text-[10px] font-label-sm uppercase tracking-widest px-3 py-1.5 rounded-full">Best Seller</span>
-                    </div>
-                    <div className="text-center">
-                      <h3 className="font-headline-sm text-lg text-on-surface group-hover:text-primary transition-colors mb-1">{item.name}</h3>
-                      <p className="font-label-md text-on-surface-variant">${(item.sale_price || item.price)?.toFixed(2) || "—"}</p>
-                    </div>
-                  </Link>
-                );
-              })}
-            </div>
+      {/* SECTION 4: BEST SELLERS */}
+      <section className="py-section-gap">
+        <div className="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop">
+          <div className="text-center mb-16">
+            <span className="font-label-sm text-primary uppercase tracking-[0.25em] mb-3 block">Most Loved</span>
+            <h2 className="font-display-lg text-display-lg text-on-surface">Your favorites</h2>
           </div>
-        </section>
-      )}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8">
+            {sellersLoading ? (
+              Array.from({ length: 3 }).map((_, i) => (
+                <div key={i}><CardSkeleton /></div>
+              ))
+            ) : (
+              bestSellers.map((item, idx) => (
+                <Link key={item.id} to={`/product/${item.id}`}
+                  className={`group cursor-pointer block ${idx === 1 ? "md:mt-10" : ""}`}>
+                  <div className="relative aspect-[3/4] bg-surface-container-low rounded-2xl overflow-hidden mb-5 shadow-sm">
+                    {item.image ? (
+                      <img src={item.image} alt={item.name} className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center bg-surface-container-low text-secondary">
+                        <span className="material-symbols-outlined text-3xl">image</span>
+                      </div>
+                    )}
+                    <span className="absolute top-4 left-4 bg-primary-container/20 text-on-background text-[10px] font-label-sm uppercase tracking-widest px-3 py-1.5 rounded-full">Best Seller</span>
+                  </div>
+                  <div className="text-center">
+                    <h3 className="font-headline-sm text-lg text-on-surface group-hover:text-primary transition-colors mb-1">{item.name}</h3>
+                    <p className="font-label-md text-on-surface-variant">${(item.sale_price || item.price)?.toFixed(2)}</p>
+                  </div>
+                </Link>
+              ))
+            )}
+          </div>
+        </div>
+      </section>
 
       {/* SECTION 5: MOOD BOARD */}
       <section className="py-section-gap bg-surface-container-low">

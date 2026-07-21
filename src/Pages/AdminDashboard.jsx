@@ -15,9 +15,7 @@ function AdminDashboard() {
 
   const tabs = [
     { key: "overview", label: "Overview", icon: "dashboard" },
-    { key: "products", label: "Products", icon: "inventory_2" },
     { key: "orders", label: "Orders", icon: "receipt_long" },
-    { key: "users", label: "Users", icon: "people" },
   ];
 
   return (
@@ -84,39 +82,6 @@ function AdminDashboard() {
           </div>
         )}
 
-        {tab === "products" && (
-          <div>
-            <div className="flex justify-between items-center mb-8">
-              <h1 className="font-display-lg text-display-lg-mobile md:text-display-lg">Products</h1>
-              <button className="px-6 py-3 bg-primary text-on-primary rounded-full font-label-sm uppercase tracking-widest hover:opacity-90">
-                + Add Product
-              </button>
-            </div>
-            <div className="bg-surface rounded-2xl soft-glow overflow-hidden">
-              <div className="overflow-x-auto">
-                <table className="w-full">
-                  <thead>
-                    <tr className="border-b border-outline-variant/20 text-left">
-                      <th className="p-4 font-label-sm text-secondary uppercase tracking-widest">Product</th>
-                      <th className="p-4 font-label-sm text-secondary uppercase tracking-widest">Category</th>
-                      <th className="p-4 font-label-sm text-secondary uppercase tracking-widest">Price</th>
-                      <th className="p-4 font-label-sm text-secondary uppercase tracking-widest">Stock</th>
-                      <th className="p-4 font-label-sm text-secondary uppercase tracking-widest">Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr>
-                      <td colSpan={5} className="p-8 text-center text-secondary">
-                        Products table will populate from Supabase. Visit the Supabase dashboard to add your first product.
-                      </td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          </div>
-        )}
-
         {tab === "orders" && (
           <div>
             <h1 className="font-display-lg text-display-lg-mobile md:text-display-lg mb-8">Orders</h1>
@@ -147,17 +112,6 @@ function AdminDashboard() {
                 ))}
               </div>
             )}
-          </div>
-        )}
-
-        {tab === "users" && (
-          <div>
-            <h1 className="font-display-lg text-display-lg-mobile md:text-display-lg mb-8">Users</h1>
-            <div className="bg-surface rounded-2xl p-12 text-center soft-glow">
-              <span className="material-symbols-outlined text-4xl text-outline mb-4">people</span>
-              <p className="font-headline-sm text-on-surface-variant">User management available in the Supabase dashboard.</p>
-              <p className="font-body-md text-secondary mt-2">Visit Authentication → Users in your Supabase project.</p>
-            </div>
           </div>
         )}
       </main>
