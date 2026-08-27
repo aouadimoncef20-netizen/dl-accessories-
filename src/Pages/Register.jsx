@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import useAuthStore from "../stores/authStore";
+import SEO from "../Component/SEO";
 
 function Register() {
   const navigate = useNavigate();
@@ -27,6 +28,7 @@ function Register() {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-background px-margin-mobile">
+      <SEO title="Create Account" description="Join DL Accessories for exclusive access." />
       <div className="w-full max-w-md">
         <Link to="/" className="block text-center mb-12">
           <span className="font-display-lg text-[28px] text-primary">DL Accessories</span>

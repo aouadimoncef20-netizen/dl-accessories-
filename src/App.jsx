@@ -1,8 +1,12 @@
 import { useEffect } from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
+import { HelmetProvider } from "react-helmet-async";
 import MainLayout from "./Layouts/MainLayout";
 import AuthGuard from "./Component/AuthGuard";
+import ErrorBoundary from "./Component/ErrorBoundary";
+import NotFound from "./Pages/NotFound";
 import useAuthStore from "./stores/authStore";
+import useThemeStore from "./stores/themeStore";
 
 // Public pages
 import Home from "./Pages/Home";
@@ -17,7 +21,6 @@ import Favorites from "./Pages/Favorites";
 import SearchResults from "./Pages/SearchResults";
 import Privacy from "./Pages/Privacy";
 import Terms from "./Pages/Terms";
-import ShippingPage from "./Pages/Shipping";
 
 // Auth pages (no layout)
 import Login from "./Pages/Login";
@@ -33,10 +36,12 @@ import AdminDashboard from "./Pages/AdminDashboard";
 
 function App() {
   const { initialize, loading } = useAuthStore();
+  const initTheme = useThemeStore((s) => s.init);
 
   useEffect(() => {
     initialize();
-  }, [initialize]);
+    initTheme();
+  }, [initialize, initTheme]);
 
   if (loading) {
     return (
@@ -48,41 +53,47 @@ function App() {
   }
 
   return (
-    <Routes>
-      {/* Auth pages (standalone, no navbar/footer) */}
-      <Route path="/login" element={<Login />} />
-      <Route path="/register" element={<Register />} />
-      <Route path="/forgot-password" element={<ForgotPassword />} />
+    <ErrorBoundary>
+      <HelmetProvider>
+        <Routes>
+          {/* Auth pages (standalone, no navbar/footer) */}
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
 
-      {/* Main layout pages */}
-      <Route element={<MainLayout />}>
-        <Route path="/" element={<Home />} />
-        <Route path="/collections" element={<Collections />} />
-        <Route path="/product/:id" element={<ProductDetails />} />
-        <Route path="/cart" element={<Cart />} />
-        <Route path="/checkout" element={<Checkout />} />
-        <Route path="/order-confirmed" element={<OrderConfirmed />} />
-        <Route path="/gallery" element={<Gallery />} />
-        <Route path="/contact" element={<Contact />} />
-        <Route path="/favorites" element={<Favorites />} />
-        <Route path="/search" element={<SearchResults />} />
-        <Route path="/privacy" element={<Privacy />} />
-        <Route path="/terms" element={<Terms />} />
-        <Route path="/shipping" element={<ShippingPage />} />
+          {/* Main layout pages */}
+          <Route element={<MainLayout />}>
+            <Route path="/" element={<Home />} />
+            <Route path="/collections" element={<Collections />} />
+            <Route path="/product/:id" element={<ProductDetails />} />
+            <Route path="/cart" element={<Cart />} />
+            <Route path="/checkout" element={<Checkout />} />
+            <Route path="/order-confirmed" element={<OrderConfirmed />} />
+            <Route path="/gallery" element={<Gallery />} />
+            <Route path="/contact" element={<Contact />} />
+            <Route path="/favorites" element={<Favorites />} />
+            <Route path="/search" element={<SearchResults />} />
+            <Route path="/privacy" element={<Privacy />} />
+            <Route path="/terms" element={<Terms />} />
 
-        {/* Protected routes */}
-        <Route path="/account" element={<AuthGuard><Account /></AuthGuard>} />
-        <Route path="/my-orders" element={<AuthGuard><MyOrders /></AuthGuard>} />
+            {/* Protected routes */}
+            <Route path="/account" element={<AuthGuard><Account /></AuthGuard>} />
+            <Route path="/my-orders" element={<AuthGuard><MyOrders /></AuthGuard>} />
 
-        {/* Category redirects */}
-        <Route path="/watches" element={<Navigate to="/collections?cat=Watches" replace />} />
-        <Route path="/jewelry" element={<Navigate to="/collections?cat=Jewelry" replace />} />
-        <Route path="/lashes" element={<Navigate to="/collections?cat=Lashes" replace />} />
-      </Route>
+            {/* Category redirects */}
+            <Route path="/watches" element={<Navigate to="/collections?cat=Watches" replace />} />
+            <Route path="/jewelry" element={<Navigate to="/collections?cat=Jewelry" replace />} />
+            <Route path="/lashes" element={<Navigate to="/collections?cat=Lashes" replace />} />
 
-      {/* Admin (separate layout) */}
-      <Route path="/admin/*" element={<AuthGuard requireAdmin><AdminDashboard /></AuthGuard>} />
-    </Routes>
+            {/* 404 catch-all */}
+            <Route path="*" element={<NotFound />} />
+          </Route>
+
+          {/* Admin (separate layout) */}
+          <Route path="/admin/*" element={<AuthGuard requireAdmin><AdminDashboard /></AuthGuard>} />
+        </Routes>
+      </HelmetProvider>
+    </ErrorBoundary>
   );
 }
 

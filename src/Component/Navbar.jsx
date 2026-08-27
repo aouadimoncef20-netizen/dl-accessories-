@@ -1,84 +1,131 @@
 import { useState } from "react";
-import { Link, NavLink, useNavigate } from "react-router-dom";
+import { Link, NavLink } from "react-router-dom";
+import { motion, useMotionValueEvent, useScroll } from "framer-motion";
 import useCartStore from "../stores/cartStore";
 import useWishlistStore from "../stores/wishlistStore";
+import useThemeStore from "../stores/themeStore";
 import MobileMenu from "./MobileMenu";
-
-const navLinks = [
-  { label: "Collections", to: "/collections" },
-  { label: "Watches", to: "/watches" },
-  { label: "Jewelry", to: "/jewelry" },
-  { label: "Lashes", to: "/lashes" },
-];
 
 function Navbar() {
   const itemCount = useCartStore((s) => s.itemCount());
   const wishlistItems = useWishlistStore((s) => s.items);
-  const navigate = useNavigate();
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+  const { scrollY } = useScroll();
+  const { mode, toggle } = useThemeStore();
+  const isDark = mode === "dark";
+
+  useMotionValueEvent(scrollY, "change", (latest) => {
+    setScrolled(latest > 20);
+  });
 
   return (
     <>
-      <nav className="fixed top-0 w-full z-50 bg-surface/80 backdrop-blur-xl shadow-sm shadow-primary/5">
+      <motion.nav
+        className="fixed top-0 w-full z-50 transition-all duration-500"
+        animate={{
+          backgroundColor: scrolled
+            ? isDark
+              ? "hsla(20, 10%, 10%, 0.95)"
+              : "hsla(20, 40%, 98%, 0.95)"
+            : "transparent",
+        }}
+        style={{
+          boxShadow: scrolled
+            ? "0 4px 30px -10px hsla(var(--primary), 0.12)"
+            : "none",
+        }}
+      >
         <div className="flex items-center justify-between py-4 px-margin-mobile md:px-margin-desktop max-w-container-max mx-auto">
-          <Link to="/" className="font-display-lg text-primary shrink-0">
-            DL Accessories
+          <Link to="/" className="shrink-0 flex items-center">
+            <img
+              src="/logo%20dl%20accessories.jpg"
+              alt="DL Accessories"
+              className={`h-8 md:h-10 w-auto object-contain transition-all duration-500 ${
+                scrolled ? "" : "drop-shadow-[0_1px_6px_rgba(0,0,0,0.35)]"
+              }`}
+            />
           </Link>
 
           <ul className="hidden md:flex items-center gap-8">
-            {navLinks.map(({ label, to }) => (
-              <li key={to}>
-                <NavLink
-                  to={to}
-                  end
-                  className={({ isActive }) =>
-                    [
-                      "relative uppercase tracking-widest font-label-md transition-colors duration-300",
-                      isActive
-                        ? "text-primary after:absolute after:bottom-[-2px] after:left-0 after:w-full after:h-px after:bg-primary/30"
-                        : "text-on-surface-variant hover:text-primary",
-                    ].join(" ")
-                  }
-                >
-                  {label}
-                </NavLink>
-              </li>
-            ))}
+            <li>
+              <NavLink
+                to="/collections"
+                end
+                className={({ isActive }) =>
+                  [
+                    "relative uppercase tracking-widest font-label-md transition-colors duration-300",
+                    isActive
+                      ? "text-primary after:absolute after:bottom-[-2px] after:left-0 after:w-full after:h-px after:bg-primary/30"
+                      : scrolled
+                        ? "text-on-surface-variant hover:text-primary"
+                        : "text-white/80 hover:text-white",
+                  ].join(" ")
+                }
+              >
+                Collections
+              </NavLink>
+            </li>
           </ul>
 
           <div className="flex items-center gap-4 md:gap-5">
+            {/* Dark mode toggle */}
             <button
               type="button"
-              aria-label="Search"
-              onClick={() => navigate("/search")}
-              className="text-on-surface-variant hover:text-primary transition-colors duration-300"
+              aria-label={isDark ? "Switch to light mode" : "Switch to dark mode"}
+              onClick={toggle}
+              className={`transition-colors duration-300 ${
+                scrolled
+                  ? "text-on-surface-variant hover:text-primary"
+                  : "text-white/80 hover:text-white"
+              }`}
             >
-              <span className="material-symbols-outlined text-2xl">search</span>
+              <span className="material-symbols-outlined text-2xl">
+                {isDark ? "light_mode" : "dark_mode"}
+              </span>
             </button>
 
             <Link
               to="/favorites"
               aria-label="Favorites"
-              className="relative text-on-surface-variant hover:text-primary transition-colors duration-300"
+              className={`relative transition-colors duration-300 ${
+                scrolled
+                  ? "text-on-surface-variant hover:text-primary"
+                  : "text-white/80 hover:text-white"
+              }`}
             >
               <span className="material-symbols-outlined text-2xl">favorite</span>
               {wishlistItems.length > 0 && (
-                <span className="absolute -top-1 -right-1 flex items-center justify-center w-[18px] h-[18px] rounded-full bg-primary text-[10px] font-semibold text-white leading-none">
+                <motion.span
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1 }}
+                  className="absolute -top-1 -right-1 flex items-center justify-center w-[18px] h-[18px] rounded-full bg-primary text-[10px] font-semibold text-white leading-none"
+                >
                   {wishlistItems.length}
-                </span>
+                </motion.span>
               )}
             </Link>
 
             <Link
               to="/cart"
               aria-label="Shopping bag"
-              className="relative text-on-surface-variant hover:text-primary transition-colors duration-300"
+              className={`relative transition-colors duration-300 ${
+                scrolled
+                  ? "text-on-surface-variant hover:text-primary"
+                  : "text-white/80 hover:text-white"
+              }`}
             >
               <span className="material-symbols-outlined text-2xl">shopping_bag</span>
               {itemCount > 0 && (
-                <span className="absolute -top-1 -right-1 flex items-center justify-center w-[18px] h-[18px] rounded-full bg-primary text-[10px] font-semibold text-white leading-none">
+                <motion.span
+                  key={itemCount}
+                  initial={{ scale: 0.5 }}
+                  animate={{ scale: 1 }}
+                  transition={{ type: "spring", stiffness: 500, damping: 15 }}
+                  className="absolute -top-1 -right-1 flex items-center justify-center w-[18px] h-[18px] rounded-full bg-primary text-[10px] font-semibold text-white leading-none"
+                >
                   {itemCount}
-                </span>
+                </motion.span>
               )}
             </Link>
 
@@ -87,7 +134,11 @@ function Navbar() {
               aria-label="Toggle menu"
               aria-expanded={mobileOpen}
               onClick={() => setMobileOpen((prev) => !prev)}
-              className="md:hidden text-on-surface-variant hover:text-primary transition-colors duration-300"
+              className={`md:hidden transition-colors duration-300 ${
+                scrolled
+                  ? "text-on-surface-variant hover:text-primary"
+                  : "text-white/80 hover:text-white"
+              }`}
             >
               <span className="material-symbols-outlined text-2xl">
                 {mobileOpen ? "close" : "menu"}
@@ -95,7 +146,7 @@ function Navbar() {
             </button>
           </div>
         </div>
-      </nav>
+      </motion.nav>
 
       <MobileMenu isOpen={mobileOpen} onClose={() => setMobileOpen(false)} />
     </>

@@ -4,6 +4,7 @@ import useCartStore from "../stores/cartStore";
 import PageTransition from "../Component/PageTransition";
 import CartItem from "../Component/CartItem";
 import OrderSummary from "../Component/OrderSummary";
+import SEO from "../Component/SEO";
 
 function Cart() {
   const items = useCartStore((s) => s.items);
@@ -15,6 +16,7 @@ function Cart() {
   return (
     <PageTransition>
     <div className="pt-32 pb-section-gap px-margin-mobile md:px-margin-desktop max-w-container-max mx-auto">
+      <SEO title="Shopping Bag" description="Review your selected items and proceed to checkout." />
       <div className="mb-12">
         <h1 className="font-display-lg text-display-lg-mobile md:text-display-lg mb-2">Shopping Bag</h1>
         <p className="text-on-surface-variant font-body-md">

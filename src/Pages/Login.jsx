@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import useAuthStore from "../stores/authStore";
+import SEO from "../Component/SEO";
 
 function Login() {
   const navigate = useNavigate();
@@ -29,6 +30,7 @@ function Login() {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-background px-margin-mobile">
+      <SEO title="Sign In" description="Sign in to your DL Accessories account." />
       <div className="w-full max-w-md">
         <Link to="/" className="block text-center mb-12">
           <span className="font-display-lg text-[28px] text-primary">DL Accessories</span>

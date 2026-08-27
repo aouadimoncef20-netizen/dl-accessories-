@@ -1,8 +1,12 @@
 import { useState, useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
+import { motion } from "framer-motion";
 import ProductCard from "../Component/ProductCard";
 import PageTransition from "../Component/PageTransition";
+import SEO from "../Component/SEO";
+import ScrollReveal from "../Component/ScrollReveal";
 import useProductStore from "../stores/productStore";
+import { images } from "../Data/images";
 
 const categoryFilters = [
   "All Collections",
@@ -16,37 +20,29 @@ const categoryFilters = [
   "Bestsellers",
 ];
 
-// Map category names to their category_id for filtering
-const CATEGORY_MAP = {
-  "Bracelets": 1,
-  "Earrings": 2,
-  "Lashes": 3,
-  "Rings": 4,
-  "Necklaces": 5,
-  "Watches": 6,
-};
-
 const ITEMS_PER_PAGE = 8;
 
 export default function Collections() {
   const [searchParams, setSearchParams] = useSearchParams();
   const activeCategory = searchParams.get("cat") || "All Collections";
   const [currentPage, setCurrentPage] = useState(1);
-  const [priceFilter, setPriceFilter] = useState("");
-  const [sortBy, setSortBy] = useState("featured");
+  const [totalCount, setTotalCount] = useState(0);
   const { products, fetchProducts, loading } = useProductStore();
 
   useEffect(() => {
-    const categoryId = CATEGORY_MAP[activeCategory] || undefined;
+    const categoryName = activeCategory === "All Collections" ? undefined : activeCategory;
 
     fetchProducts({
-      category: categoryId,
+      category: categoryName,
       isBestseller: activeCategory === "Bestsellers" ? true : undefined,
-      sortBy: sortBy !== "featured" ? sortBy : undefined,
       page: currentPage,
       perPage: ITEMS_PER_PAGE,
+    }).then((result) => {
+      if (result && typeof result.count === "number") {
+        setTotalCount(result.count);
+      }
     });
-  }, [activeCategory, priceFilter, sortBy, currentPage, fetchProducts]);
+  }, [activeCategory, currentPage, fetchProducts]);
 
   const setCategory = (cat) => {
     if (cat === "All Collections") {
@@ -58,22 +54,53 @@ export default function Collections() {
   };
 
   const paginated = products;
+  const totalPages = Math.max(1, Math.ceil(totalCount / ITEMS_PER_PAGE));
 
   return (
     <PageTransition>
       <main>
-        {/* HEADER */}
-        <section className="pt-[140px] pb-12 px-margin-mobile md:px-margin-desktop bg-surface-container-low">
-          <div className="max-w-container-max mx-auto text-center">
-            <p className="font-label-md text-primary uppercase tracking-[0.2em] mb-4">
+        <SEO
+          title={activeCategory === "All Collections" ? "Collections" : activeCategory}
+          description={`Browse our curated collection of ${activeCategory === "All Collections" ? "accessories" : activeCategory.toLowerCase()} — watches, jewelry, nails, and lashes.`}
+        />
+
+        {/* HERO SECTION WITH IMAGE */}
+        <section className="relative pt-[120px] pb-16 px-margin-mobile md:px-margin-desktop overflow-hidden">
+          <div className="absolute inset-0">
+            <img
+              src="/images/collection%20hero%20pic.jfif"
+              alt="Collections"
+              className="w-full h-full object-cover"
+            />
+            <div className="absolute inset-0 bg-black/40" />
+          </div>
+          <div className="relative z-10 max-w-container-max mx-auto text-center">
+            <motion.p
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.1 }}
+              className="font-label-md text-white/80 uppercase tracking-[0.2em] mb-4"
+            >
               Curated Pieces
-            </p>
-            <h1 className="font-display-lg text-display-lg mb-6">Our Collections</h1>
-            <p className="font-body-lg text-body-lg text-secondary max-w-2xl mx-auto">
+            </motion.p>
+            <motion.h1
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.7, delay: 0.3 }}
+              className="font-display-lg text-display-lg mb-6 text-white"
+            >
+              Our Collections
+            </motion.h1>
+            <motion.p
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.5 }}
+              className="font-body-lg text-body-lg text-white/80 max-w-2xl mx-auto"
+            >
               Discover our signature edits — from timeless jewellery to precision-cut
               press-ons, each piece is selected for its craftsmanship, beauty, and the
               quiet confidence it brings to every moment.
-            </p>
+            </motion.p>
           </div>
         </section>
 
@@ -97,37 +124,14 @@ export default function Collections() {
           </div>
         </nav>
 
-        {/* FILTER & SORT BAR */}
-        <div className="sticky top-20 z-40 bg-surface/95 backdrop-blur-md py-6 border-b border-outline-variant mb-12">
-          <div className="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop flex flex-wrap items-center justify-between gap-4">
-            <div className="flex flex-wrap items-center gap-4">
-              <select
-                value={priceFilter}
-                onChange={(e) => setPriceFilter(e.target.value)}
-                className="rounded-full bg-white border border-outline-variant px-6 py-2.5 text-sm text-on-surface appearance-none cursor-pointer pr-10"
-              >
-                <option value="">All Prices</option>
-                <option value="under50">Under $50</option>
-                <option value="50to100">$50 – $100</option>
-                <option value="100to200">$100 – $200</option>
-                <option value="over200">$200+</option>
-              </select>
-            </div>
-            <div className="flex items-center gap-4">
-              <span className="text-sm text-on-surface-variant">
-                Showing {products.length} Product{products.length !== 1 ? "s" : ""}
-              </span>
-              <select
-                value={sortBy}
-                onChange={(e) => setSortBy(e.target.value)}
-                className="rounded-full bg-white border border-outline-variant px-6 py-2.5 text-sm text-on-surface appearance-none cursor-pointer pr-10"
-              >
-                <option value="featured">Sort by: Featured</option>
-                <option value="price-asc">Price: Low to High</option>
-                <option value="price-desc">Price: High to Low</option>
-              </select>
-            </div>
-          </div>
+        {/* PRODUCT COUNT */}
+        <div className="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop py-6">
+          <span className="text-sm text-on-surface-variant">
+            {totalCount > 0
+              ? `${(currentPage - 1) * ITEMS_PER_PAGE + 1}–${Math.min(currentPage * ITEMS_PER_PAGE, totalCount)} of ${totalCount} Product${totalCount !== 1 ? "s" : ""}`
+              : `${products.length} Product${products.length !== 1 ? "s" : ""}`
+            }
+          </span>
         </div>
 
         {/* PRODUCT GRID */}
@@ -145,19 +149,58 @@ export default function Collections() {
             </div>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-gutter gap-y-12">
-              {paginated.map((product) => (
-                <ProductCard
-                  key={product.id}
-                  id={product.id}
-                  name={product.name}
-                  category={product.category}
-                  price={product.price}
-                  image={product.image}
-                />
+              {paginated.map((product, idx) => (
+                <ScrollReveal key={product.id} delay={idx * 0.08} direction="up" distance={30}>
+                  <ProductCard
+                    id={product.id}
+                    name={product.name}
+                    category={product.category}
+                    price={product.price}
+                    image={product.image}
+                  />
+                </ScrollReveal>
               ))}
             </div>
           )}
         </section>
+
+        {/* PAGINATION */}
+        {totalPages > 1 && (
+          <div className="flex items-center justify-center gap-2 mt-16 mb-8">
+            <button
+              type="button"
+              disabled={currentPage <= 1}
+              onClick={() => { setCurrentPage((p) => p - 1); window.scrollTo({ top: 0, behavior: "smooth" }); }}
+              className="w-10 h-10 rounded-full border border-outline-variant flex items-center justify-center text-on-surface-variant hover:border-primary hover:text-primary transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+              aria-label="Previous page"
+            >
+              <span className="material-symbols-outlined text-lg">chevron_left</span>
+            </button>
+            {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+              <button
+                key={page}
+                type="button"
+                onClick={() => { setCurrentPage(page); window.scrollTo({ top: 0, behavior: "smooth" }); }}
+                className={`w-10 h-10 rounded-full font-label-md text-sm transition-colors ${
+                  page === currentPage
+                    ? "bg-primary text-on-primary"
+                    : "border border-outline-variant text-on-surface-variant hover:border-primary hover:text-primary"
+                }`}
+              >
+                {page}
+              </button>
+            ))}
+            <button
+              type="button"
+              disabled={currentPage >= totalPages}
+              onClick={() => { setCurrentPage((p) => p + 1); window.scrollTo({ top: 0, behavior: "smooth" }); }}
+              className="w-10 h-10 rounded-full border border-outline-variant flex items-center justify-center text-on-surface-variant hover:border-primary hover:text-primary transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+              aria-label="Next page"
+            >
+              <span className="material-symbols-outlined text-lg">chevron_right</span>
+            </button>
+          </div>
+        )}
       </main>
     </PageTransition>
   );

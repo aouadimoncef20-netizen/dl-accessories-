@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link, useLocation, Navigate } from "react-router-dom";
+import SEO from "../Component/SEO";
 
 const orderNumber = () =>
   "DL-" + Date.now().toString(36).toUpperCase() + "-" + Math.random().toString(36).substring(2, 6).toUpperCase();
@@ -19,6 +20,7 @@ function OrderConfirmed() {
 
   return (
     <main className="pt-32 pb-section-gap px-margin-mobile md:px-margin-desktop max-w-container-max mx-auto text-center">
+      <SEO title="Order Confirmed" description="Thank you for your order." />
       {/* Success icon */}
       <div className="w-24 h-24 rounded-full bg-primary-container/30 flex items-center justify-center mx-auto mb-8">
         <span className="material-symbols-outlined text-5xl text-primary" style={{ fontVariationSettings: '"FILL" 1' }}>

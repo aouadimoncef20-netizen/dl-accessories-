@@ -1,12 +1,14 @@
 import { Link } from "react-router-dom";
 import useWishlistStore from "../stores/wishlistStore";
 import ProductCard from "../Component/ProductCard";
+import SEO from "../Component/SEO";
 
 function Favorites() {
   const wishlist = useWishlistStore((s) => s.items);
 
   return (
     <div className="pt-32 pb-section-gap px-margin-mobile md:px-margin-desktop max-w-container-max mx-auto">
+      <SEO title="Wishlist" description="Your saved favorites — pieces you love at a glance." />
       <div className="mb-12">
         <h1 className="font-display-lg text-display-lg-mobile md:text-display-lg mb-2">Your Favorites</h1>
         <p className="text-on-surface-variant font-body-md">

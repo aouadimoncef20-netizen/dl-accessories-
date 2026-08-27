@@ -12,7 +12,7 @@ function TestimonialCard({ quote, name, image, verified = true }) {
       <p className="font-body-md text-on-surface italic mb-8">"{quote}"</p>
       <div className="flex items-center gap-4">
         <div className="w-12 h-12 rounded-full overflow-hidden bg-secondary-container">
-          <img src={image} alt={name} className="w-full h-full object-cover" />
+          <img src={image} alt={name} loading="lazy" className="w-full h-full object-cover" />
         </div>
         <div>
           <p className="font-label-md text-sm">{name}</p>

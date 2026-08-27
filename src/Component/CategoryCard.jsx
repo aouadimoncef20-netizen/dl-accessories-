@@ -18,6 +18,7 @@ export default function CategoryCard({ name, image, link }) {
           src={image}
           alt={name}
           className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+          loading="lazy"
         />
       </div>
       <p className="text-center font-label-md text-on-surface uppercase text-xs tracking-widest">

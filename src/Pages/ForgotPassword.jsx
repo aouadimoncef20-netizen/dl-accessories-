@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import useAuthStore from "../stores/authStore";
+import SEO from "../Component/SEO";
 
 function ForgotPassword() {
   const { resetPassword } = useAuthStore();
@@ -25,6 +26,7 @@ function ForgotPassword() {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-background px-margin-mobile">
+      <SEO title="Reset Password" description="Reset your DL Accessories password." />
       <div className="w-full max-w-md">
         <Link to="/" className="block text-center mb-12">
           <span className="font-display-lg text-[28px] text-primary">DL Accessories</span>

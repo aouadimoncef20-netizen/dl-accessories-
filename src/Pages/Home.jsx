@@ -1,14 +1,16 @@
 import { useRef } from "react";
 import { Link } from "react-router-dom";
+import { motion, useScroll, useTransform } from "framer-motion";
 import CategoryCard from "../Component/CategoryCard";
 import TestimonialCard from "../Component/TestimonialCard";
-import Newsletter from "../Component/Newsletter";
 import HomeProductCard from "../Component/HomeProductCard";
 import { CardSkeleton } from "../Component/LoadingSkeleton";
 import PageTransition from "../Component/PageTransition";
+import SEO from "../Component/SEO";
+import ScrollReveal from "../Component/ScrollReveal";
 import { images } from "../Data/images";
 import useProducts from "../Hooks/useProducts";
-import DebugOverlay from "../Component/DebugOverlay";
+import { formatDZD } from "../lib/currency";
 
 const categories = [
   { name: "Watches", image: images.categories.Watches },
@@ -46,43 +48,95 @@ const moodImages = [
 
 const Home = () => {
   const scrollRef = useRef(null);
+  const categoryScrollRef = useRef(null);
+  const bestSellersScrollRef = useRef(null);
+  const heroRef = useRef(null);
   const { products: newArrivals, loading: arrivalsLoading } = useProducts({ newArrival: true });
   const { products: bestSellers, loading: sellersLoading } = useProducts({ bestSeller: true });
+
+  // Hero parallax
+  const { scrollYProgress } = useScroll({
+    target: heroRef,
+    offset: ["start start", "end start"],
+  });
+  const heroY = useTransform(scrollYProgress, [0, 1], [0, 200]);
+  const heroOpacity = useTransform(scrollYProgress, [0, 0.6], [1, 0]);
+  const heroScale = useTransform(scrollYProgress, [0, 1], [1, 1.15]);
 
   const handleScroll = (dir) => {
     scrollRef.current?.scrollBy({ left: dir === "left" ? -300 : 300, behavior: "smooth" });
   };
 
+  const handleCategoryScroll = (dir) => {
+    categoryScrollRef.current?.scrollBy({ left: dir === "left" ? -200 : 200, behavior: "smooth" });
+  };
+
+  const handleBestSellersScroll = (dir) => {
+    bestSellersScrollRef.current?.scrollBy({ left: dir === "left" ? -300 : 300, behavior: "smooth" });
+  };
+
   return (
     <PageTransition>
-    <DebugOverlay />
     <div className="Home">
+      <SEO
+        title="DL Accessories"
+        description="Curated accessories for the modern muse — watches, jewelry, nails, and lashes crafted for timeless elegance."
+      />
 
-      {/* SECTION 1: HERO */}
-      <section className="relative h-screen w-full overflow-hidden">
-        <div className="absolute inset-0">
+      {/* SECTION 1: HERO — with parallax */}
+      <section ref={heroRef} className="relative h-screen w-full overflow-hidden">
+        <motion.div className="absolute inset-0" style={{ y: heroY, scale: heroScale }}>
           <img src={images.hero} alt="Hero" className="w-full h-full object-cover" />
-        </div>
-        <div className="absolute inset-0 bg-gradient-to-r from-black/30 via-black/10 to-transparent" />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-black/10" />
-        <div className="relative z-10 h-full flex items-center">
+        </motion.div>
+        <div className="absolute inset-0 bg-gradient-to-r from-black/40 via-black/15 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-black/10" />
+        <motion.div
+          className="relative z-10 h-full flex items-center"
+          style={{ opacity: heroOpacity }}
+        >
           <div className="max-w-2xl px-margin-mobile md:px-margin-desktop pt-20">
-            <span className="inline-block font-label-sm text-white/70 uppercase tracking-[0.25em] mb-6 border-l-2 border-primary-container pl-4">
+            <motion.span
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 0.2 }}
+              className="inline-block font-label-sm text-white/70 uppercase tracking-[0.25em] mb-6 border-l-2 border-primary-container pl-4"
+            >
               DL Accessories — New Season
-            </span>
-            <h1 className="font-display-lg text-[44px] md:text-display-lg text-white mb-6 leading-tight drop-shadow-lg">
+            </motion.span>
+            <motion.h1
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 0.4 }}
+              className="font-display-lg text-[44px] md:text-display-lg text-white mb-6 leading-tight drop-shadow-lg"
+            >
               Details Make You <span className="italic font-light">Shine</span>
-            </h1>
-            <p className="font-body-lg text-body-lg text-white/90 mb-10 max-w-lg drop-shadow-md leading-relaxed">
+            </motion.h1>
+            <motion.p
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 0.6 }}
+              className="font-body-lg text-body-lg text-white/90 mb-10 max-w-lg drop-shadow-md leading-relaxed"
+            >
               Curated accessories for the modern muse — where every detail speaks of timeless elegance and quiet confidence.
-            </p>
-            <Link to="/collections" className="inline-flex items-center gap-3 bg-white text-primary px-8 md:px-10 py-4 rounded-full font-label-md uppercase tracking-widest hover:bg-primary hover:text-white transition-all duration-500 shadow-xl shadow-black/10">
-              Discover Collection
-              <span className="material-symbols-outlined text-lg">arrow_forward</span>
-            </Link>
+            </motion.p>
+            <motion.div
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 0.8 }}
+            >
+              <Link to="/collections" className="inline-flex items-center gap-3 bg-white text-primary px-8 md:px-10 py-4 rounded-full font-label-md uppercase tracking-widest hover:bg-primary hover:text-white transition-all duration-500 shadow-xl shadow-black/10">
+                Discover Collection
+                <span className="material-symbols-outlined text-lg">arrow_forward</span>
+              </Link>
+            </motion.div>
           </div>
-        </div>
-        <div className="hidden lg:block absolute right-8 md:right-16 top-1/2 -translate-y-1/2 z-10 space-y-5">
+        </motion.div>
+        <motion.div
+          initial={{ opacity: 0, x: 20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.8, delay: 1 }}
+          className="hidden lg:block absolute right-8 md:right-16 top-1/2 -translate-y-1/2 z-10 space-y-5"
+        >
           <div className="bg-white/15 backdrop-blur-xl border border-white/25 rounded-2xl px-6 py-5 text-white w-52 shadow-xl">
             <p className="text-label-sm text-white/60 uppercase tracking-widest mb-1.5">New In</p>
             <p className="font-headline-sm text-headline-sm leading-tight">Celestial Rings</p>
@@ -91,29 +145,41 @@ const Home = () => {
             <p className="text-label-sm text-white/60 uppercase tracking-widest mb-1.5">Bestseller</p>
             <p className="font-headline-sm text-headline-sm leading-tight">Aura Watch Series</p>
           </div>
-        </div>
-        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-10 flex flex-col items-center gap-2 text-white/50">
+        </motion.div>
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 1, delay: 1.2 }}
+          className="absolute bottom-8 left-1/2 -translate-x-1/2 z-10 flex flex-col items-center gap-2 text-white/50"
+        >
           <span className="font-label-sm text-xs uppercase tracking-widest">Scroll</span>
           <span className="material-symbols-outlined text-lg animate-bounce">expand_more</span>
-        </div>
+        </motion.div>
       </section>
 
       {/* SECTION 2: CURATED SELECTIONS */}
-      <section className="bg-background py-section-gap">
+      <section className="bg-background py-section-gap section-divider">
         <div className="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop">
-          <div className="flex flex-col md:flex-row justify-between items-end mb-14 gap-4">
-            <div>
-              <span className="font-label-sm text-primary uppercase tracking-[0.25em] mb-3 block">Browse by Category</span>
-              <h2 className="font-display-lg text-display-lg-mobile md:text-headline-md text-on-surface">Curated Selections</h2>
+          <ScrollReveal>
+            <div className="flex justify-between items-center mb-12">
+              <div>
+                <span className="font-label-sm text-primary uppercase tracking-[0.25em] mb-2 block">Browse by Category</span>
+                <h2 className="font-display-lg text-display-lg-mobile md:text-headline-md text-on-surface">Curated Selections</h2>
+              </div>
+              <div className="flex items-center gap-4">
+                <Link to="/collections" className="hidden md:flex items-center gap-1.5 font-label-sm text-secondary uppercase tracking-widest hover:text-primary transition-colors border-b border-outline-variant/30 pb-0.5 hover:border-primary/30">View All</Link>
+                <div className="hidden md:flex gap-2">
+                  <button onClick={() => handleCategoryScroll("left")} className="w-10 h-10 rounded-full border border-outline/20 flex items-center justify-center text-on-surface-variant hover:bg-white hover:border-primary/30 hover:text-primary transition-all duration-300" aria-label="Scroll left"><span className="material-symbols-outlined text-lg">chevron_left</span></button>
+                  <button onClick={() => handleCategoryScroll("right")} className="w-10 h-10 rounded-full border border-outline/20 flex items-center justify-center text-on-surface-variant hover:bg-white hover:border-primary/30 hover:text-primary transition-all duration-300" aria-label="Scroll right"><span className="material-symbols-outlined text-lg">chevron_right</span></button>
+                </div>
+              </div>
             </div>
-            <Link to="/collections" className="hidden md:flex items-center gap-1.5 font-label-sm text-secondary uppercase tracking-widest hover:text-primary transition-colors border-b border-outline-variant/30 pb-0.5 hover:border-primary/30">
-              View All Categories
-              <span className="material-symbols-outlined text-base">arrow_forward</span>
-            </Link>
-          </div>
-          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-5">
-            {categories.map((cat) => (
-              <CategoryCard key={cat.name} name={cat.name} image={cat.image} />
+          </ScrollReveal>
+          <div ref={categoryScrollRef} className="flex gap-6 overflow-x-auto hide-scrollbar scroll-smooth pb-2 -mx-4 px-4">
+            {categories.map((cat, idx) => (
+              <ScrollReveal key={cat.name} delay={idx * 0.08} direction="up" distance={30} className="min-w-[90px] max-w-[120px] flex-shrink-0">
+                <CategoryCard name={cat.name} image={cat.image} />
+              </ScrollReveal>
             ))}
           </div>
         </div>
@@ -122,29 +188,31 @@ const Home = () => {
       {/* SECTION 3: NEW ARRIVALS */}
       <section className="bg-surface-container-low py-section-gap overflow-hidden">
         <div className="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop">
-          <div className="flex justify-between items-center mb-12">
-            <div>
-              <span className="font-label-sm text-primary uppercase tracking-[0.25em] mb-2 block">Just Dropped</span>
-              <h2 className="font-display-lg text-display-lg-mobile md:text-headline-md text-on-surface">New Arrivals</h2>
-            </div>
-            <div className="flex items-center gap-4">
-              <Link to="/collections" className="hidden md:flex items-center gap-1.5 font-label-sm text-secondary uppercase tracking-widest hover:text-primary transition-colors border-b border-outline-variant/30 pb-0.5 hover:border-primary/30">Shop All</Link>
-              <div className="hidden md:flex gap-2">
-                <button onClick={() => handleScroll("left")} className="w-10 h-10 rounded-full border border-outline/20 flex items-center justify-center text-on-surface-variant hover:bg-white hover:border-primary/30 hover:text-primary transition-all duration-300" aria-label="Scroll left"><span className="material-symbols-outlined text-lg">chevron_left</span></button>
-                <button onClick={() => handleScroll("right")} className="w-10 h-10 rounded-full border border-outline/20 flex items-center justify-center text-on-surface-variant hover:bg-white hover:border-primary/30 hover:text-primary transition-all duration-300" aria-label="Scroll right"><span className="material-symbols-outlined text-lg">chevron_right</span></button>
+          <ScrollReveal>
+            <div className="flex justify-between items-center mb-12">
+              <div>
+                <span className="font-label-sm text-primary uppercase tracking-[0.25em] mb-2 block">Just Dropped</span>
+                <h2 className="font-display-lg text-display-lg-mobile md:text-headline-md text-on-surface">New Arrivals</h2>
+              </div>
+              <div className="flex items-center gap-4">
+                <Link to="/collections" className="hidden md:flex items-center gap-1.5 font-label-sm text-secondary uppercase tracking-widest hover:text-primary transition-colors border-b border-outline-variant/30 pb-0.5 hover:border-primary/30">Shop All</Link>
+                <div className="hidden md:flex gap-2">
+                  <button onClick={() => handleScroll("left")} className="w-10 h-10 rounded-full border border-outline/20 flex items-center justify-center text-on-surface-variant hover:bg-white hover:border-primary/30 hover:text-primary transition-all duration-300" aria-label="Scroll left"><span className="material-symbols-outlined text-lg">chevron_left</span></button>
+                  <button onClick={() => handleScroll("right")} className="w-10 h-10 rounded-full border border-outline/20 flex items-center justify-center text-on-surface-variant hover:bg-white hover:border-primary/30 hover:text-primary transition-all duration-300" aria-label="Scroll right"><span className="material-symbols-outlined text-lg">chevron_right</span></button>
+                </div>
               </div>
             </div>
-          </div>
+          </ScrollReveal>
           <div ref={scrollRef} className="flex gap-4 overflow-x-auto hide-scrollbar scroll-smooth pb-2 -mx-4 px-4">
             {arrivalsLoading ? (
               Array.from({ length: 4 }).map((_, i) => (
                 <div key={i} className="min-w-[200px] md:min-w-[220px] flex-shrink-0"><CardSkeleton /></div>
               ))
             ) : (
-              newArrivals.map((item) => (
-                <div key={item.id} className="min-w-[200px] md:min-w-[220px] flex-shrink-0">
+              newArrivals.map((item, idx) => (
+                <ScrollReveal key={item.id} delay={idx * 0.1} direction="right" distance={40} className="min-w-[200px] md:min-w-[220px] max-w-[280px] flex-shrink-0">
                   <HomeProductCard product={item} />
-                </div>
+                </ScrollReveal>
               ))
             )}
           </div>
@@ -155,36 +223,48 @@ const Home = () => {
       </section>
 
       {/* SECTION 4: BEST SELLERS */}
-      <section className="py-section-gap">
+      <section className="py-section-gap section-divider">
         <div className="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop">
-          <div className="text-center mb-16">
-            <span className="font-label-sm text-primary uppercase tracking-[0.25em] mb-3 block">Most Loved</span>
-            <h2 className="font-display-lg text-display-lg text-on-surface">Your favorites</h2>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8">
+          <ScrollReveal>
+            <div className="flex justify-between items-center mb-12">
+              <div>
+                <span className="font-label-sm text-primary uppercase tracking-[0.25em] mb-2 block">Most Loved</span>
+                <h2 className="font-display-lg text-display-lg text-on-surface">Your favorites</h2>
+              </div>
+              <div className="flex items-center gap-4">
+                <Link to="/collections" className="hidden md:flex items-center gap-1.5 font-label-sm text-secondary uppercase tracking-widest hover:text-primary transition-colors border-b border-outline-variant/30 pb-0.5 hover:border-primary/30">Shop All</Link>
+                <div className="hidden md:flex gap-2">
+                  <button onClick={() => handleBestSellersScroll("left")} className="w-10 h-10 rounded-full border border-outline/20 flex items-center justify-center text-on-surface-variant hover:bg-white hover:border-primary/30 hover:text-primary transition-all duration-300" aria-label="Scroll left"><span className="material-symbols-outlined text-lg">chevron_left</span></button>
+                  <button onClick={() => handleBestSellersScroll("right")} className="w-10 h-10 rounded-full border border-outline/20 flex items-center justify-center text-on-surface-variant hover:bg-white hover:border-primary/30 hover:text-primary transition-all duration-300" aria-label="Scroll right"><span className="material-symbols-outlined text-lg">chevron_right</span></button>
+                </div>
+              </div>
+            </div>
+          </ScrollReveal>
+          <div ref={bestSellersScrollRef} className="flex gap-6 overflow-x-auto hide-scrollbar scroll-smooth pb-2 -mx-4 px-4">
             {sellersLoading ? (
               Array.from({ length: 3 }).map((_, i) => (
-                <div key={i}><CardSkeleton /></div>
+                <div key={i} className="min-w-[240px] flex-shrink-0"><CardSkeleton /></div>
               ))
             ) : (
               bestSellers.map((item, idx) => (
-                <Link key={item.id} to={`/product/${item.id}`}
-                  className={`group cursor-pointer block ${idx === 1 ? "md:mt-10" : ""}`}>
-                  <div className="relative aspect-[3/4] bg-surface-container-low rounded-2xl overflow-hidden mb-5 shadow-sm">
-                    {item.image ? (
-                      <img src={item.image} alt={item.name} className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center bg-surface-container-low text-secondary">
-                        <span className="material-symbols-outlined text-3xl">image</span>
-                      </div>
-                    )}
-                    <span className="absolute top-4 left-4 bg-primary-container/20 text-on-background text-[10px] font-label-sm uppercase tracking-widest px-3 py-1.5 rounded-full">Best Seller</span>
-                  </div>
-                  <div className="text-center">
-                    <h3 className="font-headline-sm text-lg text-on-surface group-hover:text-primary transition-colors mb-1">{item.name}</h3>
-                    <p className="font-label-md text-on-surface-variant">${(item.sale_price || item.price)?.toFixed(2)}</p>
-                  </div>
-                </Link>
+                <ScrollReveal key={item.id} delay={idx * 0.1} direction="right" distance={40} className="min-w-[240px] max-w-[280px] flex-shrink-0">
+                  <Link to={`/product/${item.id}`} className="group cursor-pointer block">
+                    <div className="relative aspect-[3/4] bg-surface-container-low rounded-2xl overflow-hidden mb-5 shadow-sm">
+                      {item.image ? (
+                        <img src={item.image} alt={item.name} loading="lazy" className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center bg-surface-container-low text-secondary">
+                          <span className="material-symbols-outlined text-3xl">image</span>
+                        </div>
+                      )}
+                      <span className="absolute top-4 left-4 bg-primary-container/20 text-on-background text-[10px] font-label-sm uppercase tracking-widest px-3 py-1.5 rounded-full">Best Seller</span>
+                    </div>
+                    <div className="text-center">
+                      <h3 className="font-headline-sm text-lg text-on-surface group-hover:text-primary transition-colors mb-1">{item.name}</h3>
+                      <p className="font-label-md text-on-surface-variant">{formatDZD(item.sale_price || item.price)}</p>
+                    </div>
+                  </Link>
+                </ScrollReveal>
               ))
             )}
           </div>
@@ -192,33 +272,47 @@ const Home = () => {
       </section>
 
       {/* SECTION 5: MOOD BOARD */}
-      <section className="py-section-gap bg-surface-container-low">
+      <section className="py-section-gap bg-surface-container-low overflow-hidden">
         <div className="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop">
-          <div className="text-center mb-16">
-            <span className="font-label-sm text-primary uppercase tracking-[0.25em] mb-3 block">Inspiration</span>
-            <h2 className="font-display-lg text-display-lg text-on-surface">Mood Board</h2>
-          </div>
+          <ScrollReveal>
+            <div className="text-center mb-16">
+              <span className="font-label-sm text-primary uppercase tracking-[0.25em] mb-3 block">Inspiration</span>
+              <h2 className="font-display-lg text-display-lg text-on-surface">Mood Board</h2>
+            </div>
+          </ScrollReveal>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 auto-rows-[160px] md:auto-rows-[200px]">
             {moodImages.map((img, idx) => (
-              <div key={idx} className={`rounded-xl overflow-hidden group cursor-pointer ${img.className}`}>
-                <img src={img.src} alt={`Mood ${idx + 1}`} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 ease-out" />
-              </div>
+              <ScrollReveal
+                key={idx}
+                delay={idx * 0.08}
+                direction={idx % 2 === 0 ? "up" : "down"}
+                distance={30}
+                className={img.className}
+              >
+                <div className="rounded-xl overflow-hidden group cursor-pointer h-full">
+                  <img src={img.src} alt={`Mood ${idx + 1}`} loading="lazy" className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 ease-out" />
+                </div>
+              </ScrollReveal>
             ))}
           </div>
         </div>
       </section>
 
       {/* SECTION 6: REVIEWS */}
-      <section className="py-section-gap">
+      <section className="py-section-gap section-divider">
         <div className="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop">
-          <div className="text-center mb-16">
-            <span className="font-label-sm text-primary uppercase tracking-[0.25em] mb-3 block">Testimonials</span>
-            <h2 className="font-display-lg text-display-lg text-on-surface mb-3">Worn by the Muses</h2>
-            <p className="font-body-md text-secondary max-w-md mx-auto">Join thousands who have elevated their style with DL Accessories.</p>
-          </div>
+          <ScrollReveal>
+            <div className="text-center mb-16">
+              <span className="font-label-sm text-primary uppercase tracking-[0.25em] mb-3 block">Testimonials</span>
+              <h2 className="font-display-lg text-display-lg text-on-surface mb-3">Worn by the Muses</h2>
+              <p className="font-body-md text-secondary max-w-md mx-auto">Join thousands who have elevated their style with DL Accessories.</p>
+            </div>
+          </ScrollReveal>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8">
-            {testimonials.map((t) => (
-              <TestimonialCard key={t.name} quote={t.quote} name={t.name} image={t.image} />
+            {testimonials.map((t, idx) => (
+              <ScrollReveal key={t.name} delay={idx * 0.15} direction="up" distance={40}>
+                <TestimonialCard quote={t.quote} name={t.name} image={t.image} />
+              </ScrollReveal>
             ))}
           </div>
         </div>
@@ -227,23 +321,27 @@ const Home = () => {
       {/* SECTION 7: INSTAGRAM */}
       <section className="py-section-gap bg-surface-container-low">
         <div className="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop">
-          <div className="flex items-center justify-between mb-12">
-            <div>
-              <span className="font-label-sm text-primary uppercase tracking-[0.25em] mb-2 block">Social</span>
-              <h2 className="font-display-lg text-display-lg-mobile md:text-headline-md text-on-surface">@DL.ACCESSORIES</h2>
+          <ScrollReveal>
+            <div className="flex items-center justify-between mb-12">
+              <div>
+                <span className="font-label-sm text-primary uppercase tracking-[0.25em] mb-2 block">Social</span>
+                <h2 className="font-display-lg text-display-lg-mobile md:text-headline-md text-on-surface">@DL.ACCESSORIES</h2>
+              </div>
+              <a href="https://www.instagram.com/dl.accessoires.reghaia/" target="_blank" rel="noopener noreferrer" className="hidden md:inline-flex items-center gap-2 font-label-sm text-primary uppercase tracking-widest border-b border-primary/30 pb-0.5 hover:border-primary transition-all">
+                Follow Us <span className="material-symbols-outlined text-base">open_in_new</span>
+              </a>
             </div>
-            <a href="https://www.instagram.com/dl.accessoires.reghaia/" target="_blank" rel="noopener noreferrer" className="hidden md:inline-flex items-center gap-2 font-label-sm text-primary uppercase tracking-widest border-b border-primary/30 pb-0.5 hover:border-primary transition-all">
-              Follow Us <span className="material-symbols-outlined text-base">open_in_new</span>
-            </a>
-          </div>
+          </ScrollReveal>
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-2 md:gap-3">
             {instagramImages.map((src, idx) => (
-              <a key={idx} href="https://www.instagram.com/dl.accessoires.reghaia/" target="_blank" rel="noopener noreferrer" className="relative group overflow-hidden rounded-xl aspect-square bg-surface-container-low">
-                <img src={src} alt={`Instagram ${idx + 1}`} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
-                <div className="absolute inset-0 bg-primary/15 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
-                  <span className="material-symbols-outlined text-white text-3xl drop-shadow-lg">favorite</span>
-                </div>
-              </a>
+              <ScrollReveal key={idx} delay={idx * 0.06} direction="up" distance={20}>
+                <a href="https://www.instagram.com/dl.accessoires.reghaia/" target="_blank" rel="noopener noreferrer" className="relative group overflow-hidden rounded-xl aspect-square bg-surface-container-low block">
+                  <img src={src} alt={`Instagram ${idx + 1}`} loading="lazy" className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
+                  <div className="absolute inset-0 bg-primary/15 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
+                    <span className="material-symbols-outlined text-white text-3xl drop-shadow-lg">favorite</span>
+                  </div>
+                </a>
+              </ScrollReveal>
             ))}
           </div>
           <div className="flex justify-center mt-8 md:hidden">
@@ -253,9 +351,6 @@ const Home = () => {
           </div>
         </div>
       </section>
-
-      {/* SECTION 8: NEWSLETTER */}
-      <Newsletter />
 
     </div>
     </PageTransition>

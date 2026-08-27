@@ -77,35 +77,28 @@ function Footer() {
           </h5>
           <ul className="space-y-4 font-body-md text-secondary">
             <li>
-              <button
-                className="hover:text-primary transition-colors duration-300 bg-transparent border-none cursor-pointer"
+              <Link
+                to="/contact"
+                className="hover:text-primary transition-colors duration-300"
               >
                 Our Story
-              </button>
+              </Link>
             </li>
             <li>
-              <button
-                type="button"
-                className="hover:text-primary transition-colors duration-300 bg-transparent border-none cursor-pointer text-secondary"
+              <Link
+                to="/contact"
+                className="hover:text-primary transition-colors duration-300"
               >
-                Sustainability
-              </button>
+                Contact Us
+              </Link>
             </li>
             <li>
-              <button
-                type="button"
-                className="hover:text-primary transition-colors duration-300 bg-transparent border-none cursor-pointer text-secondary"
+              <Link
+                to="/privacy"
+                className="hover:text-primary transition-colors duration-300"
               >
-                Careers
-              </button>
-            </li>
-            <li>
-              <button
-                type="button"
-                className="hover:text-primary transition-colors duration-300 bg-transparent border-none cursor-pointer text-secondary"
-              >
-                Journal
-              </button>
+                Privacy
+              </Link>
             </li>
           </ul>
         </div>
@@ -118,19 +111,11 @@ function Footer() {
           <ul className="space-y-4 font-body-md text-secondary">
             <li>
               <Link
-                to="/shipping"
+                to="/contact"
                 className="hover:text-primary transition-colors duration-300"
               >
-                Shipping &amp; Returns
+                Contact Us
               </Link>
-            </li>
-            <li>
-              <button
-                type="button"
-                className="hover:text-primary transition-colors duration-300 bg-transparent border-none cursor-pointer text-secondary"
-              >
-                Care Guide
-              </button>
             </li>
             <li>
               <Link
@@ -141,12 +126,12 @@ function Footer() {
               </Link>
             </li>
             <li>
-              <button
-                type="button"
-                className="hover:text-primary transition-colors duration-300 bg-transparent border-none cursor-pointer text-secondary"
+              <Link
+                to="/terms"
+                className="hover:text-primary transition-colors duration-300"
               >
-                FAQ
-              </button>
+                Terms of Service
+              </Link>
             </li>
           </ul>
         </div>
@@ -155,7 +140,7 @@ function Footer() {
       {/* Bottom bar */}
       <div className="max-w-container-max mx-auto mt-20 pt-8 border-t border-outline/10 text-center md:text-left">
         <p className="font-body-md text-body-md text-secondary opacity-60">
-          &copy; 2024 DL Accessories. Crafted for the Modern Muse.
+          &copy; {new Date().getFullYear()} DL Accessories. Crafted for the Modern Muse.
         </p>
       </div>
     </footer>

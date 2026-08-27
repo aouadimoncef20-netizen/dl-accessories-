@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DL Accessories — Full Project TODO</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#fcf9f8;--surface:#fff;--surface-raised:#f6f3f2;--surface-dim:#f0eded;--text:#1c1b1b;--text-sec:#645c5f;--text-muted:#817477;--accent:#785560;--accent-light:#f6c8d5;--accent-on:#fff;--border:#d3c3c6;--border-faint:#e5e2e1;--error:#ba1a1a;--error-bg:#ffdad6;--success:#2d6a4f;--success-bg:#d8f3dc;--warning:#b08218;--warning-bg:#fff3cd;--info:#3a6ea5;--info-bg:#d0e4f5;--code-bg:#f5f0ee;--radius:12px;--radius-sm:8px;--font-display:'Playfair Display',Georgia,serif;--font-body:'Plus Jakarta Sans',-apple-system,sans-serif;--font-mono:'JetBrains Mono','SF Mono',monospace}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#1a1618;--surface:#231f21;--surface-raised:#2c2829;--surface-dim:#352f31;--text:#f0eded;--text-sec:#cec4c7;--text-muted:#817477;--accent:#e8bbc8;--accent-light:#3d2a31;--accent-on:#1a1618;--border:#4a3f42;--border-faint:#3a3335;--error:#ffb4ab;--error-bg:#3d1a1a;--success:#95d5b2;--success-bg:#1a2e20;--warning:#f0d080;--warning-bg:#2e2510;--info:#90c0e8;--info-bg:#1a2535;--code-bg:#2c2829}}
+:root[data-theme="dark"]{--bg:#1a1618;--surface:#231f21;--surface-raised:#2c2829;--surface-dim:#352f31;--text:#f0eded;--text-sec:#cec4c7;--text-muted:#817477;--accent:#e8bbc8;--accent-light:#3d2a31;--accent-on:#1a1618;--border:#4a3f42;--border-faint:#3a3335;--error:#ffb4ab;--error-bg:#3d1a1a;--success:#95d5b2;--success-bg:#1a2e20;--warning:#f0d080;--warning-bg:#2e2510;--info:#90c0e8;--info-bg:#1a2535;--code-bg:#2c2829}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:var(--font-body);background:var(--bg);color:var(--text);line-height:1.6;-webkit-font-smoothing:antialiased}
+
+.hero{background:var(--surface);border-bottom:1px solid var(--border-faint);padding:48px 32px 40px;position:sticky;top:0;z-index:100;backdrop-filter:blur(16px);background:color-mix(in srgb,var(--surface) 85%,transparent)}
+.hero-inner{max-width:1060px;margin:0 auto}
+.hero .eyebrow{font-family:var(--font-mono);font-size:11px;font-weight:500;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);margin-bottom:8px}
+.hero h1{font-family:var(--font-display);font-size:clamp(26px,4vw,40px);font-weight:600;line-height:1.15;letter-spacing:-.02em;text-wrap:balance}
+.hero .sub{font-size:15px;color:var(--text-sec);margin-top:8px;max-width:700px;line-height:1.5}
+.hero .stats{display:flex;gap:24px;margin-top:16px;flex-wrap:wrap}
+.hero .stat{font-family:var(--font-mono);font-size:12px;color:var(--text-muted)}
+.hero .stat strong{color:var(--text);font-weight:600}
+
+.flow{max-width:1060px;margin:0 auto;padding:40px 32px 80px}
+.section-title{font-family:var(--font-display);font-size:24px;font-weight:600;margin:52px 0 6px;padding-bottom:12px;border-bottom:2px solid var(--border-faint)}
+.section-desc{font-size:14px;color:var(--text-sec);margin-bottom:20px;line-height:1.6}
+
+.cat-label{font-family:var(--font-mono);font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--accent);margin:32px 0 12px;padding:6px 10px;background:var(--accent-light);border-radius:4px;display:inline-block}
+
+.step{background:var(--surface);border:1px solid var(--border-faint);border-radius:var(--radius);padding:18px 22px;margin-bottom:10px;transition:border-color .2s;position:relative}
+.step:hover{border-color:var(--border)}
+.step::before{content:'';position:absolute;left:0;top:10px;bottom:10px;width:3px;border-radius:0 3px 3px 0}
+.step.critical::before{background:var(--error)}
+.step.important::before{background:var(--warning)}
+.step.normal::before{background:var(--info)}
+.step.polish::before{background:var(--text-muted)}
+
+.step-head{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:4px}
+.step-name{font-size:14px;font-weight:600;line-height:1.4}
+.badge{font-family:var(--font-mono);font-size:9px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;padding:2px 7px;border-radius:4px;white-space:nowrap;flex-shrink:0}
+.badge-critical{background:var(--error-bg);color:var(--error)}
+.badge-important{background:var(--warning-bg);color:var(--warning)}
+.badge-normal{background:var(--info-bg);color:var(--info)}
+.badge-polish{background:var(--surface-dim);color:var(--text-muted)}
+.step-text{font-size:13px;color:var(--text-sec);line-height:1.55;margin-bottom:6px}
+.files{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:6px}
+.file{font-family:var(--font-mono);font-size:10px;color:var(--accent);background:var(--accent-light);padding:2px 7px;border-radius:4px;white-space:nowrap}
+.detail{font-size:12px;color:var(--text-muted);line-height:1.6;background:var(--surface-raised);border-radius:var(--radius-sm);padding:12px 14px;margin-top:6px}
+.detail code{font-family:var(--font-mono);font-size:11px;background:var(--code-bg);padding:1px 5px;border-radius:3px;color:var(--accent)}
+.detail ul{margin:4px 0 0 16px;list-style:disc}
+.detail li{margin-bottom:2px}
+.detail strong{color:var(--text-sec)}
+.detail .line-ref{color:var(--text-muted);font-style:italic;font-size:11px}
+
+@media(max-width:640px){.hero{padding:32px 20px 28px}.flow{padding:20px 20px 60px}.step{padding:14px 16px}.hero .stats{gap:12px}}
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="hero-inner">
+    <p class="eyebrow">Codebase Audit — Post Supabase Integration</p>
+    <h1>DL Accessories — Full TODO</h1>
+    <p class="sub">Every remaining task, bug, and improvement — organized by urgency. Supabase products table is wired; auth, orders, and dozens of UI fixes are still pending.</p>
+    <div class="stats">
+      <span class="stat"><strong>16</strong> pages</span>
+      <span class="stat"><strong>15</strong> components</span>
+      <span class="stat"><strong>4</strong> stores</span>
+      <span class="stat"><strong>5</strong> critical blockers</span>
+      <span class="stat"><strong>9</strong> broken behaviors</span>
+      <span class="stat"><strong>8</strong> polish items</span>
+    </div>
+  </div>
+</header>
+
+<div class="flow">
+
+<!-- ════════════════════════════════════════════════ -->
+<!-- SECTION A: CRITICAL — Blocks normal operation -->
+<!-- ════════════════════════════════════════════════ -->
+<div class="section-title">A. Critical — Blocks Normal Use</div>
+<div class="section-desc">These prevent basic shopping from working. Fix before anything else.</div>
+
+<span class="cat-label">Auth Store — Still 100% localStorage</span>
+
+<div class="step critical">
+  <div class="step-head">
+    <span class="step-name">Rewrite authStore.js to use Supabase Auth</span>
+    <span class="badge badge-critical">Critical</span>
+  </div>
+  <div class="files"><span class="file">src/stores/authStore.js</span></div>
+  <div class="step-text">This file has zero Supabase code. All auth is localStorage. Users can't actually sign up/sign in to a real account.</div>
+  <div class="detail">
+    <strong>Delete entirely:</strong> <code>loadSession()</code>, <code>getUsers()</code>, <code>saveUsers()</code>, and all <code>localStorage</code> calls<br><br>
+    <strong>Replace with:</strong>
+    <ul>
+      <li><code>import supabase from "../lib/supabase"</code></li>
+      <li><code>initialize()</code> → <code>supabase.auth.getSession()</code> + <code>supabase.auth.onAuthStateChange()</code></li>
+      <li><code>signUp(email, password, name)</code> → <code>supabase.auth.signUp({ email, password, options: { data: { full_name: name } } })</code></li>
+      <li><code>signIn(email, password)</code> → <code>supabase.auth.signInWithPassword({ email, password })</code></li>
+      <li><code>signOut()</code> → <code>supabase.auth.signOut()</code></li>
+      <li><code>resetPassword(email)</code> → <code>supabase.auth.resetPasswordForEmail(email)</code></li>
+      <li><code>isAdmin</code> → check <code>user?.user_metadata?.is_admin === true</code></li>
+      <li><code>updateProfile()</code> → <code>supabase.auth.updateUser({ data: updates })</code></li>
+    </ul>
+  </div>
+</div>
+
+<span class="cat-label">Product Store — Mapping & Orders</span>
+
+<div class="step critical">
+  <div class="step-head">
+    <span class="step-name">Fix mapProduct() — missing JSONB fields for detail pages</span>
+    <span class="badge badge-critical">Critical</span>
+  </div>
+  <div class="files"><span class="file">src/stores/productStore.js</span></div>
+  <div class="step-text">The <code>mapProduct()</code> function only forwards 7 fields. Every product detail layout (Watch, Bracelet, Ring, Nails, Lashes) needs fields that aren't being mapped.</div>
+  <div class="detail">
+    <strong>Currently maps:</strong> id, name, category, price, image (from image_url), description, best_seller, featured, new_arrival<br><br>
+    <strong>Missing — breaks detail pages:</strong>
+    <ul>
+      <li><code>colors</code> → WatchDetails color selector (line 50)</li>
+      <li><code>images</code> → ALL detail layouts gallery (lines 51, 184, 307, 453, 611)</li>
+      <li><code>features</code> → BraceletDetails feature chips (line 233)</li>
+      <li><code>sizes</code> → RingDetails size selector (line 308)</li>
+      <li><code>specs</code> → RingDetails + NailsDetails + LashesDetails spec grids (lines 307, 508, 612)</li>
+      <li><code>badge</code> → BraceletDetails badge (line 218)</li>
+      <li><code>materials</code> → BraceletDetails accordion (line 279)</li>
+      <li><code>details</code> → WatchDetails materials list (line 151)</li>
+      <li><code>sale_price</code> → Cart + OrderSummary discount display</li>
+      <li><code>discount</code> → HomeProductCard discount badge (line 13)</li>
+    </ul>
+    <strong>Fix:</strong> Change <code>image: row.image_url</code> to also spread all JSONB columns, or map them explicitly.
+  </div>
+</div>
+
+<div class="step critical">
+  <div class="step-head">
+    <span class="step-name">Move orders from localStorage to Supabase</span>
+    <span class="badge badge-critical">Critical</span>
+  </div>
+  <div class="files"><span class="file">src/stores/productStore.js</span> <span class="file">src/Pages/Checkout.jsx</span></div>
+  <div class="step-text">Orders still use <code>let localOrders = []</code> and <code>localStorage.getItem("dl_orders")</code>. If the user clears browser data, all orders are gone.</div>
+  <div class="detail">
+    <strong>In productStore.js, replace:</strong>
+    <ul>
+      <li><code>createOrder()</code> → <code>supabase.from('orders').insert({ ...order, user_id, status: 'pending' }).select().single()</code></li>
+      <li><code>fetchUserOrders(userId)</code> → <code>supabase.from('orders').select('*').eq('user_id', userId).order('created_at', { ascending: false })</code></li>
+      <li><code>fetchAllOrders()</code> → <code>supabase.from('orders').select('*').order('created_at', { ascending: false })</code></li>
+      <li><code>updateOrderStatus(orderId, status)</code> → <code>supabase.from('orders').update({ status }).eq('id', orderId)</code></li>
+    </ul>
+    <strong>In Checkout.jsx line 43–57:</strong> After clearing cart, call <code>createOrder()</code> with <code>user_id</code> from auth store before navigating to /order-confirmed.
+  </div>
+</div>
+
+<span class="cat-label">Product Detail — Missing Layouts</span>
+
+<div class="step critical">
+  <div class="step-head">
+    <span class="step-name">Add fallback for unsupported product categories</span>
+    <span class="badge badge-critical">Critical</span>
+  </div>
+  <div class="files"><span class="file">src/Pages/ProductDetails.jsx</span> <span class="line-ref">lines 799–803</span></div>
+  <div class="step-text">Only 5 categories have layouts: Watches, Bracelets, Rings, Nails, Lashes. If the store owner adds "Earrings" or "Necklaces" in Supabase, the detail page renders nothing — just the breadcrumb.</div>
+  <div class="detail">
+    <strong>Add after line 803:</strong><br>
+    <code>{!['Watches','Bracelets','Rings','Nails','Lashes'].includes(product.category) && &lt;GenericDetails product={product} /&gt;}</code><br><br>
+    <strong>Create a GenericDetails component</strong> that uses the BraceletDetails layout as a base (bento gallery + product info + accordion) but doesn't depend on category-specific fields like features or sizes.
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════════ -->
+<!-- SECTION B: IMPORTANT — Broken behaviors -->
+<!-- ════════════════════════════════════════════════ -->
+<div class="section-title">B. Important — Broken Behaviors</div>
+<div class="section-desc">Features that exist but don't work correctly.</div>
+
+<span class="cat-label">Collections Page</span>
+
+<div class="step important">
+  <div class="step-head">
+    <span class="step-name">Wire price filter dropdown to Supabase query</span>
+    <span class="badge badge-important">Important</span>
+  </div>
+  <div class="files"><span class="file">src/Pages/Collections.jsx</span> <span class="line-ref">line 42</span></div>
+  <div class="step-text">The price dropdown sets <code>priceFilter</code> state but it's never passed to <code>fetchProducts()</code>. Changing the dropdown does nothing.</div>
+  <div class="detail">
+    Map <code>priceFilter</code> values to min/max: <code>"under50"</code> → <code>{maxPrice: 50}</code>, <code>"50to100"</code> → <code>{minPrice: 50, maxPrice: 100}</code>, etc. Pass them in the fetchProducts call on line 35.
+  </div>
+</div>
+
+<div class="step important">
+  <div class="step-head">
+    <span class="step-name">Add pagination UI (page numbers + prev/next)</span>
+    <span class="badge badge-important">Important</span>
+  </div>
+  <div class="files"><span class="file">src/Pages/Collections.jsx</span></div>
+  <div class="step-text">The store supports pagination via <code>.range()</code> but there are no page buttons. Users can only see page 1.</div>
+  <div class="detail">
+    <ul>
+      <li>Track total count from Supabase (use <code>.select('*', { count: 'exact', head: true })</code> for count-only query)</li>
+      <li>Add prev/next buttons + page numbers below the product grid</li>
+      <li>Show "Page 1 of 3" or "1–8 of 24 products"</li>
+    </ul>
+  </div>
+</div>
+
+<span class="cat-label">Product Detail — Related Products</span>
+
+<div class="step important">
+  <div class="step-head">
+    <span class="step-name">Wire up related products in all 5 detail layouts</span>
+    <span class="badge badge-important">Important</span>
+  </div>
+  <div class="files"><span class="file">src/Pages/ProductDetails.jsx</span> <span class="line-ref">lines 173, 296, 441, 600, 733</span></div>
+  <div class="step-text">Every detail layout has a "related products" section that maps over <code>[].map(...)</code> — an empty array. Related products never appear.</div>
+  <div class="detail">
+    <ul>
+      <li>In <code>ProductDetails</code> (line 754), after fetching the product, also call <code>fetchRelated(product.category, product.id)</code></li>
+      <li>Store result in state: <code>const [related, setRelated] = useState([])</code></li>
+      <li>Pass <code>related</code> down to each detail component as a prop</li>
+      <li>Replace <code>[].map</code> with <code>related.map</code></li>
+    </ul>
+  </div>
+</div>
+
+<div class="step important">
+  <div class="step-head">
+    <span class="step-name">Fix LashesDetails wishlist bug</span>
+    <span class="badge badge-important">Important</span>
+  </div>
+  <div class="files"><span class="file">src/Pages/ProductDetails.jsx</span> <span class="line-ref">line 688</span></div>
+  <div class="step-text"><code>toggleWishlist(product.id)</code> passes just the ID. The wishlist store expects a full product object <code>{ id, name, category, price, image }</code>.</div>
+  <div class="detail">
+    Change to: <code>toggleWishlist({ id: product.id, name: product.name, category: product.category, price: product.price, image: product.images?.[0] || product.image })</code>
+  </div>
+</div>
+
+<span class="cat-label">Navigation & Links</span>
+
+<div class="step important">
+  <div class="step-head">
+    <span class="step-name">Fix MobileMenu — category links have no filter params</span>
+    <span class="badge badge-important">Important</span>
+  </div>
+  <div class="files"><span class="file">src/Component/MobileMenu.jsx</span> <span class="line-ref">lines 28–30</span></div>
+  <div class="step-text">Watches, Jewelry, and Lashes all link to <code>/collections</code> with no <code>?cat=</code> param. Tapping them shows all products, not the filtered category.</div>
+  <div class="detail">
+    Change: <code>"/collections"</code> → <code>"/collections?cat=Watches"</code>, <code>"/collections?cat=Jewelry"</code>, <code>"/collections?cat=Lashes"</code>
+  </div>
+</div>
+
+<div class="step important">
+  <div class="step-head">
+    <span class="step-name">Fix AnnouncementBar — "Shop New Arrivals" is not a link</span>
+    <span class="badge badge-important">Important</span>
+  </div>
+  <div class="files"><span class="file">src/Component/AnnouncementBar.jsx</span> <span class="line-ref">line 7</span></div>
+  <div class="step-text">The text is a <code>&lt;span&gt;</code> with <code>cursor-pointer</code> but no <code>&lt;Link&gt;</code>. Tapping does nothing.</div>
+  <div class="detail">
+    Import <code>Link</code> from react-router-dom and wrap in <code>&lt;Link to="/collections"&gt;</code>
+  </div>
+</div>
+
+<div class="step important">
+  <div class="step-head">
+    <span class="step-name">Fix Footer — hardcoded year + dead links</span>
+    <span class="badge badge-important">Important</span>
+  </div>
+  <div class="files"><span class="file">src/Component/Footer.jsx</span></div>
+  <div class="detail">
+    <ul>
+      <li>Line 158: "© 2024" → <code>© {new Date().getFullYear()}</code></li>
+      <li>Company column (lines 78–110): Our Story, Sustainability, Careers, Journal are <code>&lt;button&gt;</code> tags that do nothing → either make them <code>&lt;Link&gt;</code> to real pages or remove them</li>
+      <li>Support column (lines 131–149): Care Guide, FAQ same issue</li>
+    </ul>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════════ -->
+<!-- SECTION C: CODE QUALITY — Cleanup & hygiene -->
+<!-- ════════════════════════════════════════════════ -->
+<div class="section-title">C. Code Quality — Cleanup &amp; Hygiene</div>
+<div class="section-desc">Debug noise, dead code, outdated comments.</div>
+
+<div class="step normal">
+  <div class="step-head">
+    <span class="step-name">Remove all console.log debug statements</span>
+    <span class="badge badge-normal">Clean Up</span>
+  </div>
+  <div class="files"><span class="file">src/lib/supabase.js</span> <span class="file">src/stores/productStore.js</span></div>
+  <div class="detail">
+    <ul>
+      <li><code>supabase.js</code> lines 6–7: <code>console.log("[Supabase] URL loaded:...")</code> — remove both</li>
+      <li><code>productStore.js</code>: 13 <code>console.log/console.warn/console.error</code> calls throughout — remove the info/warn ones, keep only genuine error catches</li>
+    </ul>
+  </div>
+</div>
+
+<div class="step normal">
+  <div class="step-head">
+    <span class="step-name">Delete or move fix-rls.js</span>
+    <span class="badge badge-normal">Clean Up</span>
+  </div>
+  <div class="files"><span class="file">fix-rls.js</span></div>
+  <div class="step-text">One-shot script for disabling RLS. Shouldn't live in project root after running. Delete it or move to a <code>scripts/</code> folder.</div>
+</div>
+
+<div class="step normal">
+  <div class="step-head">
+    <span class="step-name">Remove DebugOverlay from Home page</span>
+    <span class="badge badge-normal">Clean Up</span>
+  </div>
+  <div class="files"><span class="file">src/Pages/Home.jsx</span> <span class="line-ref">line 11, 58</span></div>
+  <div class="step-text"><code>DebugOverlay</code> is imported and rendered but returns <code>null</code>. Remove the import and the <code>&lt;DebugOverlay /&gt;</code> tag.</div>
+</div>
+
+<div class="step normal">
+  <div class="step-head">
+    <span class="step-name">Update useProducts.js JSDoc</span>
+    <span class="badge badge-normal">Clean Up</span>
+  </div>
+  <div class="files"><span class="file">src/Hooks/useProducts.js</span> <span class="line-ref">line 5</span></div>
+  <div class="step-text">Still says "React hook for fetching products from the static product store." → update to "from Supabase"</div>
+</div>
+
+<div class="step normal">
+  <div class="step-head">
+    <span class="step-name">Remove AnnouncementBar if not used</span>
+    <span class="badge badge-normal">Clean Up</span>
+  </div>
+  <div class="files"><span class="file">src/Component/AnnouncementBar.jsx</span></div>
+  <div class="step-text">Not imported anywhere in the app. Either add it to MainLayout above the Navbar, or delete the file.</div>
+</div>
+
+<div class="step normal">
+  <div class="step-head">
+    <span class="step-name">Fix Newsletter.jsx — replace alert()</span>
+    <span class="badge badge-normal">Clean Up</span>
+  </div>
+  <div class="files"><span class="file">src/Component/Newsletter.jsx</span> <span class="line-ref">line 12</span></div>
+  <div class="step-text"><code>alert('Subscribed successfully!')</code> → replace with inline success state + message. Optional: save email to a <code>newsletter_subscribers</code> table in Supabase.</div>
+</div>
+
+<!-- ════════════════════════════════════════════════ -->
+<!-- SECTION D: MISSING FEATURES — New functionality -->
+<!-- ════════════════════════════════════════════════ -->
+<div class="section-title">D. Missing Features — New Functionality</div>
+<div class="section-desc">Features the app needs but doesn't have yet.</div>
+
+<div class="step important">
+  <div class="step-head">
+    <span class="step-name">Add user icon + account dropdown to Navbar</span>
+    <span class="badge badge-important">Important</span>
+  </div>
+  <div class="files"><span class="file">src/Component/Navbar.jsx</span></div>
+  <div class="step-text">No way to see if you're logged in or access account from the navbar. Add a person icon between search and favorites.</div>
+  <div class="detail">
+    <ul>
+      <li>Logged out → icon links to /login</li>
+      <li>Logged in → click opens dropdown: My Account, My Orders, Sign Out</li>
+      <li>Show user initial or name in the dropdown</li>
+    </ul>
+  </div>
+</div>
+
+<div class="step normal">
+  <div class="step-head">
+    <span class="step-name">Add 404 / Not Found page</span>
+    <span class="badge badge-normal">Missing</span>
+  </div>
+  <div class="files"><span class="file">src/App.jsx</span></div>
+  <div class="step-text">No catch-all route. Navigating to <code>/anything-invalid</code> renders a blank page inside MainLayout.</div>
+  <div class="detail">
+    Add <code>&lt;Route path="*" element={&lt;NotFound /&gt;} /&gt;</code> as the last route inside MainLayout. Create a simple NotFound page with "Page not found" + link to home.
+  </div>
+</div>
+
+<div class="step normal">
+  <div class="step-head">
+    <span class="step-name">Add error boundary component</span>
+    <span class="badge badge-normal">Missing</span>
+  </div>
+  <div class="files"><span class="file">src/Component/ErrorBoundary.jsx</span> <span class="file">src/App.jsx</span></div>
+  <div class="step-text">If any component throws, the entire app crashes to a white screen. No recovery UI.</div>
+  <div class="detail">
+    Create a class-based ErrorBoundary that catches render errors and shows a friendly "Something went wrong" page with a retry button. Wrap the Router in App.jsx.
+  </div>
+</div>
+
+<div class="step normal">
+  <div class="step-head">
+    <span class="step-name">Add toast notification system</span>
+    <span class="badge badge-normal">Missing</span>
+  </div>
+  <div class="files"><span class="file">src/Component/Toast.jsx</span></div>
+  <div class="step-text">No feedback when adding to cart, wishlist, subscribing, or placing an order. The only feedback is page navigation.</div>
+  <div class="detail">
+    Create a lightweight toast context/provider. Show toast on: add to cart, toggle wishlist, newsletter subscribe, order placed. Keep it simple — no external library needed.
+  </div>
+</div>
+
+<div class="step normal">
+  <div class="step-head">
+    <span class="step-name">Add dark mode toggle</span>
+    <span class="badge badge-normal">Missing</span>
+  </div>
+  <div class="files"><span class="file">src/stores/themeStore.js</span> <span class="file">src/Component/Navbar.jsx</span></div>
+  <div class="step-text">Tailwind config has <code>darkMode: "class"</code> but no toggle exists and no dark variants are defined.</div>
+  <div class="detail">
+    <ul>
+      <li>Create Zustand persist store with theme state (light/dark/system)</li>
+      <li>Add sun/moon toggle button to Navbar</li>
+      <li>Apply <code>dark</code> class to <code>&lt;html&gt;</code> element</li>
+      <li>Add <code>dark:</code> variants to tailwind.config.js color tokens</li>
+      <li>Override key colors for dark mode: background, surface, text, borders</li>
+    </ul>
+  </div>
+</div>
+
+<div class="step normal">
+  <div class="step-head">
+    <span class="step-name">Add Google social login</span>
+    <span class="badge badge-normal">Missing</span>
+  </div>
+  <div class="files"><span class="file">src/Pages/Login.jsx</span> <span class="file">src/Pages/Register.jsx</span></div>
+  <div class="step-text">Only email/password auth. Most shoppers expect Google sign-in.</div>
+  <div class="detail">
+    <ul>
+      <li>Enable Google provider in Supabase Dashboard → Authentication → Providers</li>
+      <li>Add "Continue with Google" button to Login and Register</li>
+      <li>Use <code>supabase.auth.signInWithOAuth({ provider: 'google' })</code></li>
+    </ul>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════════ -->
+<!-- SECTION E: POLISH — Nice to have -->
+<!-- ════════════════════════════════════════════════ -->
+<div class="section-title">E. Polish — Nice to Have</div>
+<div class="section-desc">Improvements that elevate the experience but aren't blocking.</div>
+
+<div class="step polish">
+  <div class="step-head">
+    <span class="step-name">Add per-page SEO meta tags</span>
+    <span class="badge badge-polish">Polish</span>
+  </div>
+  <div class="files"><span class="file">src/Pages/*.jsx</span></div>
+  <div class="detail">
+    <ul>
+      <li>Install <code>react-helmet-async</code></li>
+      <li>Add <code>&lt;title&gt;</code> + <code>&lt;meta description&gt;</code> to each page</li>
+      <li>Product pages: dynamic title with product name</li>
+      <li>Home: "DL Accessories | Details Make You Shine"</li>
+    </ul>
+  </div>
+</div>
+
+<div class="step polish">
+  <div class="step-head">
+    <span class="step-name">Integrate Stripe for real payments</span>
+    <span class="badge badge-polish">Polish</span>
+  </div>
+  <div class="files"><span class="file">src/Pages/Checkout.jsx</span></div>
+  <div class="detail">
+    <ul>
+      <li>Replace demo card inputs (step 3) with Stripe Elements</li>
+      <li>Create payment intent via Supabase Edge Function → Stripe API</li>
+      <li>Handle success/failure with proper UI states</li>
+      <li>Store payment_intent_id in the order record</li>
+    </ul>
+  </div>
+</div>
+
+<div class="step polish">
+  <div class="step-head">
+    <span class="step-name">Image lazy loading + optimization</span>
+    <span class="badge badge-polish">Polish</span>
+  </div>
+  <div class="files"><span class="file">src/Component/*.jsx</span></div>
+  <div class="detail">
+    <ul>
+      <li>Add <code>loading="lazy"</code> to all <code>&lt;img&gt;</code> tags except hero + first visible images</li>
+      <li>Add <code>width</code> and <code>height</code> attributes to prevent layout shift</li>
+      <li>Consider Supabase Edge Functions for image resizing on-the-fly</li>
+    </ul>
+  </div>
+</div>
+
+<div class="step polish">
+  <div class="step-head">
+    <span class="step-name">Add "Back to Top" button</span>
+    <span class="badge badge-polish">Polish</span>
+  </div>
+  <div class="files"><span class="file">src/Component/BackToTop.jsx</span></div>
+  <div class="step-text">Long pages (Home, Collections, Product Details) have no way to quickly return to the top.</div>
+</div>
+
+<div class="step polish">
+  <div class="step-head">
+    <span class="step-name">Add loading states to Checkout + OrderConfirmed</span>
+    <span class="badge badge-polish">Polish</span>
+  </div>
+  <div class="files"><span class="file">src/Pages/Checkout.jsx</span> <span class="file">src/Pages/OrderConfirmed.jsx</span></div>
+  <div class="step-text">When placing an order, there's no loading spinner on the "Complete Purchase" button. User can double-click and create duplicate orders.</div>
+</div>
+
+<div class="step polish">
+  <div class="step-head">
+    <span class="step-name">Add product image zoom on hover (detail pages)</span>
+    <span class="badge badge-polish">Polish</span>
+  </div>
+  <div class="files"><span class="file">src/Pages/ProductDetails.jsx</span></div>
+  <div class="step-text">Gallery images are static. Add a lens/magnifier effect or click-to-zoom modal on the main product image.</div>
+</div>
+
+<div class="step polish">
+  <div class="step-head">
+    <span class="step-name">Add "Add to Cart" toast with undo option</span>
+    <span class="badge badge-polish">Polish</span>
+  </div>
+  <div class="files"><span class="file">src/Component/Toast.jsx</span></div>
+  <div class="step-text">When adding to cart, show a slide-in toast: "Added to bag" with an "Undo" button that removes the item.</div>
+</div>
+
+<div class="step polish">
+  <div class="step-head">
+    <span class="step-name">Remove pg from devDependencies</span>
+    <span class="badge badge-polish">Polish</span>
+  </div>
+  <div class="files"><span class="file">package.json</span> <span class="line-ref">line 43</span></div>
+  <div class="step-text"><code>"pg": "^8.23.0"</code> was needed for fix-rls.js. If that script is deleted, remove this too.</div>
+</div>
+
+</div>
+</body>
+</html>

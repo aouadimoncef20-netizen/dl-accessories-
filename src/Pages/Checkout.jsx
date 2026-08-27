@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import useCartStore from "../stores/cartStore";
+import SEO from "../Component/SEO";
+import { formatDZD } from "../lib/currency";
 
 function Checkout() {
   const navigate = useNavigate();
@@ -9,6 +11,7 @@ function Checkout() {
   const clearCart = useCartStore((s) => s.clearCart);
   const [step, setStep] = useState(1);
   const [errors, setErrors] = useState({});
+  const [submitting, setSubmitting] = useState(false);
 
   const [form, setForm] = useState({
     phone: "",
@@ -40,13 +43,17 @@ function Checkout() {
     return Object.keys(errs).length === 0;
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (step === 1) {
       if (validateStep1()) setStep(2);
     } else if (step === 2) {
       setStep(3);
     } else {
+      setSubmitting(true);
+      // Simulate payment processing
+      await new Promise((resolve) => setTimeout(resolve, 1500));
+      setSubmitting(false);
       clearCart();
       navigate("/order-confirmed", {
         state: {
@@ -63,6 +70,7 @@ function Checkout() {
 
   return (
     <main className="pt-32 pb-section-gap px-margin-mobile md:px-margin-desktop max-w-container-max mx-auto">
+      <SEO title="Checkout" description="Complete your purchase securely." />
       {/* Progress Breadcrumbs */}
       <nav className="flex items-center justify-start space-x-6 mb-12 overflow-x-auto whitespace-nowrap">
         {[
@@ -335,9 +343,19 @@ function Checkout() {
               )}
               <button
                 type="submit"
-                className="bg-primary-container text-on-primary-container font-label-md uppercase tracking-widest py-4 px-12 rounded-full shadow-lg shadow-primary/10 hover:opacity-90 active:scale-95 transition-all"
+                disabled={submitting}
+                className="bg-primary-container text-on-primary-container font-label-md uppercase tracking-widest py-4 px-12 rounded-full shadow-lg shadow-primary/10 hover:opacity-90 active:scale-95 transition-all disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2 min-w-[220px]"
               >
-                {step === 3 ? "Complete Purchase" : "Continue"}
+                {submitting ? (
+                  <>
+                    <div className="w-5 h-5 border-2 border-on-primary-container border-t-transparent rounded-full animate-spin" />
+                    Processing...
+                  </>
+                ) : step === 3 ? (
+                  "Complete Purchase"
+                ) : (
+                  "Continue"
+                )}
               </button>
             </div>
           </div>
@@ -364,7 +382,7 @@ function Checkout() {
                         <h3 className="font-label-md text-on-surface">{item.name}</h3>
                         {item.variant && <p className="font-label-sm text-secondary">{item.variant}</p>}
                       </div>
-                      <span className="font-label-md text-primary">${(item.price * item.qty).toFixed(2)}</span>
+                      <span className="font-label-md text-primary">{formatDZD(item.price * item.qty)}</span>
                     </div>
                   ))
                 ) : (
@@ -374,17 +392,17 @@ function Checkout() {
               <div className="space-y-4 pt-8 border-t border-outline-variant/20">
                 <div className="flex justify-between items-center text-body-md">
                   <span className="text-secondary">Subtotal</span>
-                  <span className="text-on-surface">${subtotal.toFixed(2)}</span>
+                  <span className="text-on-surface">{formatDZD(subtotal)}</span>
                 </div>
                 <div className="flex justify-between items-center text-body-md">
                   <span className="text-secondary">Shipping</span>
-                  <span className="text-on-surface">{shippingCost === 0 ? "Free" : `$${shippingCost.toFixed(2)}`}</span>
+                  <span className="text-on-surface">{shippingCost === 0 ? "Free" : formatDZD(shippingCost)}</span>
                 </div>
                 <div className="flex justify-between items-center pt-6 mt-4 border-t border-outline-variant/50">
                   <span className="font-headline-sm text-headline-sm">Total</span>
                   <div className="text-right">
                     <span className="text-secondary text-sm block mb-1">USD</span>
-                    <span className="font-display-lg text-[32px] text-primary">${total.toFixed(2)}</span>
+                    <span className="font-display-lg text-[32px] text-primary">{formatDZD(total)}</span>
                   </div>
                 </div>
               </div>

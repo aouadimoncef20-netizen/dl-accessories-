@@ -1,6 +1,9 @@
+import SEO from "../Component/SEO";
+
 function Shipping() {
   return (
     <div className="pt-32 pb-section-gap px-margin-mobile md:px-margin-desktop max-w-container-max mx-auto">
+      <SEO title="Shipping & Returns" description="Shipping information and return policy." />
       <h1 className="font-display-lg text-display-lg-mobile md:text-display-lg mb-8">Shipping & Returns</h1>
       <div className="max-w-3xl font-body-md text-secondary space-y-6">
         <h2 className="font-headline-sm text-on-surface mt-8">Shipping</h2>

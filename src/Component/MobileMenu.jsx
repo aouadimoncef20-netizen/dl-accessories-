@@ -25,9 +25,6 @@ function MobileMenu({ isOpen, onClose }) {
         <div className="flex flex-col p-6 space-y-2">
           {[
             { label: "Collections", to: "/collections" },
-            { label: "Watches", to: "/collections" },
-            { label: "Jewelry", to: "/collections" },
-            { label: "Lashes", to: "/collections" },
             { label: "Gallery", to: "/gallery" },
             { label: "Contact", to: "/contact" },
           ].map((item) => (

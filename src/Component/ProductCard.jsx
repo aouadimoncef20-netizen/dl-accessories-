@@ -1,6 +1,14 @@
 import { Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import useWishlistStore from "../stores/wishlistStore";
+import { formatDZD } from "../lib/currency";
+
+const PLACEHOLDER = "/placeholder-product.png";
+
+function imgSrc(url) {
+  if (!url) return PLACEHOLDER;
+  try { return encodeURI(decodeURI(url)); } catch { return encodeURI(url); }
+}
 
 export default function ProductCard({
   id,
@@ -25,11 +33,19 @@ export default function ProductCard({
     >
       <div className="relative aspect-[4/5] bg-surface-container-low rounded-xl overflow-hidden mb-6">
         <Link to={link || `/product/${id}`}>
-          <img
-            src={image}
-            alt={name}
-            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
-          />
+          {image ? (
+            <img
+              src={imgSrc(image)}
+              alt={name}
+              loading="lazy"
+              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+              onError={(e) => { e.target.src = PLACEHOLDER; }}
+            />
+          ) : (
+            <div className="w-full h-full flex items-center justify-center bg-surface-container text-on-surface-variant">
+              <span className="material-symbols-outlined text-5xl">image</span>
+            </div>
+          )}
         </Link>
 
         <div className="absolute inset-x-0 bottom-0 p-4 translate-y-full group-hover:translate-y-0 transition-transform duration-300">
@@ -69,7 +85,7 @@ export default function ProductCard({
           {name}
         </h3>
         <p className="font-label-md text-on-surface-variant">
-          ${price.toFixed(2)}
+          {formatDZD(price)}
         </p>
       </Link>
     </motion.div>

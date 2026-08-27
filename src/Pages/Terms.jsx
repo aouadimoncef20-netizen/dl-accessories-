@@ -1,8 +1,10 @@
 import { Link } from "react-router-dom";
+import SEO from "../Component/SEO";
 
 function Terms() {
   return (
     <div className="pt-32 pb-section-gap px-margin-mobile md:px-margin-desktop max-w-container-max mx-auto">
+      <SEO title="Terms of Service" description="DL Accessories terms and conditions." />
       <h1 className="font-display-lg text-display-lg-mobile md:text-display-lg mb-8">Terms of Service</h1>
       <div className="prose prose-gray max-w-3xl font-body-md text-secondary space-y-6">
         <p>Last updated: January 2024</p>

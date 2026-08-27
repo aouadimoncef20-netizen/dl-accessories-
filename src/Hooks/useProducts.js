@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from "react";
 import useProductStore from "../stores/productStore";
 
 /**
- * useProducts — React hook for fetching products from the static product store.
+ * useProducts — React hook for fetching products from Supabase via the product store.
  *
  * Usage:
  *   const { products, loading, error, refetch } = useProducts();

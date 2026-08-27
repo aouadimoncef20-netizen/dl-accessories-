@@ -2,6 +2,12 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import useWishlistStore from "../stores/wishlistStore";
+import { formatDZD } from "../lib/currency";
+
+function imgSrc(url) {
+  if (!url) return "";
+  try { return encodeURI(decodeURI(url)); } catch { return encodeURI(url); }
+}
 
 export default function HomeProductCard({ product, link }) {
   const navigate = useNavigate();
@@ -33,10 +39,11 @@ export default function HomeProductCard({ product, link }) {
             </div>
           ) : (
             <img
-              src={primaryImage}
+              src={imgSrc(primaryImage)}
               alt={product.name}
               onError={() => setImgError(true)}
               className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+              loading="lazy"
             />
           )}
         </Link>
@@ -96,15 +103,15 @@ export default function HomeProductCard({ product, link }) {
           {hasDiscount ? (
             <>
               <p className="font-label-md text-primary">
-                ${displayPrice.toFixed(2)}
+                {formatDZD(displayPrice)}
               </p>
               <p className="font-label-sm text-secondary line-through">
-                ${product.price.toFixed(2)}
+                {formatDZD(product.price)}
               </p>
             </>
           ) : (
             <p className="font-label-md text-on-surface-variant">
-              ${displayPrice.toFixed(2)}
+              {formatDZD(displayPrice)}
             </p>
           )}
         </div>
