@@ -9,19 +9,14 @@ function Checkout() {
   const items = useCartStore((s) => s.items);
   const subtotal = useCartStore((s) => s.subtotal());
   const clearCart = useCartStore((s) => s.clearCart);
-  const [step, setStep] = useState(1);
   const [errors, setErrors] = useState({});
   const [submitting, setSubmitting] = useState(false);
 
   const [form, setForm] = useState({
+    fullName: "",
     phone: "",
-    firstName: "",
-    lastName: "",
     address: "",
-    city: "",
     state: "",
-    zip: "",
-    shipping: "standard",
   });
 
   const handleChange = (e) => {
@@ -30,317 +25,127 @@ function Checkout() {
     setErrors((prev) => ({ ...prev, [name]: "" }));
   };
 
-  const validateStep1 = () => {
+  const validate = () => {
     const errs = {};
+    if (!form.fullName.trim()) errs.fullName = "Full name is required";
     if (!form.phone.trim()) errs.phone = "Phone number is required";
-    if (!form.firstName.trim()) errs.firstName = "First name is required";
-    if (!form.lastName.trim()) errs.lastName = "Last name is required";
     if (!form.address.trim()) errs.address = "Address is required";
-    if (!form.city.trim()) errs.city = "City is required";
     if (!form.state.trim()) errs.state = "State is required";
-    if (!form.zip.trim()) errs.zip = "ZIP code is required";
     setErrors(errs);
     return Object.keys(errs).length === 0;
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (step === 1) {
-      if (validateStep1()) setStep(2);
-    } else if (step === 2) {
-      setStep(3);
-    } else {
-      setSubmitting(true);
-      // Simulate payment processing
-      await new Promise((resolve) => setTimeout(resolve, 1500));
-      setSubmitting(false);
-      clearCart();
-      navigate("/order-confirmed", {
-        state: {
-          form,
-          shipping: form.shipping === "express" ? 15 : 0,
-        },
-      });
-    }
+    if (!validate()) return;
+
+    setSubmitting(true);
+    await new Promise((resolve) => setTimeout(resolve, 1500));
+    setSubmitting(false);
+    clearCart();
+    navigate("/order-confirmed", { state: { form } });
   };
 
-  const shippingCost = form.shipping === "express" ? 15 : 0;
-  const tax = subtotal * 0.08;
-  const total = subtotal + shippingCost + tax;
+  const shippingCost = 0;
+  const total = subtotal + shippingCost;
 
   return (
     <main className="pt-32 pb-section-gap px-margin-mobile md:px-margin-desktop max-w-container-max mx-auto">
-      <SEO title="Checkout" description="Complete your purchase securely." />
-      {/* Progress Breadcrumbs */}
-      <nav className="flex items-center justify-start space-x-6 mb-12 overflow-x-auto whitespace-nowrap">
-        {[
-          { num: 1, label: "Information" },
-          { num: 2, label: "Shipping" },
-          { num: 3, label: "Payment" },
-        ].map((s) => (
-          <div key={s.num} className="flex items-center gap-3">
-            <span
-              className={`w-8 h-8 rounded-full flex items-center justify-center font-label-md ${
-                step >= s.num
-                  ? "bg-primary-container text-on-primary-container"
-                  : "border border-outline-variant text-secondary"
-              }`}
-            >
-              {step > s.num ? (
-                <span className="material-symbols-outlined text-sm">check</span>
-              ) : (
-                s.num
-              )}
-            </span>
-            <span
-              className={`font-label-md uppercase tracking-wider ${
-                step >= s.num ? "text-primary" : "text-secondary"
-              }`}
-            >
-              {s.label}
-            </span>
-            {s.num < 3 && <div className="w-12 h-px bg-outline-variant" />}
-          </div>
-        ))}
-      </nav>
+      <SEO title="Checkout" description="Complete your purchase." />
+
+      <h1 className="font-display-lg text-display-lg-mobile md:text-display-lg mb-10">
+        Checkout
+      </h1>
 
       <form onSubmit={handleSubmit}>
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-gutter items-start">
           {/* Left: Form */}
-          <div className="lg:col-span-7 space-y-12">
-            {step === 1 && (
-              <>
-                {/* Contact Information */}
-                <section>
-                  <div className="flex justify-between items-baseline mb-6">
-                    <h2 className="font-headline-sm text-headline-sm text-on-surface">
-                      Contact Information
-                    </h2>
-                  </div>
-                  <div className="space-y-4">
-                    <input
-                      name="phone"
-                      value={form.phone}
-                      onChange={handleChange}
-                      className={`w-full form-input font-body-md ${
-                        errors.phone ? "border-error focus:border-error focus:ring-error/20" : ""
-                      }`}
-                      placeholder="Phone Number"
-                      type="tel"
-                    />
-                    {errors.phone && (
-                      <p className="text-error text-label-sm mt-1">{errors.phone}</p>
-                    )}
-                  </div>
-                </section>
-
-                {/* Shipping Address */}
-                <section>
-                  <h2 className="font-headline-sm text-headline-sm text-on-surface mb-6">
-                    Shipping Address
-                  </h2>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <input
-                        name="firstName"
-                        value={form.firstName}
-                        onChange={handleChange}
-                        className={`form-input font-body-md w-full ${
-                          errors.firstName ? "border-error" : ""
-                        }`}
-                        placeholder="First name"
-                        type="text"
-                      />
-                      {errors.firstName && (
-                        <p className="text-error text-label-sm mt-1">{errors.firstName}</p>
-                      )}
-                    </div>
-                    <div>
-                      <input
-                        name="lastName"
-                        value={form.lastName}
-                        onChange={handleChange}
-                        className={`form-input font-body-md w-full ${
-                          errors.lastName ? "border-error" : ""
-                        }`}
-                        placeholder="Last name"
-                        type="text"
-                      />
-                      {errors.lastName && (
-                        <p className="text-error text-label-sm mt-1">{errors.lastName}</p>
-                      )}
-                    </div>
-                    <div className="md:col-span-2">
-                      <input
-                        name="address"
-                        value={form.address}
-                        onChange={handleChange}
-                        className={`form-input font-body-md w-full ${
-                          errors.address ? "border-error" : ""
-                        }`}
-                        placeholder="Address"
-                        type="text"
-                      />
-                      {errors.address && (
-                        <p className="text-error text-label-sm mt-1">{errors.address}</p>
-                      )}
-                    </div>
-                    <div>
-                      <input
-                        name="city"
-                        value={form.city}
-                        onChange={handleChange}
-                        className={`form-input font-body-md w-full ${
-                          errors.city ? "border-error" : ""
-                        }`}
-                        placeholder="City"
-                        type="text"
-                      />
-                      {errors.city && (
-                        <p className="text-error text-label-sm mt-1">{errors.city}</p>
-                      )}
-                    </div>
-                    <div className="grid grid-cols-2 gap-4">
-                      <div>
-                        <input
-                          name="state"
-                          value={form.state}
-                          onChange={handleChange}
-                          className={`form-input font-body-md w-full ${
-                            errors.state ? "border-error" : ""
-                          }`}
-                          placeholder="State"
-                          type="text"
-                        />
-                        {errors.state && (
-                          <p className="text-error text-label-sm mt-1">{errors.state}</p>
-                        )}
-                      </div>
-                      <div>
-                        <input
-                          name="zip"
-                          value={form.zip}
-                          onChange={handleChange}
-                          className={`form-input font-body-md w-full ${
-                            errors.zip ? "border-error" : ""
-                          }`}
-                          placeholder="ZIP Code"
-                          type="text"
-                        />
-                        {errors.zip && (
-                          <p className="text-error text-label-sm mt-1">{errors.zip}</p>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                </section>
-              </>
-            )}
-
-            {step === 2 && (
-              <section>
-                <h2 className="font-headline-sm text-headline-sm text-on-surface mb-6">
-                  Shipping Method
-                </h2>
-                <div className="space-y-3">
-                  <label className={`flex items-center gap-4 p-4 border rounded-xl cursor-pointer transition-colors ${
-                    form.shipping === "standard"
-                      ? "border-primary/30 bg-primary-container/10"
-                      : "border-outline-variant/30 hover:border-primary/20"
-                  }`}>
-                    <input
-                      type="radio"
-                      name="shipping"
-                      value="standard"
-                      checked={form.shipping === "standard"}
-                      onChange={handleChange}
-                      className="accent-primary"
-                    />
-                    <div className="flex-grow">
-                      <p className="font-label-md text-on-surface">Standard Shipping</p>
-                      <p className="text-label-sm text-secondary">5-7 business days • Free</p>
-                    </div>
-                  </label>
-                  <label className={`flex items-center gap-4 p-4 border rounded-xl cursor-pointer transition-colors ${
-                    form.shipping === "express"
-                      ? "border-primary/30 bg-primary-container/10"
-                      : "border-outline-variant/30 hover:border-primary/20"
-                  }`}>
-                    <input
-                      type="radio"
-                      name="shipping"
-                      value="express"
-                      checked={form.shipping === "express"}
-                      onChange={handleChange}
-                      className="accent-primary"
-                    />
-                    <div className="flex-grow">
-                      <p className="font-label-md text-on-surface">Express Shipping</p>
-                      <p className="text-label-sm text-secondary">2-3 business days • $15.00</p>
-                    </div>
-                  </label>
+          <div className="lg:col-span-7 space-y-8">
+            {/* Contact Information */}
+            <section>
+              <h2 className="font-headline-sm text-headline-sm text-on-surface mb-6">
+                Your Information
+              </h2>
+              <div className="space-y-4">
+                <div>
+                  <input
+                    name="fullName"
+                    value={form.fullName}
+                    onChange={handleChange}
+                    className={`w-full form-input font-body-md ${errors.fullName ? "border-error" : ""}`}
+                    placeholder="Full Name"
+                    type="text"
+                  />
+                  {errors.fullName && <p className="text-error text-sm mt-1">{errors.fullName}</p>}
                 </div>
-              </section>
-            )}
-
-            {step === 3 && (
-              <section>
-                <h2 className="font-headline-sm text-headline-sm text-on-surface mb-6">
-                  Payment
-                </h2>
-                <div className="border border-outline-variant/30 rounded-xl p-6 bg-surface-container-low">
-                  <p className="font-body-md text-secondary mb-4">
-                    This is a demo checkout. Click "Complete Purchase" to simulate payment.
-                  </p>
-                  <div className="space-y-4">
-                    <input
-                      className="w-full form-input font-body-md"
-                      placeholder="Card number"
-                      type="text"
-                      defaultValue="4242 4242 4242 4242"
-                      readOnly
-                    />
-                    <div className="grid grid-cols-2 gap-4">
-                      <input
-                        className="form-input font-body-md"
-                        placeholder="MM/YY"
-                        type="text"
-                        defaultValue="12/28"
-                        readOnly
-                      />
-                      <input
-                        className="form-input font-body-md"
-                        placeholder="CVC"
-                        type="text"
-                        defaultValue="123"
-                        readOnly
-                      />
-                    </div>
-                  </div>
+                <div>
+                  <input
+                    name="phone"
+                    value={form.phone}
+                    onChange={handleChange}
+                    className={`w-full form-input font-body-md ${errors.phone ? "border-error" : ""}`}
+                    placeholder="Phone Number"
+                    type="tel"
+                  />
+                  {errors.phone && <p className="text-error text-sm mt-1">{errors.phone}</p>}
                 </div>
-              </section>
-            )}
+              </div>
+            </section>
+
+            {/* Delivery Address */}
+            <section>
+              <h2 className="font-headline-sm text-headline-sm text-on-surface mb-6">
+                Delivery Address
+              </h2>
+              <div className="space-y-4">
+                <div>
+                  <input
+                    name="address"
+                    value={form.address}
+                    onChange={handleChange}
+                    className={`w-full form-input font-body-md ${errors.address ? "border-error" : ""}`}
+                    placeholder="Street Address"
+                    type="text"
+                  />
+                  {errors.address && <p className="text-error text-sm mt-1">{errors.address}</p>}
+                </div>
+                <div>
+                  <input
+                    name="state"
+                    value={form.state}
+                    onChange={handleChange}
+                    className={`w-full form-input font-body-md ${errors.state ? "border-error" : ""}`}
+                    placeholder="State / Wilaya"
+                    type="text"
+                  />
+                  {errors.state && <p className="text-error text-sm mt-1">{errors.state}</p>}
+                </div>
+              </div>
+            </section>
+
+            {/* Payment */}
+            <section>
+              <h2 className="font-headline-sm text-headline-sm text-on-surface mb-6">
+                Payment
+              </h2>
+              <div className="flex items-center gap-4 p-5 border border-primary/30 bg-primary-container/10 rounded-xl">
+                <span className="material-symbols-outlined text-primary text-[28px]">paid</span>
+                <div>
+                  <p className="font-label-md text-on-surface">Cash on Delivery</p>
+                  <p className="text-sm text-secondary">Pay when you receive your order</p>
+                </div>
+              </div>
+            </section>
 
             {/* Navigation buttons */}
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 pt-6">
-              {step > 1 ? (
-                <button
-                  type="button"
-                  onClick={() => setStep((s) => s - 1)}
-                  className="flex items-center gap-2 text-secondary hover:text-primary transition-colors"
-                >
-                  <span className="material-symbols-outlined">chevron_left</span>
-                  Back
-                </button>
-              ) : (
-                <Link
-                  to="/cart"
-                  className="flex items-center gap-2 text-secondary hover:text-primary transition-colors"
-                >
-                  <span className="material-symbols-outlined">chevron_left</span>
-                  Return to cart
-                </Link>
-              )}
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 pt-4">
+              <Link
+                to="/cart"
+                className="flex items-center gap-2 text-secondary hover:text-primary transition-colors"
+              >
+                <span className="material-symbols-outlined">chevron_left</span>
+                Return to cart
+              </Link>
               <button
                 type="submit"
                 disabled={submitting}
@@ -351,10 +156,8 @@ function Checkout() {
                     <div className="w-5 h-5 border-2 border-on-primary-container border-t-transparent rounded-full animate-spin" />
                     Processing...
                   </>
-                ) : step === 3 ? (
-                  "Complete Purchase"
                 ) : (
-                  "Continue"
+                  "Place Order"
                 )}
               </button>
             </div>
@@ -396,19 +199,18 @@ function Checkout() {
                 </div>
                 <div className="flex justify-between items-center text-body-md">
                   <span className="text-secondary">Shipping</span>
-                  <span className="text-on-surface">{shippingCost === 0 ? "Free" : formatDZD(shippingCost)}</span>
+                  <span className="text-on-surface">Free</span>
                 </div>
                 <div className="flex justify-between items-center pt-6 mt-4 border-t border-outline-variant/50">
                   <span className="font-headline-sm text-headline-sm">Total</span>
                   <div className="text-right">
-                    <span className="text-secondary text-sm block mb-1">USD</span>
+                    <span className="text-secondary text-sm block mb-1">DZD</span>
                     <span className="font-display-lg text-[32px] text-primary">{formatDZD(total)}</span>
                   </div>
                 </div>
               </div>
               <div className="mt-12 flex items-center justify-center gap-8 opacity-40">
                 <span className="material-symbols-outlined text-[32px]">verified_user</span>
-                <span className="material-symbols-outlined text-[32px]">security</span>
                 <span className="material-symbols-outlined text-[32px]">local_shipping</span>
               </div>
             </div>

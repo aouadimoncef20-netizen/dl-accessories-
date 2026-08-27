@@ -32,7 +32,7 @@ function OrderConfirmed() {
         Order Confirmed!
       </h1>
       <p className="font-body-lg text-secondary max-w-lg mx-auto mb-4">
-        Thank you for your purchase. You'll receive a confirmation email shortly.
+        Thank you for your purchase. We'll contact you shortly to confirm delivery.
       </p>
 
       {/* Order ID card */}
@@ -43,14 +43,14 @@ function OrderConfirmed() {
 
       {/* Order details */}
       <div className="max-w-lg mx-auto text-left bg-surface-container-low rounded-2xl p-8 soft-glow mb-12">
-        <h2 className="font-headline-sm text-headline-sm mb-6">Shipping Details</h2>
+        <h2 className="font-headline-sm text-headline-sm mb-6">Delivery Details</h2>
         <div className="space-y-2 font-body-md text-secondary">
-          <p>{order.form.firstName} {order.form.lastName}</p>
+          <p>{order.form.fullName}</p>
           <p>{order.form.address}</p>
-          <p>{order.form.city}, {order.form.state} {order.form.zip}</p>
+          <p>{order.form.state}</p>
           <p className="pt-4">{order.form.phone}</p>
-          <p className="pt-2 font-label-sm uppercase tracking-widest">
-            {order.shipping === 0 ? "Standard Shipping" : "Express Shipping"}
+          <p className="pt-2 font-label-sm uppercase tracking-widest text-primary">
+            Cash on Delivery
           </p>
         </div>
       </div>
