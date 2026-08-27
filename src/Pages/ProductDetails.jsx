@@ -1,7 +1,6 @@
 import { useEffect, useState, useCallback } from "react";
 import { useParams } from "react-router-dom";
 import useCartStore from "../stores/cartStore";
-import useWishlistStore from "../stores/wishlistStore";
 import { useToast } from "../Contexts/ToastContext";
 import { formatDZD } from "../lib/currency";
 import Breadcrumb from "../Component/Breadcrumb";

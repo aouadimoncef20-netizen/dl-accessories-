@@ -6,7 +6,6 @@ import PageTransition from "../Component/PageTransition";
 import SEO from "../Component/SEO";
 import ScrollReveal from "../Component/ScrollReveal";
 import useProductStore from "../stores/productStore";
-import { images } from "../Data/images";
 
 const categoryFilters = [
   "All Collections",
