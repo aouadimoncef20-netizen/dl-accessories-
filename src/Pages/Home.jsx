@@ -10,6 +10,7 @@ import SEO from "../Component/SEO";
 import ScrollReveal from "../Component/ScrollReveal";
 import { images } from "../Data/images";
 import useProducts from "../Hooks/useProducts";
+import useTranslation from "../i18n/useTranslation";
 import { formatDZD } from "../lib/currency";
 
 const categories = [
@@ -53,6 +54,7 @@ const Home = () => {
   const heroRef = useRef(null);
   const { products: newArrivals, loading: arrivalsLoading } = useProducts({ newArrival: true });
   const { products: bestSellers, loading: sellersLoading } = useProducts({ bestSeller: true });
+  const { t } = useTranslation();
 
   // Hero parallax
   const { scrollYProgress } = useScroll({
@@ -101,7 +103,7 @@ const Home = () => {
               transition={{ duration: 0.8, delay: 0.2 }}
               className="inline-block font-label-sm text-white/70 uppercase tracking-[0.25em] mb-6 border-l-2 border-primary-container pl-4"
             >
-              DL Accessories — New Season
+              {t("hero_tag")}
             </motion.span>
             <motion.h1
               initial={{ opacity: 0, y: 30 }}
@@ -109,7 +111,7 @@ const Home = () => {
               transition={{ duration: 0.8, delay: 0.4 }}
               className="font-display-lg text-[44px] md:text-display-lg text-white mb-6 leading-tight drop-shadow-lg"
             >
-              Details Make You <span className="italic font-light">Shine</span>
+              {t("hero_title_1")} <span className="italic font-light">{t("hero_title_2")}</span>
             </motion.h1>
             <motion.p
               initial={{ opacity: 0, y: 30 }}
@@ -117,7 +119,7 @@ const Home = () => {
               transition={{ duration: 0.8, delay: 0.6 }}
               className="font-body-lg text-body-lg text-white/90 mb-10 max-w-lg drop-shadow-md leading-relaxed"
             >
-              Curated accessories for the modern muse — where every detail speaks of timeless elegance and quiet confidence.
+              {t("hero_desc")}
             </motion.p>
             <motion.div
               initial={{ opacity: 0, y: 30 }}
@@ -125,7 +127,7 @@ const Home = () => {
               transition={{ duration: 0.8, delay: 0.8 }}
             >
               <Link to="/collections" className="inline-flex items-center gap-3 bg-white text-primary px-8 md:px-10 py-4 rounded-full font-label-md uppercase tracking-widest hover:bg-primary hover:text-white transition-all duration-500 shadow-xl shadow-black/10">
-                Discover Collection
+                {t("hero_cta")}
                 <span className="material-symbols-outlined text-lg">arrow_forward</span>
               </Link>
             </motion.div>
@@ -138,12 +140,12 @@ const Home = () => {
           className="hidden lg:block absolute right-8 md:right-16 top-1/2 -translate-y-1/2 z-10 space-y-5"
         >
           <div className="bg-white/15 backdrop-blur-xl border border-white/25 rounded-2xl px-6 py-5 text-white w-52 shadow-xl">
-            <p className="text-label-sm text-white/60 uppercase tracking-widest mb-1.5">New In</p>
-            <p className="font-headline-sm text-headline-sm leading-tight">Celestial Rings</p>
+            <p className="text-label-sm text-white/60 uppercase tracking-widest mb-1.5">{t("hero_new_in")}</p>
+            <p className="font-headline-sm text-headline-sm leading-tight">{t("hero_new_in_item")}</p>
           </div>
           <div className="bg-white/15 backdrop-blur-xl border border-white/25 rounded-2xl px-6 py-5 text-white w-52 shadow-xl">
-            <p className="text-label-sm text-white/60 uppercase tracking-widest mb-1.5">Bestseller</p>
-            <p className="font-headline-sm text-headline-sm leading-tight">Aura Watch Series</p>
+            <p className="text-label-sm text-white/60 uppercase tracking-widest mb-1.5">{t("hero_bestseller")}</p>
+            <p className="font-headline-sm text-headline-sm leading-tight">{t("hero_bestseller_item")}</p>
           </div>
         </motion.div>
         <motion.div
@@ -152,7 +154,7 @@ const Home = () => {
           transition={{ duration: 1, delay: 1.2 }}
           className="absolute bottom-8 left-1/2 -translate-x-1/2 z-10 flex flex-col items-center gap-2 text-white/50"
         >
-          <span className="font-label-sm text-xs uppercase tracking-widest">Scroll</span>
+          <span className="font-label-sm text-xs uppercase tracking-widest">{t("hero_scroll")}</span>
           <span className="material-symbols-outlined text-lg animate-bounce">expand_more</span>
         </motion.div>
       </section>
@@ -163,11 +165,11 @@ const Home = () => {
           <ScrollReveal>
             <div className="flex justify-between items-center mb-12">
               <div>
-                <span className="font-label-sm text-primary uppercase tracking-[0.25em] mb-2 block">Browse by Category</span>
-                <h2 className="font-display-lg text-display-lg-mobile md:text-headline-md text-on-surface">Curated Selections</h2>
+                <span className="font-label-sm text-primary uppercase tracking-[0.25em] mb-2 block">{t("cat_label")}</span>
+                <h2 className="font-display-lg text-display-lg-mobile md:text-headline-md text-on-surface">{t("cat_title")}</h2>
               </div>
               <div className="flex items-center gap-4">
-                <Link to="/collections" className="hidden md:flex items-center gap-1.5 font-label-sm text-secondary uppercase tracking-widest hover:text-primary transition-colors border-b border-outline-variant/30 pb-0.5 hover:border-primary/30">View All</Link>
+                <Link to="/collections" className="hidden md:flex items-center gap-1.5 font-label-sm text-secondary uppercase tracking-widest hover:text-primary transition-colors border-b border-outline-variant/30 pb-0.5 hover:border-primary/30">{t("cat_view_all")}</Link>
                 <div className="hidden md:flex gap-2">
                   <button onClick={() => handleCategoryScroll("left")} className="w-10 h-10 rounded-full border border-outline/20 flex items-center justify-center text-on-surface-variant hover:bg-white hover:border-primary/30 hover:text-primary transition-all duration-300" aria-label="Scroll left"><span className="material-symbols-outlined text-lg">chevron_left</span></button>
                   <button onClick={() => handleCategoryScroll("right")} className="w-10 h-10 rounded-full border border-outline/20 flex items-center justify-center text-on-surface-variant hover:bg-white hover:border-primary/30 hover:text-primary transition-all duration-300" aria-label="Scroll right"><span className="material-symbols-outlined text-lg">chevron_right</span></button>
@@ -191,11 +193,11 @@ const Home = () => {
           <ScrollReveal>
             <div className="flex justify-between items-center mb-12">
               <div>
-                <span className="font-label-sm text-primary uppercase tracking-[0.25em] mb-2 block">Just Dropped</span>
-                <h2 className="font-display-lg text-display-lg-mobile md:text-headline-md text-on-surface">New Arrivals</h2>
+                <span className="font-label-sm text-primary uppercase tracking-[0.25em] mb-2 block">{t("arrivals_label")}</span>
+                <h2 className="font-display-lg text-display-lg-mobile md:text-headline-md text-on-surface">{t("arrivals_title")}</h2>
               </div>
               <div className="flex items-center gap-4">
-                <Link to="/collections" className="hidden md:flex items-center gap-1.5 font-label-sm text-secondary uppercase tracking-widest hover:text-primary transition-colors border-b border-outline-variant/30 pb-0.5 hover:border-primary/30">Shop All</Link>
+                <Link to="/collections" className="hidden md:flex items-center gap-1.5 font-label-sm text-secondary uppercase tracking-widest hover:text-primary transition-colors border-b border-outline-variant/30 pb-0.5 hover:border-primary/30">{t("arrivals_shop_all")}</Link>
                 <div className="hidden md:flex gap-2">
                   <button onClick={() => handleScroll("left")} className="w-10 h-10 rounded-full border border-outline/20 flex items-center justify-center text-on-surface-variant hover:bg-white hover:border-primary/30 hover:text-primary transition-all duration-300" aria-label="Scroll left"><span className="material-symbols-outlined text-lg">chevron_left</span></button>
                   <button onClick={() => handleScroll("right")} className="w-10 h-10 rounded-full border border-outline/20 flex items-center justify-center text-on-surface-variant hover:bg-white hover:border-primary/30 hover:text-primary transition-all duration-300" aria-label="Scroll right"><span className="material-symbols-outlined text-lg">chevron_right</span></button>
@@ -217,7 +219,7 @@ const Home = () => {
             )}
           </div>
           <div className="flex justify-center mt-8 md:hidden">
-            <Link to="/collections" className="inline-flex items-center gap-1.5 font-label-sm text-primary uppercase tracking-widest border-b border-primary/30 pb-0.5 hover:border-primary transition-all">Shop All New Arrivals<span className="material-symbols-outlined text-base">arrow_forward</span></Link>
+            <Link to="/collections" className="inline-flex items-center gap-1.5 font-label-sm text-primary uppercase tracking-widest border-b border-primary/30 pb-0.5 hover:border-primary transition-all">{t("arrivals_shop_all_mobile")}<span className="material-symbols-outlined text-base">arrow_forward</span></Link>
           </div>
         </div>
       </section>
@@ -228,11 +230,11 @@ const Home = () => {
           <ScrollReveal>
             <div className="flex justify-between items-center mb-12">
               <div>
-                <span className="font-label-sm text-primary uppercase tracking-[0.25em] mb-2 block">Most Loved</span>
-                <h2 className="font-display-lg text-display-lg text-on-surface">Your favorites</h2>
+                <span className="font-label-sm text-primary uppercase tracking-[0.25em] mb-2 block">{t("sellers_label")}</span>
+                <h2 className="font-display-lg text-display-lg text-on-surface">{t("sellers_title")}</h2>
               </div>
               <div className="flex items-center gap-4">
-                <Link to="/collections" className="hidden md:flex items-center gap-1.5 font-label-sm text-secondary uppercase tracking-widest hover:text-primary transition-colors border-b border-outline-variant/30 pb-0.5 hover:border-primary/30">Shop All</Link>
+                <Link to="/collections" className="hidden md:flex items-center gap-1.5 font-label-sm text-secondary uppercase tracking-widest hover:text-primary transition-colors border-b border-outline-variant/30 pb-0.5 hover:border-primary/30">{t("sellers_shop_all")}</Link>
                 <div className="hidden md:flex gap-2">
                   <button onClick={() => handleBestSellersScroll("left")} className="w-10 h-10 rounded-full border border-outline/20 flex items-center justify-center text-on-surface-variant hover:bg-white hover:border-primary/30 hover:text-primary transition-all duration-300" aria-label="Scroll left"><span className="material-symbols-outlined text-lg">chevron_left</span></button>
                   <button onClick={() => handleBestSellersScroll("right")} className="w-10 h-10 rounded-full border border-outline/20 flex items-center justify-center text-on-surface-variant hover:bg-white hover:border-primary/30 hover:text-primary transition-all duration-300" aria-label="Scroll right"><span className="material-symbols-outlined text-lg">chevron_right</span></button>
@@ -257,7 +259,7 @@ const Home = () => {
                           <span className="material-symbols-outlined text-3xl">image</span>
                         </div>
                       )}
-                      <span className="absolute top-4 left-4 bg-primary-container/20 text-on-background text-[10px] font-label-sm uppercase tracking-widest px-3 py-1.5 rounded-full">Best Seller</span>
+                      <span className="absolute top-4 left-4 bg-primary-container/20 text-on-background text-[10px] font-label-sm uppercase tracking-widest px-3 py-1.5 rounded-full">{t("sellers_badge")}</span>
                     </div>
                     <div className="text-center">
                       <h3 className="font-headline-sm text-lg text-on-surface group-hover:text-primary transition-colors mb-1">{item.name}</h3>
@@ -276,8 +278,8 @@ const Home = () => {
         <div className="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop">
           <ScrollReveal>
             <div className="text-center mb-16">
-              <span className="font-label-sm text-primary uppercase tracking-[0.25em] mb-3 block">Inspiration</span>
-              <h2 className="font-display-lg text-display-lg text-on-surface">Mood Board</h2>
+              <span className="font-label-sm text-primary uppercase tracking-[0.25em] mb-3 block">{t("mood_label")}</span>
+              <h2 className="font-display-lg text-display-lg text-on-surface">{t("mood_title")}</h2>
             </div>
           </ScrollReveal>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 auto-rows-[160px] md:auto-rows-[200px]">
@@ -303,9 +305,9 @@ const Home = () => {
         <div className="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop">
           <ScrollReveal>
             <div className="text-center mb-16">
-              <span className="font-label-sm text-primary uppercase tracking-[0.25em] mb-3 block">Testimonials</span>
-              <h2 className="font-display-lg text-display-lg text-on-surface mb-3">Worn by the Muses</h2>
-              <p className="font-body-md text-secondary max-w-md mx-auto">Join thousands who have elevated their style with DL Accessories.</p>
+              <span className="font-label-sm text-primary uppercase tracking-[0.25em] mb-3 block">{t("reviews_label")}</span>
+              <h2 className="font-display-lg text-display-lg text-on-surface mb-3">{t("reviews_title")}</h2>
+              <p className="font-body-md text-secondary max-w-md mx-auto">{t("reviews_desc")}</p>
             </div>
           </ScrollReveal>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8">
@@ -324,11 +326,11 @@ const Home = () => {
           <ScrollReveal>
             <div className="flex items-center justify-between mb-12">
               <div>
-                <span className="font-label-sm text-primary uppercase tracking-[0.25em] mb-2 block">Social</span>
+                <span className="font-label-sm text-primary uppercase tracking-[0.25em] mb-2 block">{t("instagram_label")}</span>
                 <h2 className="font-display-lg text-display-lg-mobile md:text-headline-md text-on-surface">@DL.ACCESSORIES</h2>
               </div>
               <a href="https://www.instagram.com/dl.accessoires.reghaia/" target="_blank" rel="noopener noreferrer" className="hidden md:inline-flex items-center gap-2 font-label-sm text-primary uppercase tracking-widest border-b border-primary/30 pb-0.5 hover:border-primary transition-all">
-                Follow Us <span className="material-symbols-outlined text-base">open_in_new</span>
+                {t("follow_us")} <span className="material-symbols-outlined text-base">open_in_new</span>
               </a>
             </div>
           </ScrollReveal>
@@ -346,7 +348,7 @@ const Home = () => {
           </div>
           <div className="flex justify-center mt-8 md:hidden">
             <a href="https://www.instagram.com/dl.accessoires.reghaia/" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 font-label-sm text-primary uppercase tracking-widest border-b border-primary/30 pb-0.5 hover:border-primary transition-all">
-              Follow Us @DL.ACCESSORIES <span className="material-symbols-outlined text-base">open_in_new</span>
+              {t("follow_us")} @DL.ACCESSORIES <span className="material-symbols-outlined text-base">open_in_new</span>
             </a>
           </div>
         </div>

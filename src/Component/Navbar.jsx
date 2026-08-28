@@ -4,6 +4,8 @@ import { motion, useMotionValueEvent, useScroll } from "framer-motion";
 import useCartStore from "../stores/cartStore";
 import useWishlistStore from "../stores/wishlistStore";
 import useThemeStore from "../stores/themeStore";
+import useLanguageStore from "../stores/languageStore";
+import useTranslation from "../i18n/useTranslation";
 import MobileMenu from "./MobileMenu";
 
 function Navbar() {
@@ -13,6 +15,8 @@ function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const { scrollY } = useScroll();
   const { mode, toggle } = useThemeStore();
+  const { lang, toggle: toggleLang } = useLanguageStore();
+  const { t } = useTranslation();
   const isDark = mode === "dark";
 
   useMotionValueEvent(scrollY, "change", (latest) => {
@@ -63,12 +67,26 @@ function Navbar() {
                   ].join(" ")
                 }
               >
-                Collections
+                {t("nav_collections")}
               </NavLink>
             </li>
           </ul>
 
           <div className="flex items-center gap-4 md:gap-5">
+            {/* Language toggle */}
+            <button
+              type="button"
+              aria-label="Toggle language"
+              onClick={toggleLang}
+              className={`text-xs font-semibold uppercase tracking-wider px-2.5 py-1.5 rounded-full border transition-all duration-300 ${
+                scrolled
+                  ? "border-outline-variant text-on-surface-variant hover:text-primary hover:border-primary"
+                  : "border-white/30 text-white/80 hover:text-white hover:border-white"
+              }`}
+            >
+              {lang === "fr" ? "AR" : "FR"}
+            </button>
+
             {/* Dark mode toggle */}
             <button
               type="button"

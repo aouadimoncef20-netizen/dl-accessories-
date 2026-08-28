@@ -1,6 +1,9 @@
 import { Link } from "react-router-dom";
+import useTranslation from "../i18n/useTranslation";
 
 function Footer() {
+  const { t } = useTranslation();
+
   return (
     <footer className="bg-surface-container-low w-full py-section-gap px-margin-mobile md:px-margin-desktop">
       <div className="grid grid-cols-1 md:grid-cols-4 gap-gutter max-w-container-max mx-auto">
@@ -10,8 +13,7 @@ function Footer() {
             DL Accessories
           </div>
           <p className="font-body-md text-body-md text-secondary">
-            Crafting the essence of modern elegance. Pieces designed for the muse
-            within every woman.
+            {t("footer_desc")}
           </p>
           <div className="flex gap-4">
             <button
@@ -32,39 +34,27 @@ function Footer() {
         {/* Column 2: Shop */}
         <div className="space-y-6">
           <h5 className="font-label-md text-primary uppercase tracking-widest">
-            Shop
+            {t("footer_shop")}
           </h5>
           <ul className="space-y-4 font-body-md text-secondary">
             <li>
-              <Link
-                to="/collections"
-                className="hover:text-primary transition-colors duration-300"
-              >
-                New Arrivals
+              <Link to="/collections" className="hover:text-primary transition-colors duration-300">
+                {t("footer_new_arrivals")}
               </Link>
             </li>
             <li>
-              <Link
-                to="/collections"
-                className="hover:text-primary transition-colors duration-300"
-              >
-                Bestsellers
+              <Link to="/collections" className="hover:text-primary transition-colors duration-300">
+                {t("footer_bestsellers")}
               </Link>
             </li>
             <li>
-              <Link
-                to="/collections"
-                className="hover:text-primary transition-colors duration-300"
-              >
-                Watches
+              <Link to="/collections" className="hover:text-primary transition-colors duration-300">
+                {t("footer_watches")}
               </Link>
             </li>
             <li>
-              <Link
-                to="/collections"
-                className="hover:text-primary transition-colors duration-300"
-              >
-                Jewelry Sets
+              <Link to="/collections" className="hover:text-primary transition-colors duration-300">
+                {t("footer_jewelry_sets")}
               </Link>
             </li>
           </ul>
@@ -73,31 +63,22 @@ function Footer() {
         {/* Column 3: Company */}
         <div className="space-y-6">
           <h5 className="font-label-md text-primary uppercase tracking-widest">
-            Company
+            {t("footer_company")}
           </h5>
           <ul className="space-y-4 font-body-md text-secondary">
             <li>
-              <Link
-                to="/contact"
-                className="hover:text-primary transition-colors duration-300"
-              >
-                Our Story
+              <Link to="/contact" className="hover:text-primary transition-colors duration-300">
+                {t("footer_our_story")}
               </Link>
             </li>
             <li>
-              <Link
-                to="/contact"
-                className="hover:text-primary transition-colors duration-300"
-              >
-                Contact Us
+              <Link to="/contact" className="hover:text-primary transition-colors duration-300">
+                {t("footer_contact_us")}
               </Link>
             </li>
             <li>
-              <Link
-                to="/privacy"
-                className="hover:text-primary transition-colors duration-300"
-              >
-                Privacy
+              <Link to="/privacy" className="hover:text-primary transition-colors duration-300">
+                {t("footer_privacy")}
               </Link>
             </li>
           </ul>
@@ -106,31 +87,22 @@ function Footer() {
         {/* Column 4: Support */}
         <div className="space-y-6">
           <h5 className="font-label-md text-primary uppercase tracking-widest">
-            Support
+            {t("footer_support")}
           </h5>
           <ul className="space-y-4 font-body-md text-secondary">
             <li>
-              <Link
-                to="/contact"
-                className="hover:text-primary transition-colors duration-300"
-              >
-                Contact Us
+              <Link to="/contact" className="hover:text-primary transition-colors duration-300">
+                {t("footer_contact_us")}
               </Link>
             </li>
             <li>
-              <Link
-                to="/privacy"
-                className="hover:text-primary transition-colors duration-300"
-              >
-                Privacy Policy
+              <Link to="/privacy" className="hover:text-primary transition-colors duration-300">
+                {t("footer_privacy_policy")}
               </Link>
             </li>
             <li>
-              <Link
-                to="/terms"
-                className="hover:text-primary transition-colors duration-300"
-              >
-                Terms of Service
+              <Link to="/terms" className="hover:text-primary transition-colors duration-300">
+                {t("footer_terms")}
               </Link>
             </li>
           </ul>
@@ -140,7 +112,7 @@ function Footer() {
       {/* Bottom bar */}
       <div className="max-w-container-max mx-auto mt-20 pt-8 border-t border-outline/10 text-center md:text-left">
         <p className="font-body-md text-body-md text-secondary opacity-60">
-          &copy; {new Date().getFullYear()} DL Accessories. Crafted for the Modern Muse.
+          {t("footer_copyright", { year: new Date().getFullYear() })}
         </p>
       </div>
     </footer>

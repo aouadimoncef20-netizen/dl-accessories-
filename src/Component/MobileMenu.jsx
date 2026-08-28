@@ -1,6 +1,15 @@
 import { Link } from "react-router-dom";
+import useTranslation from "../i18n/useTranslation";
 
 function MobileMenu({ isOpen, onClose }) {
+  const { t } = useTranslation();
+
+  const menuItems = [
+    { label: t("nav_collections"), to: "/collections" },
+    { label: t("nav_gallery"), to: "/gallery" },
+    { label: t("nav_contact"), to: "/contact" },
+  ];
+
   return (
     <>
       {/* Overlay */}
@@ -12,9 +21,10 @@ function MobileMenu({ isOpen, onClose }) {
       />
       {/* Slide-out menu */}
       <div
-        className={`fixed top-0 right-0 h-full w-80 bg-surface z-50 shadow-xl transition-transform duration-300 ${
+        className={`fixed top-0 h-full w-80 bg-surface z-50 shadow-xl transition-transform duration-300 ${
           isOpen ? "translate-x-0" : "translate-x-full"
         }`}
+        style={{ [document.documentElement.dir === "rtl" ? "left" : "right"]: 0 }}
       >
         <div className="flex justify-between items-center p-6 border-b border-outline-variant/20">
           <span className="font-display-lg text-[24px] text-primary">DL Accessories</span>
@@ -23,13 +33,9 @@ function MobileMenu({ isOpen, onClose }) {
           </button>
         </div>
         <div className="flex flex-col p-6 space-y-2">
-          {[
-            { label: "Collections", to: "/collections" },
-            { label: "Gallery", to: "/gallery" },
-            { label: "Contact", to: "/contact" },
-          ].map((item) => (
+          {menuItems.map((item) => (
             <Link
-              key={item.label}
+              key={item.to}
               to={item.to}
               onClick={onClose}
               className="font-label-md text-label-md uppercase tracking-widest text-on-surface-variant hover:text-primary transition-colors py-4 border-b border-outline-variant/10"

@@ -6,6 +6,7 @@ import PageTransition from "../Component/PageTransition";
 import SEO from "../Component/SEO";
 import ScrollReveal from "../Component/ScrollReveal";
 import useProductStore from "../stores/productStore";
+import useTranslation from "../i18n/useTranslation";
 
 const categoryFilters = [
   "All Collections",
@@ -27,6 +28,7 @@ export default function Collections() {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalCount, setTotalCount] = useState(0);
   const { products, fetchProducts, loading } = useProductStore();
+  const { t } = useTranslation();
 
   useEffect(() => {
     const categoryName = activeCategory === "All Collections" ? undefined : activeCategory;
@@ -80,7 +82,7 @@ export default function Collections() {
               transition={{ duration: 0.6, delay: 0.1 }}
               className="font-label-md text-white/80 uppercase tracking-[0.2em] mb-4"
             >
-              Curated Pieces
+              {t("collections_hero_label")}
             </motion.p>
             <motion.h1
               initial={{ opacity: 0, y: 30 }}
@@ -88,7 +90,7 @@ export default function Collections() {
               transition={{ duration: 0.7, delay: 0.3 }}
               className="font-display-lg text-display-lg mb-6 text-white"
             >
-              Our Collections
+              {t("collections_hero_title")}
             </motion.h1>
             <motion.p
               initial={{ opacity: 0, y: 20 }}
@@ -96,9 +98,7 @@ export default function Collections() {
               transition={{ duration: 0.6, delay: 0.5 }}
               className="font-body-lg text-body-lg text-white/80 max-w-2xl mx-auto"
             >
-              Discover our signature edits — from timeless jewellery to precision-cut
-              press-ons, each piece is selected for its craftsmanship, beauty, and the
-              quiet confidence it brings to every moment.
+              {t("collections_hero_desc")}
             </motion.p>
           </div>
         </section>

@@ -7,6 +7,7 @@ import ErrorBoundary from "./Component/ErrorBoundary";
 import NotFound from "./Pages/NotFound";
 import useAuthStore from "./stores/authStore";
 import useThemeStore from "./stores/themeStore";
+import useLanguageStore from "./stores/languageStore";
 
 // Public pages
 import Home from "./Pages/Home";
@@ -37,11 +38,13 @@ import AdminDashboard from "./Pages/AdminDashboard";
 function App() {
   const { initialize, loading } = useAuthStore();
   const initTheme = useThemeStore((s) => s.init);
+  const initLang = useLanguageStore((s) => s.init);
 
   useEffect(() => {
     initialize();
     initTheme();
-  }, [initialize, initTheme]);
+    initLang();
+  }, [initialize, initTheme, initLang]);
 
   if (loading) {
     return (
