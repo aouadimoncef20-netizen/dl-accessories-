@@ -5,6 +5,7 @@ import PageTransition from "../Component/PageTransition";
 import CartItem from "../Component/CartItem";
 import OrderSummary from "../Component/OrderSummary";
 import SEO from "../Component/SEO";
+import useTranslation from "../i18n/useTranslation";
 
 function Cart() {
   const items = useCartStore((s) => s.items);
@@ -12,23 +13,24 @@ function Cart() {
   const updateQty = useCartStore((s) => s.updateQty);
   const subtotal = useCartStore((s) => s.subtotal());
   const [giftWrap, setGiftWrap] = useState(false);
+  const { t } = useTranslation();
 
   return (
     <PageTransition>
     <div className="pt-32 pb-section-gap px-margin-mobile md:px-margin-desktop max-w-container-max mx-auto">
-      <SEO title="Shopping Bag" description="Review your selected items and proceed to checkout." />
+      <SEO title={t("cart_title")} description={t("cart_title")} />
       <div className="mb-12">
-        <h1 className="font-display-lg text-display-lg-mobile md:text-display-lg mb-2">Shopping Bag</h1>
+        <h1 className="font-display-lg text-display-lg-mobile md:text-display-lg mb-2">{t("cart_title")}</h1>
         <p className="text-on-surface-variant font-body-md">
-          {items.length} item{items.length !== 1 ? "s" : ""} in your cart.
+          {t("cart_items_in", { count: items.length })}
         </p>
       </div>
 
       {items.length === 0 ? (
         <div className="text-center py-24">
           <span className="material-symbols-outlined text-5xl text-outline mb-4">shopping_bag</span>
-          <p className="font-headline-sm text-on-surface-variant mb-2">Your bag is empty</p>
-          <Link to="/collections" className="inline-block mt-6 px-10 py-4 bg-primary text-on-primary rounded-full font-label-md uppercase tracking-widest hover:opacity-90">Shop Now</Link>
+          <p className="font-headline-sm text-on-surface-variant mb-2">{t("cart_empty_title")}</p>
+          <Link to="/collections" className="inline-block mt-6 px-10 py-4 bg-primary text-on-primary rounded-full font-label-md uppercase tracking-widest hover:opacity-90">{t("cart_shop_now")}</Link>
         </div>
       ) : (
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-gutter items-start">
@@ -42,19 +44,19 @@ function Cart() {
               <div className="flex items-center gap-4">
                 <span className="material-symbols-outlined text-primary text-[28px] shrink-0">redeem</span>
                 <div>
-                  <p className="font-label-md text-primary">Add Gift Wrapping</p>
-                  <p className="text-on-surface-variant text-label-sm">Complimentary silk ribbon and luxury box.</p>
+                  <p className="font-label-md text-primary">{t("cart_gift_wrap")}</p>
+                  <p className="text-on-surface-variant text-label-sm">{t("cart_gift_desc")}</p>
                 </div>
               </div>
-              <button onClick={() => setGiftWrap(!giftWrap)} className={`px-4 py-2 rounded-full font-label-sm border transition-all active:scale-95 ${giftWrap ? "bg-primary text-white border-primary" : "bg-white border-outline-variant/20 hover:shadow-sm"}`}>{giftWrap ? "Added ✓" : "Add"}</button>
+              <button onClick={() => setGiftWrap(!giftWrap)} className={`px-4 py-2 rounded-full font-label-sm border transition-all active:scale-95 ${giftWrap ? "bg-primary text-white border-primary" : "bg-white border-outline-variant/20 hover:shadow-sm"}`}>{giftWrap ? t("cart_gift_added") : t("cart_gift_add")}</button>
             </div>
           </div>
           <aside className="lg:col-span-4 space-y-6">
             <OrderSummary subtotal={subtotal} />
             <div className="bg-surface-container p-6 rounded-xl flex flex-col items-center text-center">
-              <p className="font-label-md mb-2">Need help with your order?</p>
-              <p className="text-on-surface-variant text-label-sm mb-4">Our concierge is available Mon-Fri, 9am-6pm PST.</p>
-              <Link to="/contact" className="text-primary font-label-md underline underline-offset-4 decoration-primary-container hover:text-on-primary-container transition-colors">Contact Concierge</Link>
+              <p className="font-label-md mb-2">{t("cart_need_help")}</p>
+              <p className="text-on-surface-variant text-label-sm mb-4">{t("cart_help_desc")}</p>
+              <Link to="/contact" className="text-primary font-label-md underline underline-offset-4 decoration-primary-container hover:text-on-primary-container transition-colors">{t("cart_contact_concierge")}</Link>
             </div>
           </aside>
         </div>

@@ -1,6 +1,9 @@
 import { formatDZD } from "../lib/currency";
+import useTranslation from "../i18n/useTranslation";
 
 function CartItem({ id, name, image, price, variant, qty, onUpdateQty, onRemove }) {
+  const { t } = useTranslation();
+
   return (
     <div className="item-row flex flex-col sm:flex-row gap-4 sm:gap-6 pb-8 border-b border-outline-variant/30 group">
       <div className="w-full sm:w-32 h-40 bg-surface-container-low rounded-xl overflow-hidden flex-shrink-0 soft-glow">
@@ -39,7 +42,7 @@ function CartItem({ id, name, image, price, variant, qty, onUpdateQty, onRemove 
             className="remove-btn opacity-40 hover:opacity-100 text-on-surface-variant flex items-center gap-1 transition-all duration-300"
           >
             <span className="material-symbols-outlined text-[18px]">delete</span>
-            <span className="font-label-sm">Remove</span>
+            <span className="font-label-sm">{t("cartitem_remove")}</span>
           </button>
         </div>
       </div>

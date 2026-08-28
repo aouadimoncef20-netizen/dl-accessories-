@@ -1,10 +1,12 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
+const LANGS = ["en", "fr", "ar"];
+
 const useLanguageStore = create(
   persist(
     (set, get) => ({
-      lang: "fr", // "fr" | "ar"
+      lang: "en",
 
       setLang: (lang) => {
         set({ lang });
@@ -13,7 +15,8 @@ const useLanguageStore = create(
 
       toggle: () => {
         const current = get().lang;
-        const next = current === "fr" ? "ar" : "fr";
+        const idx = LANGS.indexOf(current);
+        const next = LANGS[(idx + 1) % LANGS.length];
         set({ lang: next });
         applyDir(next);
       },

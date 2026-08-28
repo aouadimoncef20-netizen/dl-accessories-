@@ -16,6 +16,7 @@ function Navbar() {
   const { scrollY } = useScroll();
   const { mode, toggle } = useThemeStore();
   const { lang, toggle: toggleLang } = useLanguageStore();
+  const nextLang = { en: "FR", fr: "AR", ar: "EN" };
   const { t } = useTranslation();
   const isDark = mode === "dark";
 
@@ -92,7 +93,7 @@ function Navbar() {
                   : "border-white/30 text-white/80 hover:text-white hover:border-white"
               }`}
             >
-              {lang === "fr" ? "AR" : "FR"}
+              {nextLang[lang]}
             </button>
 
             {/* Dark mode toggle */}

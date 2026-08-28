@@ -9,6 +9,7 @@ import SizeGuideModal from "../Component/SizeGuideModal";
 import ImageZoomModal from "../Component/ImageZoomModal";
 import SEO from "../Component/SEO";
 import useProductStore from "../stores/productStore";
+import useTranslation from "../i18n/useTranslation";
 
 const PLACEHOLDER = "/placeholder-product.png";
 
@@ -49,7 +50,8 @@ function ProductGallery({ images, name, onImageClick }) {
   );
 }
 
-function StickyAddToBag({ added, onClick, label = "Add to Bag" }) {
+function StickyAddToBag({ added, onClick, label }) {
+  const { t } = useTranslation();
   return (
     <div className="fixed bottom-0 left-0 right-0 z-40 md:hidden bg-surface/95 backdrop-blur-md border-t border-outline-variant/20 px-4 py-3 safe-area-bottom">
       <button
@@ -58,7 +60,7 @@ function StickyAddToBag({ added, onClick, label = "Add to Bag" }) {
         className="w-full py-4 bg-primary-container text-on-primary-fixed font-label-md rounded-full uppercase tracking-[0.15em] flex items-center justify-center gap-2 active:scale-[0.98] transition-transform"
       >
         <span className="material-symbols-outlined text-xl">{added ? "check" : "shopping_bag"}</span>
-        {added ? "Added!" : label}
+        {added ? t("pd_added") : (label || t("pd_add_to_bag"))}
       </button>
     </div>
   );
@@ -104,11 +106,12 @@ function WatchDetails({ product, related, onImageClick }) {
   const images = product.images || [];
   const addItem = useCartStore((s) => s.addItem);
   const toast = useToast();
+  const { t } = useTranslation();
 
   const handleAddToBag = () => {
     addItem({ id: product.id, name: product.name, price: product.price, image: product.images?.[0] || product.image, variant: `Finish: Rose Gold` });
     setAdded(true);
-    toast.success("Added to bag!");
+    toast.success(t("pd_added_toast"));
     setTimeout(() => setAdded(false), 2000);
   };
 
@@ -122,7 +125,7 @@ function WatchDetails({ product, related, onImageClick }) {
         <div className="lg:col-span-5 lg:sticky lg:top-32 space-y-5 md:space-y-6 pb-24 md:pb-0">
           <div className="flex items-start justify-between">
             <span className="inline-block bg-primary-container/30 text-primary px-3 py-1.5 rounded-full uppercase tracking-widest text-[10px] font-label-sm">
-              New Collection
+              {t("pd_new_collection")}
             </span>
             <button type="button" aria-label="Share" className="w-10 h-10 flex items-center justify-center rounded-full border border-outline-variant/30 hover:bg-surface-container-low transition-colors">
               <span className="material-symbols-outlined">share</span>
@@ -134,7 +137,7 @@ function WatchDetails({ product, related, onImageClick }) {
           <p className="text-sm md:text-body-lg text-on-surface-variant leading-relaxed">{product.description}</p>
 
           <div className="space-y-3">
-            <p className="font-label-sm uppercase tracking-widest text-on-surface">Finish: Rose Gold</p>
+            <p className="font-label-sm uppercase tracking-widest text-on-surface">{t("pd_finish_rose_gold")}</p>
             <div className="flex flex-wrap gap-3">
               {colorCodes.map((c, i) => (
                 <button key={i} type="button" aria-label={`Color ${i + 1}`} onClick={() => setActiveColor(i)}
@@ -148,7 +151,7 @@ function WatchDetails({ product, related, onImageClick }) {
           <button type="button" onClick={handleAddToBag}
             className="hidden md:flex w-full py-5 bg-primary-container text-on-primary-fixed font-label-md rounded-full soft-glow uppercase tracking-[0.2em] items-center justify-center gap-2 hover:opacity-90 transition-opacity">
             <span className="material-symbols-outlined">{added ? "check" : "shopping_bag"}</span>
-            {added ? "Added!" : "Add to Bag"}
+            {added ? t("pd_added") : t("pd_add_to_bag")}
           </button>
         </div>
       </div>
@@ -159,7 +162,7 @@ function WatchDetails({ product, related, onImageClick }) {
       {related.length > 0 && (
         <section className="mt-section-gap">
           <h2 className="font-headline-md text-headline-md text-center mb-12">
-            You may also like
+            {t("pd_you_may_also_like")}
           </h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-gutter">
             {related.map((p) => (
@@ -178,11 +181,12 @@ function BraceletDetails({ product, related, onImageClick }) {
   const addItem = useCartStore((s) => s.addItem);
   const toast = useToast();
   const [added, setAdded] = useState(false);
+  const { t } = useTranslation();
 
   const handleAddToBag = () => {
     addItem({ id: product.id, name: product.name, price: product.price, image: product.images?.[0] || product.image });
     setAdded(true);
-    toast.success("Added to bag!");
+    toast.success(t("pd_added_toast"));
     setTimeout(() => setAdded(false), 2000);
   };
 
@@ -219,7 +223,7 @@ function BraceletDetails({ product, related, onImageClick }) {
             <button type="button" onClick={handleAddToBag}
               className="flex-1 py-5 bg-primary-container text-on-primary-fixed font-label-md rounded-full soft-glow uppercase tracking-[0.2em] flex items-center justify-center gap-2 hover:opacity-90 transition-opacity">
               <span className="material-symbols-outlined">{added ? "check" : "shopping_bag"}</span>
-              {added ? "Added!" : "Add to Bag"}
+              {added ? t("pd_added") : t("pd_add_to_bag")}
             </button>
             <button type="button" aria-label="Add to wishlist"
               className="w-14 h-14 flex items-center justify-center rounded-full border border-outline-variant/30 hover:bg-surface-container-low transition-colors">
@@ -235,7 +239,7 @@ function BraceletDetails({ product, related, onImageClick }) {
       {related.length > 0 && (
         <section className="mt-section-gap">
           <h2 className="font-headline-md text-headline-md text-center mb-12">
-            Complete the look
+            {t("pd_complete_the_look")}
           </h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-gutter">
             {related.map((p) => (
@@ -257,11 +261,12 @@ function RingDetails({ product, related, onImageClick }) {
   const [added, setAdded] = useState(false);
   const addItem = useCartStore((s) => s.addItem);
   const toast = useToast();
+  const { t } = useTranslation();
 
   const handleAddToBag = () => {
     addItem({ id: product.id, name: product.name, price: product.price, image: product.images?.[0] || product.image, variant: `Size ${activeSize}` });
     setAdded(true);
-    toast.success("Added to bag!");
+    toast.success(t("pd_added_toast"));
     setTimeout(() => setAdded(false), 2000);
   };
 
@@ -274,7 +279,7 @@ function RingDetails({ product, related, onImageClick }) {
 
         <div className="lg:col-span-5 lg:sticky lg:top-32 space-y-5 md:space-y-6 pb-24 md:pb-0">
           <span className="inline-block bg-primary-container/30 text-primary px-3 py-1.5 rounded-full uppercase tracking-widest text-[10px] font-label-sm">
-            Fine Jewelry
+            {t("pd_fine_jewelry")}
           </span>
 
           <h1 className="text-2xl md:text-headline-md font-headline-md leading-tight">{product.name}</h1>
@@ -294,10 +299,10 @@ function RingDetails({ product, related, onImageClick }) {
 
           <div className="space-y-3">
             <div className="flex items-center justify-between">
-              <p className="font-label-sm uppercase tracking-widest text-on-surface">Select Size</p>
+              <p className="font-label-sm uppercase tracking-widest text-on-surface">{t("pd_select_size")}</p>
               <button type="button" onClick={() => setShowSizeGuide(true)}
                 className="font-label-sm text-primary underline underline-offset-4 hover:opacity-80 transition-opacity">
-                Sizing Guide
+                {t("pd_sizing_guide")}
               </button>
             </div>
             <div className="flex flex-wrap gap-2">
@@ -313,7 +318,7 @@ function RingDetails({ product, related, onImageClick }) {
           <button type="button" onClick={handleAddToBag}
             className="hidden md:flex w-full py-5 bg-primary-container text-on-primary-container rounded-full shadow-lg font-label-md uppercase tracking-[0.2em] items-center justify-center gap-2 hover:opacity-90 transition-opacity">
             <span className="material-symbols-outlined">{added ? "check" : "shopping_bag"}</span>
-            {added ? "Added!" : "Add to Bag"}
+            {added ? t("pd_added") : t("pd_add_to_bag")}
           </button>
         </div>
       </div>
@@ -324,7 +329,7 @@ function RingDetails({ product, related, onImageClick }) {
       {related.length > 0 && (
         <section className="mt-section-gap">
           <h2 className="font-headline-md text-headline-md text-center mb-12">
-            The Art of Stacking
+            {t("pd_art_of_stacking")}
           </h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-gutter">
             {related.map((p) => (
@@ -345,11 +350,12 @@ function NailsDetails({ product, related, onImageClick }) {
   const [added, setAdded] = useState(false);
   const addItem = useCartStore((s) => s.addItem);
   const toast = useToast();
+  const { t } = useTranslation();
 
   const handleAddToBag = () => {
     addItem({ id: product.id, name: product.name, price: product.price, image: product.images?.[0] || product.image });
     setAdded(true);
-    toast.success("Added to bag!");
+    toast.success(t("pd_added_toast"));
     setTimeout(() => setAdded(false), 2000);
   };
 
@@ -362,7 +368,7 @@ function NailsDetails({ product, related, onImageClick }) {
 
         <div className="lg:col-span-5 lg:sticky lg:top-32 space-y-5 md:space-y-6 pb-24 md:pb-0">
           <span className="inline-block opacity-70 bg-primary-container/30 text-primary px-3 py-1.5 rounded-full uppercase tracking-widest text-[10px] font-label-sm">
-            New Collection
+            {t("pd_new_collection")}
           </span>
 
           <h1 className="text-2xl md:text-display-lg font-display-lg leading-tight">{product.name}</h1>
@@ -389,12 +395,12 @@ function NailsDetails({ product, related, onImageClick }) {
 
           <p className="flex items-center gap-2 text-xs md:font-label-sm text-on-surface-variant">
             <span className="material-symbols-outlined text-primary text-[16px] md:text-[18px]">replay</span>
-            Reusable up to 5 times
+            {t("pd_reusable_5_times")}
           </p>
 
           <button type="button" onClick={handleAddToBag}
             className="hidden md:flex w-full bg-primary-container text-primary h-14 rounded-full font-label-md uppercase tracking-[0.2em] items-center justify-center gap-2 hover:shadow-lg transition-shadow">
-            {added ? "Added!" : "Add to Bag"}
+            {added ? t("pd_added") : t("pd_add_to_bag")}
             <span className="material-symbols-outlined">{added ? "check" : "arrow_forward"}</span>
           </button>
         </div>
@@ -406,22 +412,19 @@ function NailsDetails({ product, related, onImageClick }) {
       <section className="bg-surface-container-low py-section-gap mt-section-gap rounded-3xl">
         <div className="max-w-3xl mx-auto px-margin-mobile md:px-margin-desktop">
           <h2 className="font-headline-md text-headline-md text-center mb-16">
-            Application Ritual
+            {t("pd_application_ritual")}
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
-            {["Prep", "Select", "Apply"].map((step, i) => (
+            {[t("pd_nails_prep"), t("pd_nails_select"), t("pd_nails_apply")].map((step, i) => (
               <div key={i} className="text-center space-y-4">
                 <span className="inline-flex w-16 h-16 items-center justify-center rounded-full bg-primary-container text-primary font-display-lg text-[28px]">
                   {String(i + 1).padStart(2, "0")}
                 </span>
                 <h3 className="font-headline-sm text-on-surface">{step}</h3>
                 <p className="font-body-lg text-on-surface-variant">
-                  {i === 0 &&
-                    "Cleanse and buff your natural nails. Push back cuticles for a seamless fit."}
-                  {i === 1 &&
-                    "Choose the correct size for each nail. The number is printed on each tip."}
-                  {i === 2 &&
-                    "Apply a thin layer of glue, press firmly for 10 seconds. Avoid water for 1 hour."}
+                  {i === 0 && t("pd_nails_prep_desc")}
+                  {i === 1 && t("pd_nails_select_desc")}
+                  {i === 2 && t("pd_nails_apply_desc")}
                 </p>
               </div>
             ))}
@@ -433,7 +436,7 @@ function NailsDetails({ product, related, onImageClick }) {
       {related.length > 0 && (
         <section className="mt-section-gap">
           <h2 className="font-headline-md text-headline-md text-center mb-12">
-            Complete the Look
+            {t("pd_complete_the_look")}
           </h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-gutter">
             {related.map((p) => (
@@ -452,11 +455,12 @@ function LashesDetails({ product, related, onImageClick }) {
   const [added, setAdded] = useState(false);
   const addItem = useCartStore((s) => s.addItem);
   const toast = useToast();
+  const { t } = useTranslation();
 
   const handleAddToBag = () => {
     addItem({ id: product.id, name: product.name, price: product.price, image: product.images?.[0] || product.image });
     setAdded(true);
-    toast.success("Added to bag!");
+    toast.success(t("pd_added_toast"));
     setTimeout(() => setAdded(false), 2000);
   };
 
@@ -484,19 +488,19 @@ function LashesDetails({ product, related, onImageClick }) {
 
           <p className="text-sm md:text-body-lg text-on-surface-variant leading-relaxed">{product.description}</p>
 
-          <Accordion title="Lash Care Guide">
+          <Accordion title={t("pd_lash_care_guide")}>
             <ol className="space-y-3 text-sm md:text-body-lg text-on-surface-variant list-decimal list-inside">
-              <li>Gently remove lashes from tray using tweezers, starting from the outer corner.</li>
-              <li>Apply a thin, even line of lash adhesive along the band. Wait 30 seconds until tacky.</li>
-              <li>Place the lash band as close to your natural lash line as possible. Press gently for 15 seconds.</li>
-              <li>After wear, peel off carefully and remove residual adhesive. Store in original tray to maintain shape.</li>
+              <li>{t("pd_lash_step_1")}</li>
+              <li>{t("pd_lash_step_2")}</li>
+              <li>{t("pd_lash_step_3")}</li>
+              <li>{t("pd_lash_step_4")}</li>
             </ol>
           </Accordion>
 
           <button type="button" onClick={handleAddToBag}
             className="hidden md:flex w-full bg-primary-container text-on-primary-fixed rounded-full py-5 font-label-md uppercase tracking-[0.2em] items-center justify-center gap-2 soft-glow hover:opacity-90 transition-opacity">
             <span className="material-symbols-outlined">{added ? "check" : "shopping_bag"}</span>
-            {added ? "Added!" : "Add to Bag"}
+            {added ? t("pd_added") : t("pd_add_to_bag")}
           </button>
         </div>
       </div>
@@ -504,7 +508,7 @@ function LashesDetails({ product, related, onImageClick }) {
       {/* Complete the Look */}
       {related.length > 0 && (
         <section className="mt-12 md:mt-section-gap">
-          <h2 className="font-headline-md text-headline-md text-center mb-6 md:mb-12">Complete the Look</h2>
+          <h2 className="font-headline-md text-headline-md text-center mb-6 md:mb-12">{t("pd_complete_the_look")}</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-gutter">
             {related.map((p) => (
               <ProductCard key={p.id} id={p.id} name={p.name} category={p.category} price={p.price} image={p.image} link={`/product/${p.id}`} />
@@ -529,6 +533,7 @@ export default function ProductDetails() {
   const [loading, setLoading] = useState(true);
   const [zoom, setZoom] = useState({ open: false, src: "", alt: "" });
   const { fetchById, fetchRelated } = useProductStore();
+  const { t } = useTranslation();
 
   const openZoom = useCallback((src, alt) => {
     setZoom({ open: true, src, alt });
@@ -565,13 +570,13 @@ export default function ProductDetails() {
   if (!product) {
     return (
       <main className="pt-32 pb-section-gap px-margin-mobile md:px-margin-desktop max-w-container-max mx-auto text-center">
-        <p className="font-headline-md text-on-surface-variant">Product not found.</p>
+        <p className="font-headline-md text-on-surface-variant">{t("pd_not_found")}</p>
       </main>
     );
   }
 
   const breadcrumbItems = [
-    { label: "Shop", link: "/collections" },
+    { label: t("nav_collections"), link: "/collections" },
     { label: product.category, link: "/collections" },
     { label: product.name, link: null },
   ];
