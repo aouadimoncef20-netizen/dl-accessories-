@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, NavLink } from "react-router-dom";
 import { motion, useMotionValueEvent, useScroll } from "framer-motion";
 import useCartStore from "../stores/cartStore";
@@ -18,6 +18,14 @@ function Navbar() {
   const { lang, toggle: toggleLang } = useLanguageStore();
   const { t } = useTranslation();
   const isDark = mode === "dark";
+
+  // Close mobile menu when viewport is desktop
+  useEffect(() => {
+    const mq = window.matchMedia("(min-width: 768px)");
+    const handler = (e) => { if (e.matches) setMobileOpen(false); };
+    mq.addEventListener("change", handler);
+    return () => mq.removeEventListener("change", handler);
+  }, []);
 
   useMotionValueEvent(scrollY, "change", (latest) => {
     setScrolled(latest > 20);
