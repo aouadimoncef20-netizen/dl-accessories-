@@ -174,7 +174,7 @@ function Navbar() {
         </div>
       </motion.nav>
 
-      <MobileMenu isOpen={mobileOpen} onClose={() => setMobileOpen(false)} />
+      <MobileMenu key={lang} isOpen={mobileOpen} onClose={() => setMobileOpen(false)} />
     </>
   );
 }
