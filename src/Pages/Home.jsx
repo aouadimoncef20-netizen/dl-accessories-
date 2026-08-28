@@ -101,7 +101,7 @@ const Home = () => {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: 0.2 }}
-              className="inline-block font-label-sm text-white/70 uppercase tracking-[0.25em] mb-6 border-l-2 border-primary-container pl-4"
+              className="inline-block font-label-sm text-white/70 uppercase tracking-[0.25em] mb-6 border-s-2 border-primary-container ps-4"
             >
               {t("hero_tag")}
             </motion.span>
