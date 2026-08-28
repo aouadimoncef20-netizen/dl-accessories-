@@ -72,13 +72,13 @@ function Navbar() {
             </li>
           </ul>
 
-          <div className="flex items-center gap-4 md:gap-5">
+          <div className="flex items-center gap-3 md:gap-5">
             {/* Language toggle */}
             <button
               type="button"
               aria-label="Toggle language"
-              onClick={toggleLang}
-              className={`text-xs font-semibold uppercase tracking-wider px-2.5 py-1.5 rounded-full border transition-all duration-300 ${
+              onClick={(e) => { e.stopPropagation(); toggleLang(); setMobileOpen(false); }}
+              className={`text-xs font-semibold uppercase tracking-wider px-2.5 py-1.5 rounded-full border transition-all duration-300 z-50 ${
                 scrolled
                   ? "border-outline-variant text-on-surface-variant hover:text-primary hover:border-primary"
                   : "border-white/30 text-white/80 hover:text-white hover:border-white"
@@ -151,8 +151,8 @@ function Navbar() {
               type="button"
               aria-label="Toggle menu"
               aria-expanded={mobileOpen}
-              onClick={() => setMobileOpen((prev) => !prev)}
-              className={`md:hidden transition-colors duration-300 ${
+              onClick={(e) => { e.stopPropagation(); setMobileOpen((prev) => !prev); }}
+              className={`md:hidden transition-colors duration-300 min-w-[44px] min-h-[44px] flex items-center justify-center ${
                 scrolled
                   ? "text-on-surface-variant hover:text-primary"
                   : "text-white/80 hover:text-white"
