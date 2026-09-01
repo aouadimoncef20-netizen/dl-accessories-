@@ -200,6 +200,46 @@ const useProductStore = create((set, get) => ({
     }
   },
 
+  // ── Create product (admin) ──
+  createProduct: async ({ name, price, category, image_url, description, best_seller, featured, new_arrival }) => {
+    try {
+      const { data, error } = await supabase
+        .from("products")
+        .insert({
+          name,
+          price: Number(price),
+          category: category || null,
+          image_url: image_url || null,
+          description: description || null,
+          best_seller: best_seller ?? false,
+          featured: featured ?? false,
+          new_arrival: new_arrival ?? false,
+        })
+        .select()
+        .single();
+
+      if (error) throw error;
+      return { data, error: null };
+    } catch (err) {
+      return { data: null, error: err.message };
+    }
+  },
+
+  // ── Delete product (admin) ──
+  deleteProduct: async (id) => {
+    try {
+      const { error } = await supabase
+        .from("products")
+        .delete()
+        .eq("id", id);
+
+      if (error) throw error;
+      return { error: null };
+    } catch (err) {
+      return { error: err.message };
+    }
+  },
+
   // ── Single product by ID ──
   fetchById: async (id) => {
     try {

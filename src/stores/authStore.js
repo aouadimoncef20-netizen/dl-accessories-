@@ -24,18 +24,28 @@ function saveUsers(users) {
   localStorage.setItem("dl_users", JSON.stringify(users));
 }
 
+function checkIsAdmin(user) {
+  if (!user) return false;
+  if (user.email === ADMIN_EMAIL) return true;
+  if (user.role === "admin") return true;
+  // Check the persisted users list in case the session was stale
+  const users = getUsers();
+  const stored = users.find((u) => u.id === user.id);
+  return stored?.role === "admin";
+}
+
 const useAuthStore = create((set, get) => ({
   user: loadSession(),
   profile: null,
   loading: false,
-  isAdmin: loadSession()?.email === ADMIN_EMAIL,
+  isAdmin: checkIsAdmin(loadSession()),
 
   initialize: async () => {
     const session = loadSession();
     if (session) {
       set({
         user: session,
-        isAdmin: session.email === ADMIN_EMAIL,
+        isAdmin: checkIsAdmin(session),
         loading: false,
       });
     } else {
@@ -48,12 +58,14 @@ const useAuthStore = create((set, get) => ({
     if (users.find((u) => u.email === email)) {
       throw new Error("An account with this email already exists.");
     }
-    const newUser = { id: crypto.randomUUID(), email, password, name };
+    const role = email === ADMIN_EMAIL ? "admin" : "user";
+    const newUser = { id: crypto.randomUUID(), email, password, name, role };
     users.push(newUser);
     saveUsers(users);
-    set({ user: { id: newUser.id, email, name }, isAdmin: false });
-    localStorage.setItem(STORAGE_KEY, JSON.stringify({ id: newUser.id, email, name }));
-    return { user: { id: newUser.id, email, name } };
+    const session = { id: newUser.id, email, name, role };
+    set({ user: session, isAdmin: checkIsAdmin(session) });
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(session));
+    return { user: session };
   },
 
   signIn: async (email, password) => {
@@ -62,8 +74,8 @@ const useAuthStore = create((set, get) => ({
     if (!found) {
       throw new Error("Invalid email or password.");
     }
-    const session = { id: found.id, email: found.email, name: found.name };
-    set({ user: session, isAdmin: email === ADMIN_EMAIL });
+    const session = { id: found.id, email: found.email, name: found.name, role: found.role || "user" };
+    set({ user: session, isAdmin: checkIsAdmin(session) });
     localStorage.setItem(STORAGE_KEY, JSON.stringify(session));
     return { user: session };
   },
@@ -71,6 +83,21 @@ const useAuthStore = create((set, get) => ({
   signOut: async () => {
     localStorage.removeItem(STORAGE_KEY);
     set({ user: null, profile: null, isAdmin: false });
+  },
+
+  // ── Grant admin access to any logged-in user ──
+  makeAdmin: async () => {
+    const user = get().user;
+    if (!user) return;
+    const users = getUsers();
+    const idx = users.findIndex((u) => u.id === user.id);
+    if (idx !== -1) {
+      users[idx].role = "admin";
+      saveUsers(users);
+    }
+    const updated = { ...user, role: "admin" };
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
+    set({ user: updated, isAdmin: true });
   },
 
   updateProfile: async (updates) => {

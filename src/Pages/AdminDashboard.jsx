@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import useAuthStore from "../stores/authStore";
 import useProductStore from "../stores/productStore";
+import ProductManager from "../Component/ProductManager";
+import OrderManager from "../Component/OrderManager";
 
 function AdminDashboard() {
   const { signOut } = useAuthStore();
@@ -9,6 +11,7 @@ function AdminDashboard() {
   const [tab, setTab] = useState("overview");
   const [orders, setOrders] = useState([]);
 
+  // Fetch orders once for the overview stats
   useEffect(() => {
     fetchAllOrders().then(setOrders);
   }, [fetchAllOrders]);
@@ -16,6 +19,7 @@ function AdminDashboard() {
   const tabs = [
     { key: "overview", label: "Overview", icon: "dashboard" },
     { key: "orders", label: "Orders", icon: "receipt_long" },
+    { key: "products", label: "Products", icon: "inventory_2" },
   ];
 
   return (
@@ -82,38 +86,9 @@ function AdminDashboard() {
           </div>
         )}
 
-        {tab === "orders" && (
-          <div>
-            <h1 className="font-display-lg text-display-lg-mobile md:text-display-lg mb-8">Orders</h1>
-            {orders.length === 0 ? (
-              <div className="bg-surface rounded-2xl p-12 text-center soft-glow">
-                <span className="material-symbols-outlined text-4xl text-outline mb-4">receipt_long</span>
-                <p className="font-headline-sm text-on-surface-variant">No orders yet</p>
-              </div>
-            ) : (
-              <div className="space-y-4">
-                {orders.map((order) => (
-                  <div key={order.id} className="bg-surface rounded-2xl p-6 soft-glow">
-                    <div className="flex flex-col sm:flex-row justify-between gap-4">
-                      <div>
-                        <p className="font-label-sm text-secondary uppercase mb-1">#{order.id.slice(0, 8)}</p>
-                        <p className="font-body-md text-on-surface">{order.customer_name}</p>
-                      </div>
-                      <div className="flex items-center gap-4">
-                        <span className={`px-3 py-1 rounded-full text-xs uppercase font-label-sm ${
-                          order.status === "delivered" ? "bg-green-100 text-green-800" :
-                          order.status === "shipped" ? "bg-blue-100 text-blue-800" :
-                          "bg-primary-container/30 text-primary"
-                        }`}>{order.status}</span>
-                        <span className="font-headline-sm text-primary">${order.total?.toFixed(2)}</span>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-        )}
+        {tab === "orders" && <OrderManager />}
+
+        {tab === "products" && <ProductManager />}
       </main>
     </div>
   );

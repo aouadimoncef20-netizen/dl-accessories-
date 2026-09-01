@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import useCartStore from "../stores/cartStore";
+import useProductStore from "../stores/productStore";
+import useAuthStore from "../stores/authStore";
 import SEO from "../Component/SEO";
 import { formatDZD } from "../lib/currency";
 import useTranslation from "../i18n/useTranslation";
@@ -10,6 +12,8 @@ function Checkout() {
   const items = useCartStore((s) => s.items);
   const subtotal = useCartStore((s) => s.subtotal());
   const clearCart = useCartStore((s) => s.clearCart);
+  const createOrder = useProductStore((s) => s.createOrder);
+  const user = useAuthStore((s) => s.user);
   const [errors, setErrors] = useState({});
   const [submitting, setSubmitting] = useState(false);
   const { t } = useTranslation();
@@ -42,9 +46,28 @@ function Checkout() {
     if (!validate()) return;
     setSubmitting(true);
     await new Promise((resolve) => setTimeout(resolve, 1500));
+
+    // Save order so the admin can track it
+    const order = await createOrder({
+      user_id: user?.id || null,
+      customer_name: form.fullName,
+      phone: form.phone,
+      address: form.address,
+      state: form.state,
+      items: items.map((i) => ({
+        id: i.id,
+        name: i.name,
+        price: i.price,
+        qty: i.qty,
+        image: i.image,
+      })),
+      total: subtotal,
+      status: "pending",
+    });
+
     setSubmitting(false);
     clearCart();
-    navigate("/order-confirmed", { state: { form } });
+    navigate("/order-confirmed", { state: { form, orderId: order.id } });
   };
 
   const shippingCost = 0;
