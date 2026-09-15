@@ -9,7 +9,7 @@ function OrderSummary({ subtotal, showCheckoutButton = true }) {
   const { t } = useTranslation();
 
   return (
-    <div className="bg-white p-8 rounded-xl soft-glow border border-surface-container">
+    <div className="bg-surface p-8 rounded-xl soft-glow border border-surface-container">
       <h2 className="font-headline-sm text-headline-sm mb-6">{t("summary_title")}</h2>
       <div className="space-y-4 mb-6">
         <div className="flex justify-between text-on-surface-variant">

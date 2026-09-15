@@ -1,6 +1,8 @@
 import { formatDZD } from "../lib/currency";
 import useTranslation from "../i18n/useTranslation";
 
+const PLACEHOLDER = "/placeholder-product.svg";
+
 function CartItem({ id, name, image, price, variant, qty, onUpdateQty, onRemove }) {
   const { t } = useTranslation();
 
@@ -8,9 +10,10 @@ function CartItem({ id, name, image, price, variant, qty, onUpdateQty, onRemove 
     <div className="item-row flex flex-col sm:flex-row gap-4 sm:gap-6 pb-8 border-b border-outline-variant/30 group">
       <div className="w-full sm:w-32 h-40 bg-surface-container-low rounded-xl overflow-hidden flex-shrink-0 soft-glow">
         <img
-          src={image}
+          src={image || PLACEHOLDER}
           alt={name}
           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+          onError={(e) => { e.target.src = PLACEHOLDER; }}
         />
       </div>
       <div className="flex-grow flex flex-col justify-between py-2">

@@ -11,8 +11,12 @@ function Checkout() {
   const navigate = useNavigate();
   const items = useCartStore((s) => s.items);
   const subtotal = useCartStore((s) => s.subtotal());
+  const shippingCost = useCartStore((s) => s.shippingCost());
+  const tax = useCartStore((s) => s.tax());
+  const total = useCartStore((s) => s.total());
   const clearCart = useCartStore((s) => s.clearCart);
   const createOrder = useProductStore((s) => s.createOrder);
+  const decrementStock = useProductStore((s) => s.decrementStock);
   const user = useAuthStore((s) => s.user);
   const [errors, setErrors] = useState({});
   const [submitting, setSubmitting] = useState(false);
@@ -47,7 +51,6 @@ function Checkout() {
     setSubmitting(true);
     await new Promise((resolve) => setTimeout(resolve, 1500));
 
-    // Save order so the admin can track it
     const order = await createOrder({
       user_id: user?.id || null,
       customer_name: form.fullName,
@@ -61,17 +64,17 @@ function Checkout() {
         qty: i.qty,
         image: i.image,
       })),
-      total: subtotal,
+      total: total,
       status: "pending",
     });
+
+    // Decrement stock for ordered items
+    await decrementStock(items.map((i) => ({ id: i.id, qty: i.qty })));
 
     setSubmitting(false);
     clearCart();
     navigate("/order-confirmed", { state: { form, orderId: order.id } });
   };
-
-  const shippingCost = 0;
-  const total = subtotal + shippingCost;
 
   return (
     <main className="pt-32 pb-section-gap px-margin-mobile md:px-margin-desktop max-w-container-max mx-auto">
@@ -153,8 +156,8 @@ function Checkout() {
                   items.map((item) => (
                     <div key={item.id} className="flex items-center gap-6 group">
                       <div className="relative flex-shrink-0">
-                        <div className="w-20 h-20 rounded-2xl bg-white overflow-hidden border border-outline-variant/30">
-                          <img className="w-full h-full object-cover" src={item.image} alt={item.name} />
+                        <div className="w-20 h-20 rounded-2xl bg-surface-container-low overflow-hidden border border-outline-variant/30">
+                          <img className="w-full h-full object-cover" src={item.image || "/placeholder-product.svg"} alt={item.name} onError={(e) => { e.target.src = "/placeholder-product.svg"; }} />
                         </div>
                         <span className="absolute -top-2 -right-2 w-6 h-6 bg-secondary text-white text-[10px] flex items-center justify-center rounded-full">{item.qty}</span>
                       </div>
@@ -176,7 +179,11 @@ function Checkout() {
                 </div>
                 <div className="flex justify-between items-center text-body-md">
                   <span className="text-secondary">{t("checkout_shipping")}</span>
-                  <span className="text-on-surface">{t("checkout_free")}</span>
+                  <span className="text-on-surface">{shippingCost === 0 ? t("checkout_free") : formatDZD(shippingCost)}</span>
+                </div>
+                <div className="flex justify-between items-center text-body-md">
+                  <span className="text-secondary">{t("summary_taxes")}</span>
+                  <span className="text-on-surface">{formatDZD(tax)}</span>
                 </div>
                 <div className="flex justify-between items-center pt-6 mt-4 border-t border-outline-variant/50">
                   <span className="font-headline-sm text-headline-sm">{t("checkout_total")}</span>

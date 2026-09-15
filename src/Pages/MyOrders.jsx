@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import useAuthStore from "../stores/authStore";
 import useProductStore from "../stores/productStore";
+import { formatDZD } from "../lib/currency";
 
 function MyOrders() {
   const { user } = useAuthStore();
@@ -15,6 +16,8 @@ function MyOrders() {
         setOrders(data);
         setLoading(false);
       });
+    } else {
+      setLoading(false);
     }
   }, [user, fetchUserOrders]);
 
@@ -65,7 +68,7 @@ function MyOrders() {
               </div>
               <div className="border-t border-outline-variant/20 pt-4 flex justify-between items-end">
                 <span className="text-secondary font-body-md">{order.items?.length || 0} item(s)</span>
-                <span className="font-headline-sm text-primary">${order.total?.toFixed(2)}</span>
+                <span className="font-headline-sm text-primary">{formatDZD(order.total)}</span>
               </div>
             </div>
           ))}

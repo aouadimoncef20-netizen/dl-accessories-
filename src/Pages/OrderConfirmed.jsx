@@ -1,14 +1,10 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { Link, useLocation, Navigate } from "react-router-dom";
 import SEO from "../Component/SEO";
 import useTranslation from "../i18n/useTranslation";
 
-const orderNumber = () =>
-  "DL-" + Date.now().toString(36).toUpperCase() + "-" + Math.random().toString(36).substring(2, 6).toUpperCase();
-
 function OrderConfirmed() {
   const location = useLocation();
-  const [orderId] = useState(orderNumber);
   const order = location.state;
   const { t } = useTranslation();
 
@@ -19,6 +15,10 @@ function OrderConfirmed() {
   if (!order) {
     return <Navigate to="/" replace />;
   }
+
+  const displayOrderId = order.orderId
+    ? "DL-" + order.orderId.slice(0, 8).toUpperCase()
+    : "DL-" + Date.now().toString(36).toUpperCase();
 
   return (
     <main className="pt-32 pb-section-gap px-margin-mobile md:px-margin-desktop max-w-container-max mx-auto text-center">
@@ -40,7 +40,7 @@ function OrderConfirmed() {
       {/* Order ID card */}
       <div className="inline-block bg-surface-container-low rounded-2xl p-8 mb-12 soft-glow">
         <p className="font-label-sm text-secondary uppercase tracking-widest mb-2">{t("order_number")}</p>
-        <p className="font-headline-md text-primary">{orderId}</p>
+        <p className="font-headline-md text-primary">{displayOrderId}</p>
       </div>
 
       {/* Order details */}

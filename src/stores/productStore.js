@@ -1,18 +1,7 @@
 import { create } from "zustand";
 import supabase from "../lib/supabase";
 
-// ── Orders stored locally (unchanged) ──
-let localOrders = [];
-try {
-  const raw = localStorage.getItem("dl_orders");
-  if (raw) localOrders = JSON.parse(raw);
-} catch {}
-
-function persistOrders() {
-  localStorage.setItem("dl_orders", JSON.stringify(localOrders));
-}
-
-// ── Helper: map Supabase row → ProductCard‑friendly shape ──
+// ── Helper: map Supabase row → ProductCard-friendly shape ──
 function mapProduct(row) {
   const img = row.image_url;
   return {
@@ -21,9 +10,9 @@ function mapProduct(row) {
     category: row.category,
     price: row.price,
     image: img,
-    // detail pages expect an "images" array — populate it from the single URL
     images: img ? [img] : [],
     description: row.description,
+    stock: row.stock ?? 0,
     best_seller: row.best_seller,
     featured: row.featured,
     new_arrival: row.new_arrival,
@@ -44,11 +33,8 @@ const useProductStore = create((set, get) => ({
     set({ loading: true, error: null });
 
     try {
-      let query = supabase
-        .from("products")
-        .select("*");
+      let query = supabase.from("products").select("*");
 
-      // ── Category filter (case-insensitive on the "category" text column) ──
       const catFilter = filters.category || filters.categoryId;
       if (catFilter) {
         query = query.ilike("category", `%${catFilter}%`);
@@ -69,7 +55,6 @@ const useProductStore = create((set, get) => ({
         query = query.ilike("name", `%${filters.search}%`);
       }
 
-      // ── Sort ──
       switch (filters.sortBy) {
         case "price-asc":
           query = query.order("price", { ascending: true });
@@ -78,16 +63,15 @@ const useProductStore = create((set, get) => ({
           query = query.order("price", { ascending: false });
           break;
         case "newest":
-          query = query.order("id", { ascending: false });
+          query = query.order("created_at", { ascending: false });
           break;
         case "oldest":
-          query = query.order("id", { ascending: true });
+          query = query.order("created_at", { ascending: true });
           break;
         default:
           break;
       }
 
-      // ── Pagination ──
       if (filters.page && filters.perPage) {
         const from = (filters.page - 1) * filters.perPage;
         const to = from + filters.perPage - 1;
@@ -113,19 +97,17 @@ const useProductStore = create((set, get) => ({
   // ── Featured products ──
   fetchFeatured: async () => {
     try {
-      // First try: filter by "featured" column if it exists
       let { data, error } = await supabase
         .from("products")
         .select("*")
         .eq("featured", true)
         .limit(8);
 
-      // Fallback: if the column doesn't exist, just grab the first 8 products
       if (error) {
         const fallback = await supabase
           .from("products")
           .select("*")
-          .order("id", { ascending: false })
+          .order("created_at", { ascending: false })
           .limit(8);
         data = fallback.data;
         error = fallback.error;
@@ -136,7 +118,7 @@ const useProductStore = create((set, get) => ({
         return;
       }
       set({ featured: (data || []).map(mapProduct) });
-    } catch (err) {
+    } catch {
       set({ featured: [] });
     }
   },
@@ -144,19 +126,17 @@ const useProductStore = create((set, get) => ({
   // ── New arrivals ──
   fetchNewArrivals: async () => {
     try {
-      // First try: filter by "new_arrival" column if it exists
       let { data, error } = await supabase
         .from("products")
         .select("*")
         .eq("new_arrival", true)
         .limit(8);
 
-      // Fallback: if the column doesn't exist, grab latest 8 by id
       if (error) {
         const fallback = await supabase
           .from("products")
           .select("*")
-          .order("id", { ascending: false })
+          .order("created_at", { ascending: false })
           .limit(8);
         data = fallback.data;
         error = fallback.error;
@@ -167,7 +147,7 @@ const useProductStore = create((set, get) => ({
         return;
       }
       set({ newArrivals: (data || []).map(mapProduct) });
-    } catch (err) {
+    } catch {
       set({ newArrivals: [] });
     }
   },
@@ -201,16 +181,21 @@ const useProductStore = create((set, get) => ({
   },
 
   // ── Create product (admin) ──
-  createProduct: async ({ name, price, category, image_url, description, best_seller, featured, new_arrival }) => {
+  createProduct: async ({ name, price, category, image_url, description, stock, best_seller, featured, new_arrival }) => {
     try {
-      const { data, error } = await supabase
+      const payload = {
+        name,
+        price: Number(price),
+        category: category || null,
+        image_url: image_url || null,
+        description: description || null,
+        stock: Number(stock) || 0,
+      };
+
+      let result = await supabase
         .from("products")
         .insert({
-          name,
-          price: Number(price),
-          category: category || null,
-          image_url: image_url || null,
-          description: description || null,
+          ...payload,
           best_seller: best_seller ?? false,
           featured: featured ?? false,
           new_arrival: new_arrival ?? false,
@@ -218,8 +203,68 @@ const useProductStore = create((set, get) => ({
         .select()
         .single();
 
-      if (error) throw error;
-      return { data, error: null };
+      if (result.error) {
+        result = await supabase
+          .from("products")
+          .insert(payload)
+          .select()
+          .single();
+      }
+
+      if (result.error) throw result.error;
+
+      const mapped = mapProduct(result.data);
+      set((state) => ({
+        products: [mapped, ...state.products],
+      }));
+
+      return { data: mapped, error: null };
+    } catch (err) {
+      return { data: null, error: err.message };
+    }
+  },
+
+  // ── Update product (admin) ──
+  updateProduct: async (id, updates) => {
+    try {
+      const payload = {
+        name: updates.name,
+        price: Number(updates.price),
+        category: updates.category || null,
+        image_url: updates.image_url || null,
+        description: updates.description || null,
+        stock: Number(updates.stock) || 0,
+      };
+
+      let result = await supabase
+        .from("products")
+        .update({
+          ...payload,
+          best_seller: updates.best_seller ?? false,
+          featured: updates.featured ?? false,
+          new_arrival: updates.new_arrival ?? false,
+        })
+        .eq("id", id)
+        .select()
+        .single();
+
+      if (result.error) {
+        result = await supabase
+          .from("products")
+          .update(payload)
+          .eq("id", id)
+          .select()
+          .single();
+      }
+
+      if (result.error) throw result.error;
+
+      const mapped = mapProduct(result.data);
+      set((state) => ({
+        products: state.products.map((p) => (p.id === id ? mapped : p)),
+      }));
+
+      return { data: mapped, error: null };
     } catch (err) {
       return { data: null, error: err.message };
     }
@@ -234,6 +279,11 @@ const useProductStore = create((set, get) => ({
         .eq("id", id);
 
       if (error) throw error;
+
+      set((state) => ({
+        products: state.products.filter((p) => p.id !== id),
+      }));
+
       return { error: null };
     } catch (err) {
       return { error: err.message };
@@ -261,8 +311,6 @@ const useProductStore = create((set, get) => ({
   // ── Related products ──
   fetchRelated: async (category, excludeId, limit = 4) => {
     try {
-      // ilike with wildcards ensures case-insensitive matching
-      // e.g. "Watches" matches "watches", "WATCHES", "Watches", etc.
       const { data, error } = await supabase
         .from("products")
         .select("*")
@@ -279,35 +327,174 @@ const useProductStore = create((set, get) => ({
     }
   },
 
-  // ── Orders (local storage — unchanged) ──
+  // ══════════════════════════════════════════════
+  //  ORDERS — Now stored in Supabase (not localStorage)
+  // ══════════════════════════════════════════════
+
+  // ── Create order ──
   createOrder: async (order) => {
-    const newOrder = {
-      ...order,
-      id: crypto.randomUUID(),
-      created_at: new Date().toISOString(),
-    };
-    localOrders.unshift(newOrder);
-    persistOrders();
-    return newOrder;
+    try {
+      const payload = {
+        user_id: order.user_id || null,
+        customer_name: order.customer_name,
+        phone: order.phone || null,
+        address: order.address || null,
+        state: order.state || null,
+        items: JSON.stringify(order.items || []),
+        total: Number(order.total) || 0,
+        status: order.status || "pending",
+      };
+
+      const { data, error } = await supabase
+        .from("orders")
+        .insert(payload)
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      // Parse items back to array for the response
+      const result = {
+        ...data,
+        items: typeof data.items === "string" ? JSON.parse(data.items) : data.items,
+      };
+
+      return result;
+    } catch (err) {
+      // Fallback to localStorage if Supabase fails
+      const fallbackOrder = {
+        ...order,
+        id: crypto.randomUUID(),
+        created_at: new Date().toISOString(),
+      };
+      try {
+        const raw = localStorage.getItem("dl_orders");
+        const localOrders = raw ? JSON.parse(raw) : [];
+        localOrders.unshift(fallbackOrder);
+        localStorage.setItem("dl_orders", JSON.stringify(localOrders));
+      } catch {}
+      return fallbackOrder;
+    }
   },
 
+  // ── Fetch user orders ──
   fetchUserOrders: async (userId) => {
-    return localOrders
-      .filter((o) => o.user_id === userId)
-      .sort((a, b) => b.created_at?.localeCompare(a.created_at));
+    try {
+      const { data, error } = await supabase
+        .from("orders")
+        .select("*")
+        .or(`user_id.eq.${userId},user_id.is.null`)
+        .order("created_at", { ascending: false });
+
+      if (error) throw error;
+
+      return (data || []).map((o) => ({
+        ...o,
+        items: typeof o.items === "string" ? JSON.parse(o.items) : o.items,
+      }));
+    } catch (err) {
+      // Fallback to localStorage
+      try {
+        const raw = localStorage.getItem("dl_orders");
+        const localOrders = raw ? JSON.parse(raw) : [];
+        return localOrders
+          .filter((o) => o.user_id === userId || o.user_id === null)
+          .sort((a, b) => b.created_at?.localeCompare(a.created_at));
+      } catch {
+        return [];
+      }
+    }
   },
 
+  // ── Fetch all orders (admin) ──
   fetchAllOrders: async () => {
-    return [...localOrders].sort(
-      (a, b) => b.created_at?.localeCompare(a.created_at)
-    );
+    try {
+      const { data, error } = await supabase
+        .from("orders")
+        .select("*")
+        .order("created_at", { ascending: false });
+
+      if (error) throw error;
+
+      return (data || []).map((o) => ({
+        ...o,
+        items: typeof o.items === "string" ? JSON.parse(o.items) : o.items,
+      }));
+    } catch (err) {
+      // Fallback to localStorage
+      try {
+        const raw = localStorage.getItem("dl_orders");
+        const localOrders = raw ? JSON.parse(raw) : [];
+        return [...localOrders].sort(
+          (a, b) => b.created_at?.localeCompare(a.created_at)
+        );
+      } catch {
+        return [];
+      }
+    }
   },
 
+  // ── Update order status ──
   updateOrderStatus: async (orderId, status) => {
-    const idx = localOrders.findIndex((o) => o.id === orderId);
-    if (idx !== -1) {
-      localOrders[idx] = { ...localOrders[idx], status };
-      persistOrders();
+    try {
+      const { error } = await supabase
+        .from("orders")
+        .update({ status })
+        .eq("id", orderId);
+
+      if (error) throw error;
+      return { error: null };
+    } catch (err) {
+      // Fallback to localStorage
+      try {
+        const raw = localStorage.getItem("dl_orders");
+        const localOrders = raw ? JSON.parse(raw) : [];
+        const idx = localOrders.findIndex((o) => o.id === orderId);
+        if (idx !== -1) {
+          localOrders[idx] = { ...localOrders[idx], status };
+          localStorage.setItem("dl_orders", JSON.stringify(localOrders));
+        }
+      } catch {}
+      return { error: null };
+    }
+  },
+
+  // ── Update order notes (admin) ──
+  updateOrderNotes: async (orderId, notes) => {
+    try {
+      const { error } = await supabase
+        .from("orders")
+        .update({ notes })
+        .eq("id", orderId);
+
+      if (error) throw error;
+      return { error: null };
+    } catch (err) {
+      return { error: err.message };
+    }
+  },
+
+  // ── Decrement stock after order ──
+  decrementStock: async (items) => {
+    try {
+      for (const item of items) {
+        // Get current stock
+        const { data: product } = await supabase
+          .from("products")
+          .select("stock")
+          .eq("id", item.id)
+          .single();
+
+        if (product && product.stock > 0) {
+          await supabase
+            .from("products")
+            .update({ stock: Math.max(0, product.stock - item.qty) })
+            .eq("id", item.id);
+        }
+      }
+      return { error: null };
+    } catch (err) {
+      return { error: err.message };
     }
   },
 }));

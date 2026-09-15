@@ -11,7 +11,7 @@ import SEO from "../Component/SEO";
 import useProductStore from "../stores/productStore";
 import useTranslation from "../i18n/useTranslation";
 
-const PLACEHOLDER = "/placeholder-product.png";
+const PLACEHOLDER = "/placeholder-product.svg";
 
 function imgSrc(url) {
   if (!url) return PLACEHOLDER;
@@ -449,6 +449,64 @@ function NailsDetails({ product, related, onImageClick }) {
   );
 }
 
+function GenericDetails({ product, related, onImageClick }) {
+  const images = product.images || [];
+  const [added, setAdded] = useState(false);
+  const addItem = useCartStore((s) => s.addItem);
+  const toast = useToast();
+  const { t } = useTranslation();
+
+  const handleAddToBag = () => {
+    addItem({ id: product.id, name: product.name, price: product.price, image: product.images?.[0] || product.image });
+    setAdded(true);
+    toast.success(t("pd_added_toast"));
+    setTimeout(() => setAdded(false), 2000);
+  };
+
+  return (
+    <>
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 md:gap-gutter items-start">
+        <div className="lg:col-span-7">
+          <ProductGallery images={images} name={product.name} onImageClick={onImageClick} />
+        </div>
+
+        <div className="lg:col-span-5 lg:sticky lg:top-32 space-y-5 md:space-y-6 pb-24 md:pb-0">
+          {product.category && (
+            <span className="inline-block bg-primary-container/30 text-primary px-3 py-1.5 rounded-full uppercase tracking-widest text-[10px] font-label-sm">
+              {product.category}
+            </span>
+          )}
+
+          <h1 className="text-2xl md:text-display-lg font-display-lg leading-tight">{product.name}</h1>
+          <p className="text-lg md:text-headline-sm text-primary font-headline-sm">{formatDZD(product.price)}</p>
+          <p className="text-sm md:text-body-lg text-on-surface-variant leading-relaxed">{product.description}</p>
+
+          <button type="button" onClick={handleAddToBag}
+            className="hidden md:flex w-full py-5 bg-primary-container text-on-primary-fixed font-label-md rounded-full soft-glow uppercase tracking-[0.2em] items-center justify-center gap-2 hover:opacity-90 transition-opacity">
+            <span className="material-symbols-outlined">{added ? "check" : "shopping_bag"}</span>
+            {added ? t("pd_added") : t("pd_add_to_bag")}
+          </button>
+        </div>
+      </div>
+
+      <StickyAddToBag added={added} onClick={handleAddToBag} />
+
+      {related.length > 0 && (
+        <section className="mt-section-gap">
+          <h2 className="font-headline-md text-headline-md text-center mb-12">
+            {t("pd_you_may_also_like")}
+          </h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-gutter">
+            {related.map((p) => (
+              <ProductCard key={p.id} id={p.id} name={p.name} category={p.category} price={p.price} image={p.image} link={`/product/${p.id}`} />
+            ))}
+          </div>
+        </section>
+      )}
+    </>
+  );
+}
+
 function LashesDetails({ product, related, onImageClick }) {
   const images = product.images || [];
   const specs = product.specs || [];
@@ -595,6 +653,9 @@ export default function ProductDetails() {
       {product.category === "Rings" && <RingDetails product={product} related={related} onImageClick={openZoom} />}
       {product.category === "Nails" && <NailsDetails product={product} related={related} onImageClick={openZoom} />}
       {product.category === "Lashes" && <LashesDetails product={product} related={related} onImageClick={openZoom} />}
+      {!["Watches", "Bracelets", "Rings", "Nails", "Lashes"].includes(product.category) && (
+        <GenericDetails product={product} related={related} onImageClick={openZoom} />
+      )}
 
       <ImageZoomModal
         isOpen={zoom.open}

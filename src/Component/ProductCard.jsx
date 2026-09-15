@@ -3,7 +3,7 @@ import { motion } from "framer-motion";
 import useWishlistStore from "../stores/wishlistStore";
 import { formatDZD } from "../lib/currency";
 
-const PLACEHOLDER = "/placeholder-product.png";
+const PLACEHOLDER = "/placeholder-product.svg";
 
 function imgSrc(url) {
   if (!url) return PLACEHOLDER;
