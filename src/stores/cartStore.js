@@ -77,7 +77,16 @@ const useCartStore = create(
 
       // Delivery and tax come from src/lib/shipping.js — one file sets both,
       // so the basket, the cart summary and the checkout can't disagree.
-      shippingCost: () => deliveryFor(get().subtotal()),
+      //
+      // Delivery is priced by wilaya, so the checkout's wilaya code is passed
+      // in. The basket page has no address yet and passes nothing, which
+      // makes this null — the summary says "calculated at checkout" rather
+      // than pretending the customer gets delivery for nothing.
+      // `pointCode` is a free-delivery point (a campus, Réghaïa) — see
+      // FREE_DELIVERY_POINTS in the same file. Either way, the checkout form
+      // is where both values come from.
+      shippingCost: (wilayaCode, pointCode) =>
+        deliveryFor(get().subtotal(), wilayaCode, pointCode),
 
       discountAmount: () => {
         const d = get().discount;
@@ -93,11 +102,11 @@ const useCartStore = create(
         return taxFor(Math.max(0, sub - disc));
       },
 
-      total: () => {
+      total: (wilayaCode, pointCode) => {
         return (
           get().subtotal() -
           get().discountAmount() +
-          get().shippingCost() +
+          (get().shippingCost(wilayaCode, pointCode) || 0) +
           get().tax()
         );
       },

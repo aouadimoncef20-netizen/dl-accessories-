@@ -6,15 +6,15 @@ import useAuthStore from "../stores/authStore";
 import SEO from "../Component/SEO";
 import { formatDZD } from "../lib/currency";
 import { SHOW_TAX_LINE } from "../lib/shipping";
+import { WILAYAS, wilayaLabel } from "../lib/wilayas";
+import { FREE_DELIVERY_POINTS, freePointName } from "../lib/shipping";
 import useTranslation from "../i18n/useTranslation";
 
 function Checkout() {
   const navigate = useNavigate();
   const items = useCartStore((s) => s.items);
   const subtotal = useCartStore((s) => s.subtotal());
-  const shippingCost = useCartStore((s) => s.shippingCost());
   const tax = useCartStore((s) => s.tax());
-  const total = useCartStore((s) => s.total());
   const clearCart = useCartStore((s) => s.clearCart);
   const createOrder = useProductStore((s) => s.createOrder);
   const decrementStock = useProductStore((s) => s.decrementStock);
@@ -30,7 +30,15 @@ function Checkout() {
     phone: "",
     address: "",
     state: "",
+    deliveryPoint: "",
   });
+
+  // Delivery is priced from the form above, so the fee and the total change
+  // the moment the customer picks a wilaya or a free delivery point. Until
+  // one of those is chosen `shippingCost` is null, and the summary says so
+  // rather than showing it as free.
+  const shippingCost = useCartStore((s) => s.shippingCost(form.state, form.deliveryPoint));
+  const total = useCartStore((s) => s.total(form.state, form.deliveryPoint));
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -62,12 +70,19 @@ function Checkout() {
       return;
     }
 
+    // A free delivery point is part of where the parcel goes, so it leads the
+    // address: "USTHB — Bâtiment C, chambre 12" tells the courier everything,
+    // and the admin sees the campus without having to open the order.
+    const pointName = freePointName(form.deliveryPoint);
+
     const order = await createOrder({
       user_id: user?.id || null,
       customer_name: form.fullName,
       phone: form.phone,
-      address: form.address,
-      state: form.state,
+      address: pointName ? `${pointName} — ${form.address}` : form.address,
+      // Stored as "16 - Alger", not "16": the code alone means nothing to
+      // whoever packs the parcel, and the name alone is ambiguous in a list.
+      state: wilayaLabel(form.state),
       // `variant` (ring size / watch finish) is what the customer chose —
       // it has to reach the order or the admin cannot pack the right thing.
       items: items.map((i) => ({
@@ -143,10 +158,32 @@ function Checkout() {
                   {errors.address && <p className="text-error text-sm mt-1">{errors.address}</p>}
                 </div>
                 <div>
-                  <input name="state" value={form.state} onChange={handleChange}
-                    className={`w-full form-input font-body-md ${errors.state ? "border-error" : ""}`}
-                    placeholder={t("checkout_state")} type="text" />
+                  {/* A list, not a text box: the delivery price is looked up
+                      from the wilaya code, and a hand-typed wilaya can't be
+                      looked up at all. */}
+                  <select name="state" value={form.state} onChange={handleChange}
+                    className={`w-full form-input font-body-md ${errors.state ? "border-error" : ""}`}>
+                    <option value="">{t("checkout_state")}</option>
+                    {WILAYAS.map((w) => (
+                      <option key={w.code} value={w.code}>{w.code} - {w.name}</option>
+                    ))}
+                  </select>
                   {errors.state && <p className="text-error text-sm mt-1">{errors.state}</p>}
+                </div>
+                <div>
+                  {/* Chosen, not guessed. Free delivery applies to these
+                      places wherever they are, so it can't ride on the
+                      wilaya — UMMTO is in Tizi Ouzou and Koléa in Tipaza. */}
+                  <label htmlFor="deliveryPoint" className="block font-label-md text-secondary mb-2">
+                    {t("checkout_point_label")}
+                  </label>
+                  <select id="deliveryPoint" name="deliveryPoint" value={form.deliveryPoint}
+                    onChange={handleChange} className="w-full form-input font-body-md">
+                    <option value="">{t("checkout_point_none")}</option>
+                    {FREE_DELIVERY_POINTS.map((point) => (
+                      <option key={point.code} value={point.code}>{point.name}</option>
+                    ))}
+                  </select>
                 </div>
               </div>
             </section>
@@ -228,7 +265,13 @@ function Checkout() {
                 </div>
                 <div className="flex justify-between items-center text-body-md">
                   <span className="text-secondary">{t("checkout_shipping")}</span>
-                  <span className="text-on-surface">{shippingCost === 0 ? t("checkout_free") : formatDZD(shippingCost)}</span>
+                  <span className="text-on-surface">
+                    {shippingCost === null
+                      ? t("checkout_shipping_pick")
+                      : shippingCost === 0
+                        ? t("checkout_free")
+                        : formatDZD(shippingCost)}
+                  </span>
                 </div>
                 {SHOW_TAX_LINE && (
                   <div className="flex justify-between items-center text-body-md">
@@ -238,10 +281,9 @@ function Checkout() {
                 )}
                 <div className="flex justify-between items-center pt-6 mt-4 border-t border-outline-variant/50">
                   <span className="font-headline-sm text-headline-sm">{t("checkout_total")}</span>
-                  <div className="text-right">
-                    <span className="text-secondary text-sm block mb-1">DZD</span>
-                    <span className="font-display-lg text-[32px] text-primary">{formatDZD(total)}</span>
-                  </div>
+                  {/* formatDZD already ends in "DZD" — a second label above it
+                      printed the currency twice. */}
+                  <span className="font-display-lg text-[32px] text-primary">{formatDZD(total)}</span>
                 </div>
               </div>
             </div>

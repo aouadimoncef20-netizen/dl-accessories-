@@ -377,22 +377,23 @@ function ProductManager() {
 
               <div className="grid grid-cols-3 gap-4">
                 <div>
-                  <label className="block font-label-sm text-secondary mb-1.5">Price (USD) *</label>
+                  {/* Dinars, not dollars. The number typed here is the number
+                      on the shop front — nothing converts it on the way, so
+                      there is no "≈" line to second-guess it. Dinars have no
+                      cents in practice, so the field steps by whole units. */}
+                  <label className="block font-label-sm text-secondary mb-1.5">Price (DZD) *</label>
                   <div className="relative">
-                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-secondary font-label-md">$</span>
+                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-secondary font-label-md">DA</span>
                     <input
                       type="number"
-                      step="0.01"
+                      step="1"
                       min="0"
-                      className="form-input w-full pl-7"
-                      placeholder="0.00"
+                      className="form-input w-full pl-10"
+                      placeholder="0"
                       value={form.price}
                       onChange={setField("price")}
                     />
                   </div>
-                  {form.price && Number(form.price) > 0 && (
-                    <p className="text-[11px] text-primary mt-1">≈ {formatDZD(Number(form.price))}</p>
-                  )}
                 </div>
                 <div>
                   <label className="block font-label-sm text-secondary mb-1.5">Stock *</label>

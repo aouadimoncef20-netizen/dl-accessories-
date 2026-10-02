@@ -98,6 +98,6 @@ host). `public/_redirects` keeps client-side routes working on refresh.
 
 ## Notes
 
-- **Prices** are stored in USD and shown in DZD using the rate in `src/lib/currency.js`.
+- **Prices** are in Algerian dinars end to end. The number typed in the admin form is the number the customer pays; `src/lib/currency.js` only formats it for display.
 - **Language** switcher supports English, French and Arabic, including right-to-left.
 - **Stock** lives in the database. A product at 0 stock shows as sold out and cannot be ordered.

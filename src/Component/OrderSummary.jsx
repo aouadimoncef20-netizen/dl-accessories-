@@ -5,9 +5,14 @@ import useTranslation from "../i18n/useTranslation";
 
 function OrderSummary({ subtotal, showCheckoutButton = true }) {
   // Same source as the checkout — see src/lib/shipping.js.
+  //
+  // This is the basket sidebar, where there is no address yet, so the delivery
+  // price isn't known: `shipping` comes back null and the row says so. It is
+  // not 0 — free delivery and "we don't know yet" are different things, and
+  // showing the second as the first would promise something we can't keep.
   const shipping = deliveryFor(subtotal);
   const tax = taxFor(subtotal);
-  const total = subtotal + shipping + tax;
+  const total = subtotal + (shipping || 0) + tax;
   const { t } = useTranslation();
 
   return (
@@ -20,7 +25,13 @@ function OrderSummary({ subtotal, showCheckoutButton = true }) {
         </div>
         <div className="flex justify-between text-on-surface-variant">
           <span className="font-body-md">{t("summary_shipping")}</span>
-          <span className="font-body-md">{shipping === 0 ? t("checkout_free") : formatDZD(shipping)}</span>
+          <span className="font-body-md">
+            {shipping === null
+              ? t("summary_shipping_at_checkout")
+              : shipping === 0
+                ? t("checkout_free")
+                : formatDZD(shipping)}
+          </span>
         </div>
         {SHOW_TAX_LINE && (
           <div className="flex justify-between text-on-surface-variant">
