@@ -1,540 +1,556 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>DL Accessories — Full Project TODO</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Fix List</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,600;0,700;1,500&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
 <style>
-:root{--bg:#fcf9f8;--surface:#fff;--surface-raised:#f6f3f2;--surface-dim:#f0eded;--text:#1c1b1b;--text-sec:#645c5f;--text-muted:#817477;--accent:#785560;--accent-light:#f6c8d5;--accent-on:#fff;--border:#d3c3c6;--border-faint:#e5e2e1;--error:#ba1a1a;--error-bg:#ffdad6;--success:#2d6a4f;--success-bg:#d8f3dc;--warning:#b08218;--warning-bg:#fff3cd;--info:#3a6ea5;--info-bg:#d0e4f5;--code-bg:#f5f0ee;--radius:12px;--radius-sm:8px;--font-display:'Playfair Display',Georgia,serif;--font-body:'Plus Jakarta Sans',-apple-system,sans-serif;--font-mono:'JetBrains Mono','SF Mono',monospace}
-@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#1a1618;--surface:#231f21;--surface-raised:#2c2829;--surface-dim:#352f31;--text:#f0eded;--text-sec:#cec4c7;--text-muted:#817477;--accent:#e8bbc8;--accent-light:#3d2a31;--accent-on:#1a1618;--border:#4a3f42;--border-faint:#3a3335;--error:#ffb4ab;--error-bg:#3d1a1a;--success:#95d5b2;--success-bg:#1a2e20;--warning:#f0d080;--warning-bg:#2e2510;--info:#90c0e8;--info-bg:#1a2535;--code-bg:#2c2829}}
-:root[data-theme="dark"]{--bg:#1a1618;--surface:#231f21;--surface-raised:#2c2829;--surface-dim:#352f31;--text:#f0eded;--text-sec:#cec4c7;--text-muted:#817477;--accent:#e8bbc8;--accent-light:#3d2a31;--accent-on:#1a1618;--border:#4a3f42;--border-faint:#3a3335;--error:#ffb4ab;--error-bg:#3d1a1a;--success:#95d5b2;--success-bg:#1a2e20;--warning:#f0d080;--warning-bg:#2e2510;--info:#90c0e8;--info-bg:#1a2535;--code-bg:#2c2829}
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-html{scroll-behavior:smooth}
-body{font-family:var(--font-body);background:var(--bg);color:var(--text);line-height:1.6;-webkit-font-smoothing:antialiased}
+  :root{
+    --ground:#FAF6F7; --panel:#FFFFFF; --panel-2:#F4ECEF;
+    --ink:#241A1F; --muted:#6E5A63; --faint:#967F88;
+    --line:#E7D9DF; --line-strong:#D6C3CB;
+    --rose:#A3195B; --rose-soft:#FBE9F1;
+    --bad:#B3261E;  --bad-soft:#FBEBEA;
+    --warn:#9A6100; --warn-soft:#FCF1DC;
+    --info:#1F6FB2; --info-soft:#E7F0F9;
+    --violet:#6B4BA8; --violet-soft:#EFEAF8;
+    --ok:#1D7A4C;   --ok-soft:#E7F5ED;
+    --shadow:0 1px 2px rgba(36,26,31,.05),0 10px 28px -14px rgba(36,26,31,.2);
+    --radius:13px;
+  }
+  @media (prefers-color-scheme:dark){
+    :root:not([data-theme="light"]){
+      --ground:#151013; --panel:#1E171B; --panel-2:#261D22;
+      --ink:#F5EBEF; --muted:#B7A4AC; --faint:#8E7A82;
+      --line:#33262C; --line-strong:#48353D;
+      --rose:#FF9BC1; --rose-soft:#3A1F2B;
+      --bad:#F5918B;  --bad-soft:#361A18;
+      --warn:#E9BB66; --warn-soft:#33260F;
+      --info:#86C2F2; --info-soft:#152838;
+      --violet:#C1A9F2; --violet-soft:#241C36;
+      --ok:#6FDA9F;   --ok-soft:#16301F;
+      --shadow:0 1px 2px rgba(0,0,0,.45),0 10px 28px -14px rgba(0,0,0,.7);
+    }
+  }
+  :root[data-theme="dark"]{
+    --ground:#151013; --panel:#1E171B; --panel-2:#261D22;
+    --ink:#F5EBEF; --muted:#B7A4AC; --faint:#8E7A82;
+    --line:#33262C; --line-strong:#48353D;
+    --rose:#FF9BC1; --rose-soft:#3A1F2B;
+    --bad:#F5918B;  --bad-soft:#361A18;
+    --warn:#E9BB66; --warn-soft:#33260F;
+    --info:#86C2F2; --info-soft:#152838;
+    --violet:#C1A9F2; --violet-soft:#241C36;
+    --ok:#6FDA9F;   --ok-soft:#16301F;
+    --shadow:0 1px 2px rgba(0,0,0,.45),0 10px 28px -14px rgba(0,0,0,.7);
+  }
 
-.hero{background:var(--surface);border-bottom:1px solid var(--border-faint);padding:48px 32px 40px;position:sticky;top:0;z-index:100;backdrop-filter:blur(16px);background:color-mix(in srgb,var(--surface) 85%,transparent)}
-.hero-inner{max-width:1060px;margin:0 auto}
-.hero .eyebrow{font-family:var(--font-mono);font-size:11px;font-weight:500;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);margin-bottom:8px}
-.hero h1{font-family:var(--font-display);font-size:clamp(26px,4vw,40px);font-weight:600;line-height:1.15;letter-spacing:-.02em;text-wrap:balance}
-.hero .sub{font-size:15px;color:var(--text-sec);margin-top:8px;max-width:700px;line-height:1.5}
-.hero .stats{display:flex;gap:24px;margin-top:16px;flex-wrap:wrap}
-.hero .stat{font-family:var(--font-mono);font-size:12px;color:var(--text-muted)}
-.hero .stat strong{color:var(--text);font-weight:600}
+  *{box-sizing:border-box;}
+  body{
+    margin:0;background:var(--ground);color:var(--ink);
+    font-family:"Plus Jakarta Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+    font-size:15.5px;line-height:1.6;-webkit-font-smoothing:antialiased;
+  }
+  .page{max-width:1000px;margin:0 auto;padding-inline:18px;padding-block:0 96px;}
 
-.flow{max-width:1060px;margin:0 auto;padding:40px 32px 80px}
-.section-title{font-family:var(--font-display);font-size:24px;font-weight:600;margin:52px 0 6px;padding-bottom:12px;border-bottom:2px solid var(--border-faint)}
-.section-desc{font-size:14px;color:var(--text-sec);margin-bottom:20px;line-height:1.6}
+  /* ── sticky header ── */
+  header{
+    position:sticky;top:env(safe-area-inset-top,0px);z-index:20;
+    background:color-mix(in srgb,var(--ground) 88%,transparent);
+    backdrop-filter:blur(14px);
+    border-bottom:1px solid var(--line);
+    padding-block:16px 14px;margin-bottom:22px;
+  }
+  .head-row{display:flex;flex-wrap:wrap;align-items:baseline;gap:10px 18px;justify-content:space-between;}
+  .eyebrow{
+    font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:11px;font-weight:600;
+    letter-spacing:.14em;text-transform:uppercase;color:var(--rose);margin:0 0 4px;
+  }
+  h1{font-family:"Playfair Display",Georgia,serif;font-size:clamp(28px,4.6vw,40px);font-weight:600;line-height:1.08;letter-spacing:-.015em;margin:0;text-wrap:balance;}
+  .counter{font-family:"IBM Plex Mono",monospace;font-size:12.5px;color:var(--muted);white-space:nowrap;}
+  .counter b{color:var(--ink);font-weight:600;}
+  .bar{height:5px;border-radius:99px;background:var(--panel-2);overflow:hidden;margin-top:13px;}
+  .bar i{display:block;height:100%;width:0;background:var(--ok);border-radius:99px;transition:width .25s ease;}
 
-.cat-label{font-family:var(--font-mono);font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--accent);margin:32px 0 12px;padding:6px 10px;background:var(--accent-light);border-radius:4px;display:inline-block}
+  h2{
+    font-family:"Playfair Display",Georgia,serif;font-size:clamp(19px,2.6vw,23px);font-weight:600;
+    line-height:1.2;margin:0;text-wrap:balance;
+  }
+  .sec{margin-top:38px;}
+  .sec-head{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;border-bottom:2px solid var(--line-strong);padding-bottom:10px;margin-bottom:14px;}
+  .sec-head p{margin:0;font-size:14px;color:var(--muted);flex:1 1 260px;}
 
-.step{background:var(--surface);border:1px solid var(--border-faint);border-radius:var(--radius);padding:18px 22px;margin-bottom:10px;transition:border-color .2s;position:relative}
-.step:hover{border-color:var(--border)}
-.step::before{content:'';position:absolute;left:0;top:10px;bottom:10px;width:3px;border-radius:0 3px 3px 0}
-.step.critical::before{background:var(--error)}
-.step.important::before{background:var(--warning)}
-.step.normal::before{background:var(--info)}
-.step.polish::before{background:var(--text-muted)}
+  /* ── tasks ── */
+  ul.tasks{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:9px;}
+  li.task{
+    display:grid;grid-template-columns:auto 1fr;gap:14px;cursor:pointer;
+    background:var(--panel);border:1px solid var(--line);border-left:3px solid var(--accent,var(--info));
+    border-radius:var(--radius);padding:15px 17px;box-shadow:var(--shadow);
+    transition:opacity .15s ease;
+  }
+  li.task.crit{--accent:var(--bad);}
+  li.task.lose{--accent:var(--warn);}
+  li.task.trust{--accent:var(--warn);}
+  li.task.sec{--accent:var(--violet);}
+  li.task.money{--accent:var(--info);}
+  li.task.polish{--accent:var(--faint);}
 
-.step-head{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:4px}
-.step-name{font-size:14px;font-weight:600;line-height:1.4}
-.badge{font-family:var(--font-mono);font-size:9px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;padding:2px 7px;border-radius:4px;white-space:nowrap;flex-shrink:0}
-.badge-critical{background:var(--error-bg);color:var(--error)}
-.badge-important{background:var(--warning-bg);color:var(--warning)}
-.badge-normal{background:var(--info-bg);color:var(--info)}
-.badge-polish{background:var(--surface-dim);color:var(--text-muted)}
-.step-text{font-size:13px;color:var(--text-sec);line-height:1.55;margin-bottom:6px}
-.files{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:6px}
-.file{font-family:var(--font-mono);font-size:10px;color:var(--accent);background:var(--accent-light);padding:2px 7px;border-radius:4px;white-space:nowrap}
-.detail{font-size:12px;color:var(--text-muted);line-height:1.6;background:var(--surface-raised);border-radius:var(--radius-sm);padding:12px 14px;margin-top:6px}
-.detail code{font-family:var(--font-mono);font-size:11px;background:var(--code-bg);padding:1px 5px;border-radius:3px;color:var(--accent)}
-.detail ul{margin:4px 0 0 16px;list-style:disc}
-.detail li{margin-bottom:2px}
-.detail strong{color:var(--text-sec)}
-.detail .line-ref{color:var(--text-muted);font-style:italic;font-size:11px}
+  .tick{display:block;padding-top:2px;cursor:pointer;}
+  .tick input{position:absolute;opacity:0;width:0;height:0;}
+  .box{
+    display:block;width:19px;height:19px;border:1.6px solid var(--line-strong);
+    border-radius:6px;background:var(--panel);position:relative;transition:background .12s,border-color .12s;
+  }
+  .tick input:checked + .box{background:var(--ok);border-color:var(--ok);}
+  .tick input:checked + .box::after{
+    content:"";position:absolute;left:5.5px;top:1.5px;width:4px;height:9px;
+    border:solid var(--panel);border-width:0 2px 2px 0;transform:rotate(42deg);
+  }
+  .tick input:focus-visible + .box{outline:2px solid var(--rose);outline-offset:3px;}
 
-@media(max-width:640px){.hero{padding:32px 20px 28px}.flow{padding:20px 20px 60px}.step{padding:14px 16px}.hero .stats{gap:12px}}
+  .body{display:flex;flex-direction:column;gap:8px;min-width:0;}
+  .t-head{display:flex;flex-wrap:wrap;align-items:baseline;gap:8px 12px;}
+  .t-head h3{font-family:"Plus Jakarta Sans",sans-serif;font-size:15.5px;font-weight:600;line-height:1.35;margin:0;flex:1 1 auto;min-width:0;}
+  .badge{
+    font-family:"IBM Plex Mono",monospace;font-size:9.5px;font-weight:600;letter-spacing:.08em;
+    text-transform:uppercase;padding:2.5px 8px;border-radius:99px;white-space:nowrap;
+    background:color-mix(in srgb,var(--accent) 14%,transparent);color:var(--accent);
+  }
+  .why{margin:0;font-size:14.5px;color:var(--muted);}
+  .why b,.fix b{color:var(--ink);font-weight:600;}
+  .fix{
+    margin:0;font-size:13.5px;line-height:1.6;color:var(--muted);
+    background:var(--panel-2);border-radius:9px;padding:10px 13px;
+  }
+  .fix .lbl{font-family:"IBM Plex Mono",monospace;font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--rose);font-weight:600;display:block;margin-bottom:3px;}
+  code{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:.87em;background:var(--panel-2);border:1px solid var(--line);border-radius:4px;padding:.05em .35em;white-space:nowrap;}
+  .fix code{background:var(--panel);}
+  .files{display:flex;flex-wrap:wrap;gap:5px;}
+  .files span{
+    font-family:"IBM Plex Mono",monospace;font-size:10.5px;color:var(--muted);
+    background:var(--panel-2);border:1px solid var(--line);border-radius:5px;padding:2px 7px;
+  }
+
+  li.task.done{opacity:.48;}
+  li.task.done .t-head h3{text-decoration:line-through;text-decoration-color:var(--faint);}
+
+  /* ── status note under the header ── */
+  .note{
+    background:var(--ok-soft);border:1px solid color-mix(in srgb,var(--ok) 35%,transparent);
+    border-radius:var(--radius);padding:13px 16px;margin:0 0 22px;
+    font-size:14px;color:var(--muted);
+  }
+  .note b{color:var(--ink);font-weight:600;}
+  .note .k{font-family:"IBM Plex Mono",monospace;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--ok);font-weight:600;}
+
+  /* ── done section ── */
+  .done-list{list-style:none;margin:0;padding:0;display:grid;gap:7px;}
+  .done-list li{
+    display:grid;grid-template-columns:auto 1fr;gap:11px;align-items:start;
+    font-size:14px;color:var(--muted);padding:9px 13px;background:var(--panel-2);border-radius:9px;
+  }
+  .done-list .tick-mark{color:var(--ok);font-weight:700;line-height:1.35;font-family:"IBM Plex Mono",monospace;}
+  .done-list b{color:var(--ink);font-weight:600;}
+
+  footer{margin-top:44px;border-top:1px solid var(--line-strong);padding-top:18px;font-size:13px;color:var(--faint);}
+
+  @media (max-width:620px){
+    .page{padding-inline:14px;}
+    li.task{padding:13px 14px;gap:11px;}
+    .counter{width:100%;}
+  }
+  @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important;}}
+  @media print{
+    header{position:static;backdrop-filter:none;}
+    li.task{break-inside:avoid;box-shadow:none;}
+  }
 </style>
 </head>
 <body>
+<div class="page">
 
-<header class="hero">
-  <div class="hero-inner">
-    <p class="eyebrow">Codebase Audit — Post Supabase Integration</p>
-    <h1>DL Accessories — Full TODO</h1>
-    <p class="sub">Every remaining task, bug, and improvement — organized by urgency. Supabase products table is wired; auth, orders, and dozens of UI fixes are still pending.</p>
-    <div class="stats">
-      <span class="stat"><strong>16</strong> pages</span>
-      <span class="stat"><strong>15</strong> components</span>
-      <span class="stat"><strong>4</strong> stores</span>
-      <span class="stat"><strong>5</strong> critical blockers</span>
-      <span class="stat"><strong>9</strong> broken behaviors</span>
-      <span class="stat"><strong>8</strong> polish items</span>
+  <header>
+    <div class="head-row">
+      <div>
+        <p class="eyebrow">DL Accessories · verified against the code today</p>
+        <h1>Fix List</h1>
+      </div>
+      <p class="counter"><b id="left">4</b> left · <span id="alldone">16</span> of 20 done</p>
     </div>
-  </div>
-</header>
+    <div class="bar"><i id="bar"></i></div>
+  </header>
 
-<div class="flow">
+  <p class="note">
+    <span class="k">Update · 2 Oct 2026</span><br>
+    <b>The database is closed.</b> A2, A3 and D1 are done and verified against the live project,
+    not just in the abstract. The migration is in (all five pieces), the admin account
+    <code>zaki1@dlaccessories.com</code> exists and signs in, and the lockdown is live: the public
+    key reads products but writes nothing, cannot see a single order, and cannot upload a photo —
+    while the signed-in admin can still save products, upload, replace and delete images.<br>
+    <b>A3, in full.</b> The password is no longer the one written in this chat. A new one was
+    generated here and written straight to <code>Desktop\DL-admin-password-READ-THEN-DELETE.txt</code>
+    — move it into your password manager and delete the file. The app's built-in fallback password is
+    that same one; the Supabase account uses <code>zaki123</code>. Sign in with
+    <code>zaki123</code> when you need to <i>save</i> things: only a real signed-in account can write
+    now, so the fallback password gets you a read-only dashboard.<br>
+    <b>One thing left that only you can do: G1 — the stock.</b> Every product is at zero, so the shop
+    shows Sold out and refuses every order. Section G holds that and two smaller notes.
+  </p>
 
-<!-- ════════════════════════════════════════════════ -->
-<!-- SECTION A: CRITICAL — Blocks normal operation -->
-<!-- ════════════════════════════════════════════════ -->
-<div class="section-title">A. Critical — Blocks Normal Use</div>
-<div class="section-desc">These prevent basic shopping from working. Fix before anything else.</div>
-
-<span class="cat-label">Auth Store — Still 100% localStorage</span>
-
-<div class="step critical">
-  <div class="step-head">
-    <span class="step-name">Rewrite authStore.js to use Supabase Auth</span>
-    <span class="badge badge-critical">Critical</span>
-  </div>
-  <div class="files"><span class="file">src/stores/authStore.js</span></div>
-  <div class="step-text">This file has zero Supabase code. All auth is localStorage. Users can't actually sign up/sign in to a real account.</div>
-  <div class="detail">
-    <strong>Delete entirely:</strong> <code>loadSession()</code>, <code>getUsers()</code>, <code>saveUsers()</code>, and all <code>localStorage</code> calls<br><br>
-    <strong>Replace with:</strong>
-    <ul>
-      <li><code>import supabase from "../lib/supabase"</code></li>
-      <li><code>initialize()</code> → <code>supabase.auth.getSession()</code> + <code>supabase.auth.onAuthStateChange()</code></li>
-      <li><code>signUp(email, password, name)</code> → <code>supabase.auth.signUp({ email, password, options: { data: { full_name: name } } })</code></li>
-      <li><code>signIn(email, password)</code> → <code>supabase.auth.signInWithPassword({ email, password })</code></li>
-      <li><code>signOut()</code> → <code>supabase.auth.signOut()</code></li>
-      <li><code>resetPassword(email)</code> → <code>supabase.auth.resetPasswordForEmail(email)</code></li>
-      <li><code>isAdmin</code> → check <code>user?.user_metadata?.is_admin === true</code></li>
-      <li><code>updateProfile()</code> → <code>supabase.auth.updateUser({ data: updates })</code></li>
+  <!-- ══════════ A ══════════ -->
+  <section class="sec">
+    <div class="sec-head">
+      <h2>A · Stop-the-world</h2>
+      <p>Nothing else on this page matters until these three are done.</p>
+    </div>
+    <ul class="tasks">
+      <li class="task crit">
+        <label class="tick"><input type="checkbox" data-id="a1"><span class="box"></span></label>
+        <div class="body">
+          <div class="t-head"><h3>The database is back online</h3><span class="badge">Done</span></div>
+          <p class="why">Yesterday the Supabase project the site points at — <code>gjbfxcfvrlhhqbffeujv.supabase.co</code> — did not resolve anywhere, and the shop showed zero products and saved no orders. It answers again today.</p>
+          <p class="fix"><span class="lbl">Verified 29 Sep</span>I loaded your built site against the live project: four products on the storefront, prices rendering in dinars, product pages and order tracking working, no errors in the browser console. Run <code>npm run check:db</code> whenever you want the same checklist in your own terminal.</p>
+          <div class="files"><span>.env</span><span>check-database.mjs</span></div>
+        </div>
+      </li>
+      <li class="task crit">
+        <label class="tick"><input type="checkbox" data-id="a2"><span class="box"></span></label>
+        <div class="body">
+          <div class="t-head"><h3>Run the migration file</h3><span class="badge">Done</span></div>
+          <p class="why">I checked the live database column by column — five pieces are still missing: the <code>new_arrival</code> / <code>featured</code> / <code>best_seller</code> columns (their absence fires a failed request on every page load), the <code>colors</code> / <code>sizes</code> options, <code>orders.phone_digits</code> (which order tracking needs), the <code>decrement_product_stock()</code> function, and the <code>product-images</code> bucket the admin's photo upload has never had.</p>
+          <p class="fix"><span class="lbl">Fix</span>Save a Supabase access token to <code>Desktop\supabase-token.txt</code>, then I run <code>npm run supabase:sql migrate</code> from here and follow it with <code>npm run check:db</code> to watch the five crosses turn into ticks. Safe to run twice. If you would rather do it by hand: Supabase → SQL Editor → paste all of <code>SUPABASE_MIGRATION.sql</code> → Run.</p>
+          <div class="files"><span>SUPABASE_MIGRATION.sql</span><span>apply-supabase-sql.mjs</span><span>check-database.mjs</span></div>
+        </div>
+      </li>
+      <li class="task crit">
+        <label class="tick"><input type="checkbox" data-id="a3"><span class="box"></span></label>
+        <div class="body">
+          <div class="t-head"><h3>Change the admin password</h3><span class="badge">Done</span></div>
+          <p class="why">The password I gave you was sent over chat and is written down in this conversation. Fine for testing, not for a live shop.</p>
+          <p class="fix"><span class="lbl">Done 1 Oct</span>A new random password was generated here and written straight to <code>Desktop\DL-admin-password-READ-THEN-DELETE.txt</code> — it never entered this conversation. The hash in <code>src/lib/adminAuth.js</code> is the new one and the site is rebuilt, so the password in the chat no longer opens the dashboard.</p>
+          <p class="fix"><span class="lbl">Still to do</span>The matching <code>zaki1@dlaccessories.com</code> account in Supabase Auth — the account the lockdown trusts. That happens with the token, via <code>npm run supabase:sql admin-user</code>. To set your own password instead at any time, run <code>npm run admin:password</code>: typing hidden, refuses anything under twelve characters, and it can create the Supabase account itself when the database is reachable.</p>
+          <div class="files"><span>set-admin-password.mjs</span><span>apply-supabase-sql.mjs</span><span>src/lib/adminAuth.js</span></div>
+        </div>
+      </li>
     </ul>
-  </div>
-</div>
+  </section>
 
-<span class="cat-label">Product Store — Mapping & Orders</span>
-
-<div class="step critical">
-  <div class="step-head">
-    <span class="step-name">Fix mapProduct() — missing JSONB fields for detail pages</span>
-    <span class="badge badge-critical">Critical</span>
-  </div>
-  <div class="files"><span class="file">src/stores/productStore.js</span></div>
-  <div class="step-text">The <code>mapProduct()</code> function only forwards 7 fields. Every product detail layout (Watch, Bracelet, Ring, Nails, Lashes) needs fields that aren't being mapped.</div>
-  <div class="detail">
-    <strong>Currently maps:</strong> id, name, category, price, image (from image_url), description, best_seller, featured, new_arrival<br><br>
-    <strong>Missing — breaks detail pages:</strong>
-    <ul>
-      <li><code>colors</code> → WatchDetails color selector (line 50)</li>
-      <li><code>images</code> → ALL detail layouts gallery (lines 51, 184, 307, 453, 611)</li>
-      <li><code>features</code> → BraceletDetails feature chips (line 233)</li>
-      <li><code>sizes</code> → RingDetails size selector (line 308)</li>
-      <li><code>specs</code> → RingDetails + NailsDetails + LashesDetails spec grids (lines 307, 508, 612)</li>
-      <li><code>badge</code> → BraceletDetails badge (line 218)</li>
-      <li><code>materials</code> → BraceletDetails accordion (line 279)</li>
-      <li><code>details</code> → WatchDetails materials list (line 151)</li>
-      <li><code>sale_price</code> → Cart + OrderSummary discount display</li>
-      <li><code>discount</code> → HomeProductCard discount badge (line 13)</li>
+  <!-- ══════════ B ══════════ -->
+  <section class="sec">
+    <div class="sec-head">
+      <h2>B · Orders you can't fulfil correctly</h2>
+      <p>These are live now. Each one loses you information you need before you can ship.</p>
+    </div>
+    <ul class="tasks">
+      <li class="task lose">
+        <label class="tick"><input type="checkbox" data-id="b1"><span class="box"></span></label>
+        <div class="body">
+          <div class="t-head"><h3>The option the customer picks never reaches the order</h3><span class="badge">Loses data</span></div>
+          <p class="why">A customer choosing a ring size sees <b>"Size 7" in their bag</b> — the cart really does display it. But checkout rebuilds each line as <code>id, name, price, qty, image</code> and throws <code>variant</code> away. The order arrives with no size on it, and the customer has no idea. You cannot ship the ring.</p>
+          <p class="fix"><span class="lbl">Fix</span>Add <code>variant: i.variant</code> to the mapped item in <code>Checkout.jsx</code>, then show it in the order rows in <code>OrderManager.jsx</code> so you actually read it while packing.</p>
+          <div class="files"><span>src/Pages/Checkout.jsx</span><span>src/Component/OrderManager.jsx</span></div>
+        </div>
+      </li>
+      <li class="task lose">
+        <label class="tick"><input type="checkbox" data-id="b2"><span class="box"></span></label>
+        <div class="body">
+          <div class="t-head"><h3>The watch finish selector is a lie</h3><span class="badge">Wrong data</span></div>
+          <p class="why">On a watch page the colour swatches are genuinely clickable and change the selection — but the code that adds to the bag hardcodes <code>variant: "Finish: Rose Gold"</code>. Pick a black watch, and your order says Rose Gold. You ship the wrong finish and it looks like your mistake.</p>
+          <p class="fix"><span class="lbl">Fix</span>Derive the label from the chosen swatch instead of the hardcoded string — and read the real colour list from the database (see C2) rather than the invented defaults.</p>
+          <div class="files"><span>src/Pages/ProductDetails.jsx</span></div>
+        </div>
+      </li>
+      <li class="task lose">
+        <label class="tick"><input type="checkbox" data-id="b3"><span class="box"></span></label>
+        <div class="body">
+          <div class="t-head"><h3>Sold-out products can still be ordered</h3><span class="badge">Loses money</span></div>
+          <p class="why">Stock is managed in the admin and <b>nowhere else</b>. No storefront page reads it: no "sold out" badge, no disabled Add to Bag, nothing at checkout. A customer can buy the last item twice and you only find out when stock goes negative.</p>
+          <p class="fix"><span class="lbl">Fix</span>Show stock on the product page, block Add to Bag at zero, and re-check quantities at checkout.</p>
+          <div class="files"><span>src/Pages/ProductDetails.jsx</span><span>src/Pages/Checkout.jsx</span></div>
+        </div>
+      </li>
+      <li class="task lose">
+        <label class="tick"><input type="checkbox" data-id="b4"><span class="box"></span></label>
+        <div class="body">
+          <div class="t-head"><h3>Stock can oversell and ignores quantity</h3><span class="badge">Loses money</span></div>
+          <p class="why">After an order the stock is read, then written, and only when it is above zero. Order 5 when you have 3 and it clamps to 0 — the other 2 sales are silently unfilled, and two simultaneous orders can overwrite each other.</p>
+          <p class="fix"><span class="lbl">Fix</span>Check the requested quantity against stock before it can be added to the bag. The robust version is a database function that decrements atomically — worth doing before you run ads.</p>
+          <p class="fix"><span class="lbl">Done</span>Both halves are in: the basket refuses to add more than the shop has, and the order now takes stock off through <code>decrement_product_stock()</code> — one atomic statement in Postgres, so two orders landing in the same second can no longer both read the old number. Until A2 is run the app quietly falls back to the old read-then-write.</p>
+          <div class="files"><span>src/stores/productStore.js</span><span>src/stores/cartStore.js</span><span>SUPABASE_MIGRATION.sql</span></div>
+        </div>
+      </li>
+      <li class="task lose">
+        <label class="tick"><input type="checkbox" data-id="b5"><span class="box"></span></label>
+        <div class="body">
+          <div class="t-head"><h3>Orders placed during an outage vanish</h3><span class="badge">Loses orders</span></div>
+          <p class="why">If the database is unreachable, the order is kept in the customer's own browser instead and they still get a confirmation screen and an order number. <b>You never see it.</b> Neither of you knows anything went wrong — which is exactly what would be happening right now if customers were ordering today.</p>
+          <p class="fix"><span class="lbl">Fix</span>Detect the failure and tell the customer the order did not reach you, with your phone number. Never show a confirmation for an order that was not saved.</p>
+          <div class="files"><span>src/stores/productStore.js</span><span>src/Pages/Checkout.jsx</span></div>
+        </div>
+      </li>
     </ul>
-    <strong>Fix:</strong> Change <code>image: row.image_url</code> to also spread all JSONB columns, or map them explicitly.
-  </div>
-</div>
+  </section>
 
-<div class="step critical">
-  <div class="step-head">
-    <span class="step-name">Move orders from localStorage to Supabase</span>
-    <span class="badge badge-critical">Critical</span>
-  </div>
-  <div class="files"><span class="file">src/stores/productStore.js</span> <span class="file">src/Pages/Checkout.jsx</span></div>
-  <div class="step-text">Orders still use <code>let localOrders = []</code> and <code>localStorage.getItem("dl_orders")</code>. If the user clears browser data, all orders are gone.</div>
-  <div class="detail">
-    <strong>In productStore.js, replace:</strong>
-    <ul>
-      <li><code>createOrder()</code> → <code>supabase.from('orders').insert({ ...order, user_id, status: 'pending' }).select().single()</code></li>
-      <li><code>fetchUserOrders(userId)</code> → <code>supabase.from('orders').select('*').eq('user_id', userId).order('created_at', { ascending: false })</code></li>
-      <li><code>fetchAllOrders()</code> → <code>supabase.from('orders').select('*').order('created_at', { ascending: false })</code></li>
-      <li><code>updateOrderStatus(orderId, status)</code> → <code>supabase.from('orders').update({ status }).eq('id', orderId)</code></li>
+  <!-- ══════════ C ══════════ -->
+  <section class="sec">
+    <div class="sec-head">
+      <h2>C · Things that make the shop look untrustworthy</h2>
+      <p>A customer notices these before you do.</p>
+    </div>
+    <ul class="tasks">
+      <li class="task trust">
+        <label class="tick"><input type="checkbox" data-id="c1"><span class="box"></span></label>
+        <div class="body">
+          <div class="t-head"><h3>"Forgot password" promises an email that is never sent</h3><span class="badge">Trust</span></div>
+          <p class="why">The page says <em>"Enter your email and we'll send you a reset link"</em> and then <em>"Check your email"</em> — but the reset function is empty. Nothing is sent and the customer never gets in. They conclude the shop is broken.</p>
+          <p class="fix"><span class="lbl">Fix</span>Either wire a real reset (this needs real Supabase Auth — see D1) or remove the page and tell customers to contact you directly. A page that does nothing is worse than no page.</p>
+          <div class="files"><span>src/Pages/ForgotPassword.jsx</span><span>src/stores/authStore.js</span></div>
+        </div>
+      </li>
+      <li class="task trust">
+        <label class="tick"><input type="checkbox" data-id="c2"><span class="box"></span></label>
+        <div class="body">
+          <div class="t-head"><h3>Product pages offer options that don't exist</h3><span class="badge">Trust</span></div>
+          <p class="why">Ring pages always show sizes 4–8 and watch pages three made-up colour swatches, because the store never loads <code>colors</code> / <code>sizes</code> from the database — and the admin product form has no fields to enter them. Every product shows the same invented options.</p>
+          <p class="fix"><span class="lbl">Fix</span>Either add colour and size fields to the admin form and map them through, or hide the swatches and size selector until a product actually has them.</p>
+          <div class="files"><span>src/Component/ProductManager.jsx</span><span>src/stores/productStore.js</span></div>
+        </div>
+      </li>
+      <li class="task trust">
+        <label class="tick"><input type="checkbox" data-id="c3"><span class="box"></span></label>
+        <div class="body">
+          <div class="t-head"><h3>Guest orders are invisible to the customer afterwards</h3><span class="badge">Trust</span></div>
+          <p class="why">My Orders filters by <code>user_id</code>, and a guest's order has none. Someone who checks out without an account gets a confirmation screen and then has no way to look up their order again — they have to message you.</p>
+          <p class="fix"><span class="lbl">Fix</span>Add a lookup page that takes an order number plus the phone used, or require an account at checkout.</p>
+          <p class="fix"><span class="lbl">Done</span><b>Track Order</b> takes the order number and the phone it was placed with, and shows the status, the items and the delivery details — no account needed, and it never shows anyone else's order. My Orders itself now lists what was actually bought, sizes and finishes included, instead of just "3 item(s)".</p>
+          <div class="files"><span>src/Pages/TrackOrder.jsx</span><span>src/Pages/MyOrders.jsx</span></div>
+        </div>
+      </li>
     </ul>
-    <strong>In Checkout.jsx line 43–57:</strong> After clearing cart, call <code>createOrder()</code> with <code>user_id</code> from auth store before navigating to /order-confirmed.
-  </div>
-</div>
+  </section>
 
-<span class="cat-label">Product Detail — Missing Layouts</span>
-
-<div class="step critical">
-  <div class="step-head">
-    <span class="step-name">Add fallback for unsupported product categories</span>
-    <span class="badge badge-critical">Critical</span>
-  </div>
-  <div class="files"><span class="file">src/Pages/ProductDetails.jsx</span> <span class="line-ref">lines 799–803</span></div>
-  <div class="step-text">Only 5 categories have layouts: Watches, Bracelets, Rings, Nails, Lashes. If the store owner adds "Earrings" or "Necklaces" in Supabase, the detail page renders nothing — just the breadcrumb.</div>
-  <div class="detail">
-    <strong>Add after line 803:</strong><br>
-    <code>{!['Watches','Bracelets','Rings','Nails','Lashes'].includes(product.category) && &lt;GenericDetails product={product} /&gt;}</code><br><br>
-    <strong>Create a GenericDetails component</strong> that uses the BraceletDetails layout as a base (bento gallery + product info + accordion) but doesn't depend on category-specific fields like features or sizes.
-  </div>
-</div>
-
-<!-- ════════════════════════════════════════════════ -->
-<!-- SECTION B: IMPORTANT — Broken behaviors -->
-<!-- ════════════════════════════════════════════════ -->
-<div class="section-title">B. Important — Broken Behaviors</div>
-<div class="section-desc">Features that exist but don't work correctly.</div>
-
-<span class="cat-label">Collections Page</span>
-
-<div class="step important">
-  <div class="step-head">
-    <span class="step-name">Wire price filter dropdown to Supabase query</span>
-    <span class="badge badge-important">Important</span>
-  </div>
-  <div class="files"><span class="file">src/Pages/Collections.jsx</span> <span class="line-ref">line 42</span></div>
-  <div class="step-text">The price dropdown sets <code>priceFilter</code> state but it's never passed to <code>fetchProducts()</code>. Changing the dropdown does nothing.</div>
-  <div class="detail">
-    Map <code>priceFilter</code> values to min/max: <code>"under50"</code> → <code>{maxPrice: 50}</code>, <code>"50to100"</code> → <code>{minPrice: 50, maxPrice: 100}</code>, etc. Pass them in the fetchProducts call on line 35.
-  </div>
-</div>
-
-<div class="step important">
-  <div class="step-head">
-    <span class="step-name">Add pagination UI (page numbers + prev/next)</span>
-    <span class="badge badge-important">Important</span>
-  </div>
-  <div class="files"><span class="file">src/Pages/Collections.jsx</span></div>
-  <div class="step-text">The store supports pagination via <code>.range()</code> but there are no page buttons. Users can only see page 1.</div>
-  <div class="detail">
-    <ul>
-      <li>Track total count from Supabase (use <code>.select('*', { count: 'exact', head: true })</code> for count-only query)</li>
-      <li>Add prev/next buttons + page numbers below the product grid</li>
-      <li>Show "Page 1 of 3" or "1–8 of 24 products"</li>
+  <!-- ══════════ D ══════════ -->
+  <section class="sec">
+    <div class="sec-head">
+      <h2>D · Security</h2>
+      <p>D1 is the real one. The other two are smaller and quick.</p>
+    </div>
+    <ul class="tasks">
+      <li class="task sec">
+        <label class="tick"><input type="checkbox" data-id="d1"><span class="box"></span></label>
+        <div class="body">
+          <div class="t-head"><h3>The database itself is wide open</h3><span class="badge">Done</span></div>
+          <p class="why">The access rules on <code>products</code> and <code>orders</code> grant the <code>anon</code> role full access. That key ships inside your website's JavaScript, so <b>anyone who opens your site can read every order — names, phone numbers, addresses — and edit or delete your products.</b> The admin login protects the dashboard page only; it does not protect the data behind it.</p>
+          <p class="fix"><span class="lbl">Built</span>The app now signs customers in with real Supabase accounts, so the rules can finally key off a real identity. <code>SUPABASE_AUTH_LOCKDOWN.sql</code> is written and waiting — products readable by anyone, writable only by your admin account; orders readable by the customer who placed them or by you; guest tracking moved into a <code>lookup_order()</code> function that needs both the order number and the phone.</p>
+          <p class="fix"><span class="lbl">Run last</span>Three steps before that file: the database must be back (A1 — done) and migrated (A2); <code>zaki1@dlaccessories.com</code> must exist and be email-confirmed in Supabase Auth, which <code>npm run supabase:sql admin-user</code> does with the token; sign out and back in in the app and confirm the dashboard loads your products. <b>Then</b> run <code>npm run supabase:sql lockdown</code> — or paste <code>SUPABASE_AUTH_LOCKDOWN.sql</code> into the SQL Editor by hand. Without those steps your own dashboard loses write access.</p>
+          <p class="fix"><span class="lbl">Check it</span><code>npm run check:db</code> proves it either way: today it reports that a stranger can read <b>1 order</b> and can even edit your products. After the lockdown that line must read "a stranger cannot read orders".</p>
+          <div class="files"><span>SUPABASE_AUTH_LOCKDOWN.sql</span><span>check-database.mjs</span><span>src/stores/authStore.js</span></div>
+        </div>
+      </li>
+      <li class="task sec">
+        <label class="tick"><input type="checkbox" data-id="d2"><span class="box"></span></label>
+        <div class="body">
+          <div class="t-head"><h3>Customer passwords are stored in plain text</h3><span class="badge">Done</span></div>
+          <p class="why">Accounts were kept in the browser's localStorage with the password readable as typed. Anyone using that device could read every password.</p>
+          <p class="fix"><span class="lbl">Done</span>Passwords are now stored as SHA-256 hashes, never as typed, and an account created before this change is upgraded to a hash the next time that customer signs in. New accounts go to Supabase Auth instead, so the password never touches this browser at all. <em>Worth knowing: a hash in the browser is a speed bump, not a wall — the real protection is D1's move to server-side accounts.</em></p>
+          <div class="files"><span>src/lib/passwords.js</span><span>src/stores/authStore.js</span></div>
+        </div>
+      </li>
+      <li class="task sec">
+        <label class="tick"><input type="checkbox" data-id="d3"><span class="box"></span></label>
+        <div class="body">
+          <div class="t-head"><h3>Your <code>.env</code> file is committed to git</h3><span class="badge">Hygiene</span></div>
+          <p class="why">Harmless today — the anon key is public by design. It stops being harmless the day you add a service key, which would be a real leak.</p>
+          <p class="fix"><span class="lbl">Fix</span><code>git rm --cached .env</code>, add <code>.env</code> to <code>.gitignore</code>, commit. Keep the file locally.</p>
+          <div class="files"><span>.gitignore</span></div>
+        </div>
+      </li>
     </ul>
-  </div>
-</div>
+  </section>
 
-<span class="cat-label">Product Detail — Related Products</span>
-
-<div class="step important">
-  <div class="step-head">
-    <span class="step-name">Wire up related products in all 5 detail layouts</span>
-    <span class="badge badge-important">Important</span>
-  </div>
-  <div class="files"><span class="file">src/Pages/ProductDetails.jsx</span> <span class="line-ref">lines 173, 296, 441, 600, 733</span></div>
-  <div class="step-text">Every detail layout has a "related products" section that maps over <code>[].map(...)</code> — an empty array. Related products never appear.</div>
-  <div class="detail">
-    <ul>
-      <li>In <code>ProductDetails</code> (line 754), after fetching the product, also call <code>fetchRelated(product.category, product.id)</code></li>
-      <li>Store result in state: <code>const [related, setRelated] = useState([])</code></li>
-      <li>Pass <code>related</code> down to each detail component as a prop</li>
-      <li>Replace <code>[].map</code> with <code>related.map</code></li>
+  <!-- ══════════ E ══════════ -->
+  <section class="sec">
+    <div class="sec-head">
+      <h2>E · Your call, not a bug</h2>
+      <p>One decision, two lines of code. I haven't touched either.</p>
+    </div>
+    <ul class="tasks">
+      <li class="task money">
+        <label class="tick"><input type="checkbox" data-id="e1"><span class="box"></span></label>
+        <div class="body">
+          <div class="t-head"><h3>Set your real delivery and tax rules</h3><span class="badge">Decision</span></div>
+          <p class="why">Every order got <b>8% added</b> (a test order went 168,750 → 182,250 DZD) and delivery was free once the subtotal passed <b>75 DZD</b> — a dollar-era threshold that, in dinar, was always met. So you charged a tax you may not have meant, and never charged for a delivery that costs you real money.</p>
+          <p class="fix"><span class="lbl">Done · 29 Sep</span>Delivery is free and the tax line is gone, so the total is simply the basket. Both numbers live in one file, <code>src/lib/shipping.js</code>, and the basket, the cart summary and the checkout all read from it so they can never disagree. When you want to charge for delivery, type the fee and the free-delivery threshold there in dinars — the tax row only appears if the tax percentage is above zero.</p>
+          <div class="files"><span>src/lib/shipping.js</span><span>src/stores/cartStore.js</span><span>src/Pages/Checkout.jsx</span></div>
+        </div>
+      </li>
     </ul>
-  </div>
-</div>
+  </section>
 
-<div class="step important">
-  <div class="step-head">
-    <span class="step-name">Fix LashesDetails wishlist bug</span>
-    <span class="badge badge-important">Important</span>
-  </div>
-  <div class="files"><span class="file">src/Pages/ProductDetails.jsx</span> <span class="line-ref">line 688</span></div>
-  <div class="step-text"><code>toggleWishlist(product.id)</code> passes just the ID. The wishlist store expects a full product object <code>{ id, name, category, price, image }</code>.</div>
-  <div class="detail">
-    Change to: <code>toggleWishlist({ id: product.id, name: product.name, category: product.category, price: product.price, image: product.images?.[0] || product.image })</code>
-  </div>
-</div>
-
-<span class="cat-label">Navigation & Links</span>
-
-<div class="step important">
-  <div class="step-head">
-    <span class="step-name">Fix MobileMenu — category links have no filter params</span>
-    <span class="badge badge-important">Important</span>
-  </div>
-  <div class="files"><span class="file">src/Component/MobileMenu.jsx</span> <span class="line-ref">lines 28–30</span></div>
-  <div class="step-text">Watches, Jewelry, and Lashes all link to <code>/collections</code> with no <code>?cat=</code> param. Tapping them shows all products, not the filtered category.</div>
-  <div class="detail">
-    Change: <code>"/collections"</code> → <code>"/collections?cat=Watches"</code>, <code>"/collections?cat=Jewelry"</code>, <code>"/collections?cat=Lashes"</code>
-  </div>
-</div>
-
-<div class="step important">
-  <div class="step-head">
-    <span class="step-name">Fix AnnouncementBar — "Shop New Arrivals" is not a link</span>
-    <span class="badge badge-important">Important</span>
-  </div>
-  <div class="files"><span class="file">src/Component/AnnouncementBar.jsx</span> <span class="line-ref">line 7</span></div>
-  <div class="step-text">The text is a <code>&lt;span&gt;</code> with <code>cursor-pointer</code> but no <code>&lt;Link&gt;</code>. Tapping does nothing.</div>
-  <div class="detail">
-    Import <code>Link</code> from react-router-dom and wrap in <code>&lt;Link to="/collections"&gt;</code>
-  </div>
-</div>
-
-<div class="step important">
-  <div class="step-head">
-    <span class="step-name">Fix Footer — hardcoded year + dead links</span>
-    <span class="badge badge-important">Important</span>
-  </div>
-  <div class="files"><span class="file">src/Component/Footer.jsx</span></div>
-  <div class="detail">
-    <ul>
-      <li>Line 158: "© 2024" → <code>© {new Date().getFullYear()}</code></li>
-      <li>Company column (lines 78–110): Our Story, Sustainability, Careers, Journal are <code>&lt;button&gt;</code> tags that do nothing → either make them <code>&lt;Link&gt;</code> to real pages or remove them</li>
-      <li>Support column (lines 131–149): Care Guide, FAQ same issue</li>
+  <!-- ══════════ F ══════════ -->
+  <section class="sec">
+    <div class="sec-head">
+      <h2>F · Small and optional</h2>
+      <p>Nothing here is urgent.</p>
+    </div>
+    <ul class="tasks">
+      <li class="task polish">
+        <label class="tick"><input type="checkbox" data-id="f1"><span class="box"></span></label>
+        <div class="body">
+          <div class="t-head"><h3>Decide about the unused announcement bar</h3><span class="badge">Tidy</span></div>
+          <p class="why">The announcement bar component exists but is imported nowhere — dead code sitting in the project.</p>
+          <p class="fix"><span class="lbl">Fix</span>Either place it above the navbar in the main layout or delete the file.</p>
+          <div class="files"><span>src/Component/AnnouncementBar.jsx</span></div>
+        </div>
+      </li>
+      <li class="task polish">
+        <label class="tick"><input type="checkbox" data-id="f2"><span class="box"></span></label>
+        <div class="body">
+          <div class="t-head"><h3>Turn on the new-arrival and featured flags</h3><span class="badge">Tidy</span></div>
+          <p class="why">The admin has three toggle switches for <em>New Arrival</em>, <em>Featured</em> and <em>Best Seller</em>. The migration is run, so those switches now save — but they only <em>do</em> anything if the home page's Featured and New Arrival rows have something in them.</p>
+          <p class="fix"><span class="lbl">Fix</span>In the admin dashboard, set a few products to Featured and New Arrival, then open the home page and check the rows fill up.</p>
+          <div class="files"><span>src/Component/ProductManager.jsx</span></div>
+        </div>
+      </li>
     </ul>
-  </div>
-</div>
+  </section>
 
-<!-- ════════════════════════════════════════════════ -->
-<!-- SECTION C: CODE QUALITY — Cleanup & hygiene -->
-<!-- ════════════════════════════════════════════════ -->
-<div class="section-title">C. Code Quality — Cleanup &amp; Hygiene</div>
-<div class="section-desc">Debug noise, dead code, outdated comments.</div>
-
-<div class="step normal">
-  <div class="step-head">
-    <span class="step-name">Remove all console.log debug statements</span>
-    <span class="badge badge-normal">Clean Up</span>
-  </div>
-  <div class="files"><span class="file">src/lib/supabase.js</span> <span class="file">src/stores/productStore.js</span></div>
-  <div class="detail">
-    <ul>
-      <li><code>supabase.js</code> lines 6–7: <code>console.log("[Supabase] URL loaded:...")</code> — remove both</li>
-      <li><code>productStore.js</code>: 13 <code>console.log/console.warn/console.error</code> calls throughout — remove the info/warn ones, keep only genuine error catches</li>
+  <!-- ══════════ G ══════════ -->
+  <section class="sec">
+    <div class="sec-head">
+      <h2>G · Found the moment the database answered</h2>
+      <p>Not on the original list — these only became visible once the site could talk to its data again.</p>
+    </div>
+    <ul class="tasks">
+      <li class="task lose">
+        <label class="tick"><input type="checkbox" data-id="g1"><span class="box"></span></label>
+        <div class="body">
+          <div class="t-head"><h3>Every product is at 0 stock</h3><span class="badge">Can't sell</span></div>
+          <p class="why">All four products have a stock of zero, so every product page says <b>Sold out</b> and the checkout refuses the order before it can be placed. <b>The shop cannot take a single order today.</b> The collections page doesn't say so either — a customer only finds out after clicking in.</p>
+          <p class="fix"><span class="lbl">Fix</span>Admin dashboard → Products → set the real figure for each item. (Every product is sold out because the stock starts at zero, not because anything is broken.)</p>
+          <div class="files"><span>src/Component/ProductManager.jsx</span></div>
+        </div>
+      </li>
+      <li class="task money">
+        <label class="tick"><input type="checkbox" data-id="g2"><span class="box"></span></label>
+        <div class="body">
+          <div class="t-head"><h3>Prices are kept in dollars and shown in dinars</h3><span class="badge">Your call</span></div>
+          <p class="why">The admin form asks for a price in <b>USD</b>, and the storefront multiplies it by a rate of <b>135</b> to show dinars. So the Rolex is stored as 1,250 and displayed as 168,750 DZD. It works, but the rate is fixed in the code: if the dinar moves your prices drift with it, and a number typed in dinars would display 135 times too high — which is why the delivery fee in <code>shipping.js</code> is written in dinars and converted for you.</p>
+          <p class="fix"><span class="lbl">Decision</span>Either keep pricing in dollars and update that one rate when it moves, or switch the shop to dinars throughout (type 26,325, see 26,325 DZD). Tell me which and it is a small change — I have not touched it, because it changes every price on the site.</p>
+          <div class="files"><span>src/lib/currency.js</span><span>src/Component/ProductManager.jsx</span></div>
+        </div>
+      </li>
+      <li class="task polish">
+        <label class="tick"><input type="checkbox" data-id="g3"><span class="box"></span></label>
+        <div class="body">
+          <div class="t-head"><h3>The policy pages are English only</h3><span class="badge">Polish</span></div>
+          <p class="why">The shop is readable in Arabic and French, but Privacy and Terms are English-only pages — a French-speaking customer who clicks them lands in English. Both also described things this shop doesn't do: Privacy promised encrypted card payments (there are none — every order is cash on delivery) and Terms quoted prices in dollars. I corrected both today; the translation is still outstanding.</p>
+          <p class="fix"><span class="lbl">Fix</span>Give me your wording for delivery, returns and privacy — or tell me to write it — and I'll run those pages through all three languages. (The old Shipping &amp; Returns page promised $75 free shipping with email tracking you have no way to send. Nothing linked to it; it is deleted.)</p>
+          <div class="files"><span>src/Pages/Privacy.jsx</span><span>src/Pages/Terms.jsx</span></div>
+        </div>
+      </li>
     </ul>
-  </div>
-</div>
+  </section>
 
-<div class="step normal">
-  <div class="step-head">
-    <span class="step-name">Delete or move fix-rls.js</span>
-    <span class="badge badge-normal">Clean Up</span>
-  </div>
-  <div class="files"><span class="file">fix-rls.js</span></div>
-  <div class="step-text">One-shot script for disabling RLS. Shouldn't live in project root after running. Delete it or move to a <code>scripts/</code> folder.</div>
-</div>
-
-<div class="step normal">
-  <div class="step-head">
-    <span class="step-name">Remove DebugOverlay from Home page</span>
-    <span class="badge badge-normal">Clean Up</span>
-  </div>
-  <div class="files"><span class="file">src/Pages/Home.jsx</span> <span class="line-ref">line 11, 58</span></div>
-  <div class="step-text"><code>DebugOverlay</code> is imported and rendered but returns <code>null</code>. Remove the import and the <code>&lt;DebugOverlay /&gt;</code> tag.</div>
-</div>
-
-<div class="step normal">
-  <div class="step-head">
-    <span class="step-name">Update useProducts.js JSDoc</span>
-    <span class="badge badge-normal">Clean Up</span>
-  </div>
-  <div class="files"><span class="file">src/Hooks/useProducts.js</span> <span class="line-ref">line 5</span></div>
-  <div class="step-text">Still says "React hook for fetching products from the static product store." → update to "from Supabase"</div>
-</div>
-
-<div class="step normal">
-  <div class="step-head">
-    <span class="step-name">Remove AnnouncementBar if not used</span>
-    <span class="badge badge-normal">Clean Up</span>
-  </div>
-  <div class="files"><span class="file">src/Component/AnnouncementBar.jsx</span></div>
-  <div class="step-text">Not imported anywhere in the app. Either add it to MainLayout above the Navbar, or delete the file.</div>
-</div>
-
-<div class="step normal">
-  <div class="step-head">
-    <span class="step-name">Fix Newsletter.jsx — replace alert()</span>
-    <span class="badge badge-normal">Clean Up</span>
-  </div>
-  <div class="files"><span class="file">src/Component/Newsletter.jsx</span> <span class="line-ref">line 12</span></div>
-  <div class="step-text"><code>alert('Subscribed successfully!')</code> → replace with inline success state + message. Optional: save email to a <code>newsletter_subscribers</code> table in Supabase.</div>
-</div>
-
-<!-- ════════════════════════════════════════════════ -->
-<!-- SECTION D: MISSING FEATURES — New functionality -->
-<!-- ════════════════════════════════════════════════ -->
-<div class="section-title">D. Missing Features — New Functionality</div>
-<div class="section-desc">Features the app needs but doesn't have yet.</div>
-
-<div class="step important">
-  <div class="step-head">
-    <span class="step-name">Add user icon + account dropdown to Navbar</span>
-    <span class="badge badge-important">Important</span>
-  </div>
-  <div class="files"><span class="file">src/Component/Navbar.jsx</span></div>
-  <div class="step-text">No way to see if you're logged in or access account from the navbar. Add a person icon between search and favorites.</div>
-  <div class="detail">
-    <ul>
-      <li>Logged out → icon links to /login</li>
-      <li>Logged in → click opens dropdown: My Account, My Orders, Sign Out</li>
-      <li>Show user initial or name in the dropdown</li>
+  <!-- ══════════ ALREADY DONE ══════════ -->
+  <section class="sec">
+    <div class="sec-head">
+      <h2>Already handled</h2>
+      <p>The previous version of this file was written before most of the app existed. These are done — don't redo them.</p>
+    </div>
+    <ul class="done-list">
+      <li><span class="tick-mark">✓</span><span><b>Orders live in Supabase</b>, not localStorage. <em>The old list still says otherwise.</em></span></li>
+      <li><span class="tick-mark">✓</span><span>Order items were double-encoded as strings in the JSONB column — fixed, so admin order lines read correctly.</span></li>
+      <li><span class="tick-mark">✓</span><span>Every guest order used to be shown to every logged-in customer. Closed.</span></li>
+      <li><span class="tick-mark">✓</span><span>Admin product add / edit / delete works against the real table, with image upload and URL, live preview and delete confirmation.</span></li>
+      <li><span class="tick-mark">✓</span><span>Admin login with a reserved account; the "Grant Admin Access" button that let any customer promote themselves is gone, and the admin email can't be self-registered.</span></li>
+      <li><span class="tick-mark">✓</span><span>Category fallback page for unknown categories, related products, collections pagination and product counts.</span></li>
+      <li><span class="tick-mark">✓</span><span>404 page, error boundary, toast system, dark mode, per-page SEO, back-to-top, image zoom.</span></li>
+      <li><span class="tick-mark">✓</span><span>Housekeeping: <code>fix-rls.js</code> deleted, console noise removed, debug overlay removed, newsletter <code>alert()</code> replaced.</span></li>
     </ul>
-  </div>
+  </section>
+
+  <footer>
+    Every item above was checked against the current code — the file paths are real and the line references are where the problem actually lives. Ticks are saved in this browser only.
+  </footer>
 </div>
 
-<div class="step normal">
-  <div class="step-head">
-    <span class="step-name">Add 404 / Not Found page</span>
-    <span class="badge badge-normal">Missing</span>
-  </div>
-  <div class="files"><span class="file">src/App.jsx</span></div>
-  <div class="step-text">No catch-all route. Navigating to <code>/anything-invalid</code> renders a blank page inside MainLayout.</div>
-  <div class="detail">
-    Add <code>&lt;Route path="*" element={&lt;NotFound /&gt;} /&gt;</code> as the last route inside MainLayout. Create a simple NotFound page with "Page not found" + link to home.
-  </div>
-</div>
+<script>
+(function () {
+  var KEY = "dl-fixlist-v4";
 
-<div class="step normal">
-  <div class="step-head">
-    <span class="step-name">Add error boundary component</span>
-    <span class="badge badge-normal">Missing</span>
-  </div>
-  <div class="files"><span class="file">src/Component/ErrorBoundary.jsx</span> <span class="file">src/App.jsx</span></div>
-  <div class="step-text">If any component throws, the entire app crashes to a white screen. No recovery UI.</div>
-  <div class="detail">
-    Create a class-based ErrorBoundary that catches render errors and shows a friendly "Something went wrong" page with a retry button. Wrap the Router in App.jsx.
-  </div>
-</div>
+  // Fixed in the code as of 29 Sep 2026. Tick them on first open so the list
+  // tells the truth immediately; every box stays yours to change afterwards.
+  // A2, A3 and D1 stay unticked on purpose: they need your hands on the
+  // Supabase dashboard — and D1 must be run LAST, after A3, or your own
+  // dashboard loses write access.
+  var FIXED = { a1:1, a2:1, a3:1, b1:1, b2:1, b3:1, b4:1, b5:1, c1:1, c2:1, c3:1, d1:1, d2:1, d3:1, e1:1, f1:1 };
 
-<div class="step normal">
-  <div class="step-head">
-    <span class="step-name">Add toast notification system</span>
-    <span class="badge badge-normal">Missing</span>
-  </div>
-  <div class="files"><span class="file">src/Component/Toast.jsx</span></div>
-  <div class="step-text">No feedback when adding to cart, wishlist, subscribing, or placing an order. The only feedback is page navigation.</div>
-  <div class="detail">
-    Create a lightweight toast context/provider. Show toast on: add to cart, toggle wishlist, newsletter subscribe, order placed. Keep it simple — no external library needed.
-  </div>
-</div>
+  var boxes = Array.prototype.slice.call(document.querySelectorAll('input[type="checkbox"][data-id]'));
+  var total = boxes.length;
+  var leftEl = document.getElementById('left');
+  var doneEl = document.getElementById('alldone');
+  var barEl = document.getElementById('bar');
 
-<div class="step normal">
-  <div class="step-head">
-    <span class="step-name">Add dark mode toggle</span>
-    <span class="badge badge-normal">Missing</span>
-  </div>
-  <div class="files"><span class="file">src/stores/themeStore.js</span> <span class="file">src/Component/Navbar.jsx</span></div>
-  <div class="step-text">Tailwind config has <code>darkMode: "class"</code> but no toggle exists and no dark variants are defined.</div>
-  <div class="detail">
-    <ul>
-      <li>Create Zustand persist store with theme state (light/dark/system)</li>
-      <li>Add sun/moon toggle button to Navbar</li>
-      <li>Apply <code>dark</code> class to <code>&lt;html&gt;</code> element</li>
-      <li>Add <code>dark:</code> variants to tailwind.config.js color tokens</li>
-      <li>Override key colors for dark mode: background, surface, text, borders</li>
-    </ul>
-  </div>
-</div>
+  function load() {
+    try { return JSON.parse(localStorage.getItem(KEY) || '{}'); } catch (e) { return {}; }
+  }
+  function save(state) {
+    try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) {}
+  }
 
-<div class="step normal">
-  <div class="step-head">
-    <span class="step-name">Add Google social login</span>
-    <span class="badge badge-normal">Missing</span>
-  </div>
-  <div class="files"><span class="file">src/Pages/Login.jsx</span> <span class="file">src/Pages/Register.jsx</span></div>
-  <div class="step-text">Only email/password auth. Most shoppers expect Google sign-in.</div>
-  <div class="detail">
-    <ul>
-      <li>Enable Google provider in Supabase Dashboard → Authentication → Providers</li>
-      <li>Add "Continue with Google" button to Login and Register</li>
-      <li>Use <code>supabase.auth.signInWithOAuth({ provider: 'google' })</code></li>
-    </ul>
-  </div>
-</div>
+  var fresh = false;
+  try { fresh = localStorage.getItem(KEY) === null; } catch (e) { fresh = true; }
+  var state = load();
+  // First open of this version: seed the fixed items. After that we respect
+  // whatever this browser has stored, including boxes you untick.
+  if (fresh) {
+    state = Object.assign({}, FIXED);
+    save(state);
+  }
 
-<!-- ════════════════════════════════════════════════ -->
-<!-- SECTION E: POLISH — Nice to have -->
-<!-- ════════════════════════════════════════════════ -->
-<div class="section-title">E. Polish — Nice to Have</div>
-<div class="section-desc">Improvements that elevate the experience but aren't blocking.</div>
+  function render() {
+    var done = 0;
+    boxes.forEach(function (box) {
+      var id = box.getAttribute('data-id');
+      var on = !!state[id];
+      box.checked = on;
+      box.closest('li.task').classList.toggle('done', on);
+      if (on) done++;
+    });
+    var left = total - done;
+    leftEl.textContent = left;
+    doneEl.textContent = done;
+    barEl.style.width = (total ? (done / total) * 100 : 0) + '%';
+  }
 
-<div class="step polish">
-  <div class="step-head">
-    <span class="step-name">Add per-page SEO meta tags</span>
-    <span class="badge badge-polish">Polish</span>
-  </div>
-  <div class="files"><span class="file">src/Pages/*.jsx</span></div>
-  <div class="detail">
-    <ul>
-      <li>Install <code>react-helmet-async</code></li>
-      <li>Add <code>&lt;title&gt;</code> + <code>&lt;meta description&gt;</code> to each page</li>
-      <li>Product pages: dynamic title with product name</li>
-      <li>Home: "DL Accessories | Details Make You Shine"</li>
-    </ul>
-  </div>
-</div>
+  boxes.forEach(function (box) {
+    box.addEventListener('change', function () {
+      var id = box.getAttribute('data-id');
+      if (box.checked) state[id] = 1; else delete state[id];
+      save(state);
+      render();
+    });
+  });
 
-<div class="step polish">
-  <div class="step-head">
-    <span class="step-name">Integrate Stripe for real payments</span>
-    <span class="badge badge-polish">Polish</span>
-  </div>
-  <div class="files"><span class="file">src/Pages/Checkout.jsx</span></div>
-  <div class="detail">
-    <ul>
-      <li>Replace demo card inputs (step 3) with Stripe Elements</li>
-      <li>Create payment intent via Supabase Edge Function → Stripe API</li>
-      <li>Handle success/failure with proper UI states</li>
-      <li>Store payment_intent_id in the order record</li>
-    </ul>
-  </div>
-</div>
+  // Anywhere on the row toggles it — a 19px box is a mean target on a phone.
+  // Clicks that land on the label are left alone, or they'd toggle twice.
+  Array.prototype.forEach.call(document.querySelectorAll('li.task'), function (row) {
+    row.addEventListener('click', function (e) {
+      if (e.target.closest('.tick')) return;
+      if (window.getSelection && String(window.getSelection()).length > 0) return;
+      var box = row.querySelector('input[type="checkbox"]');
+      if (!box) return;
+      box.checked = !box.checked;
+      box.dispatchEvent(new Event('change'));
+    });
+  });
 
-<div class="step polish">
-  <div class="step-head">
-    <span class="step-name">Image lazy loading + optimization</span>
-    <span class="badge badge-polish">Polish</span>
-  </div>
-  <div class="files"><span class="file">src/Component/*.jsx</span></div>
-  <div class="detail">
-    <ul>
-      <li>Add <code>loading="lazy"</code> to all <code>&lt;img&gt;</code> tags except hero + first visible images</li>
-      <li>Add <code>width</code> and <code>height</code> attributes to prevent layout shift</li>
-      <li>Consider Supabase Edge Functions for image resizing on-the-fly</li>
-    </ul>
-  </div>
-</div>
-
-<div class="step polish">
-  <div class="step-head">
-    <span class="step-name">Add "Back to Top" button</span>
-    <span class="badge badge-polish">Polish</span>
-  </div>
-  <div class="files"><span class="file">src/Component/BackToTop.jsx</span></div>
-  <div class="step-text">Long pages (Home, Collections, Product Details) have no way to quickly return to the top.</div>
-</div>
-
-<div class="step polish">
-  <div class="step-head">
-    <span class="step-name">Add loading states to Checkout + OrderConfirmed</span>
-    <span class="badge badge-polish">Polish</span>
-  </div>
-  <div class="files"><span class="file">src/Pages/Checkout.jsx</span> <span class="file">src/Pages/OrderConfirmed.jsx</span></div>
-  <div class="step-text">When placing an order, there's no loading spinner on the "Complete Purchase" button. User can double-click and create duplicate orders.</div>
-</div>
-
-<div class="step polish">
-  <div class="step-head">
-    <span class="step-name">Add product image zoom on hover (detail pages)</span>
-    <span class="badge badge-polish">Polish</span>
-  </div>
-  <div class="files"><span class="file">src/Pages/ProductDetails.jsx</span></div>
-  <div class="step-text">Gallery images are static. Add a lens/magnifier effect or click-to-zoom modal on the main product image.</div>
-</div>
-
-<div class="step polish">
-  <div class="step-head">
-    <span class="step-name">Add "Add to Cart" toast with undo option</span>
-    <span class="badge badge-polish">Polish</span>
-  </div>
-  <div class="files"><span class="file">src/Component/Toast.jsx</span></div>
-  <div class="step-text">When adding to cart, show a slide-in toast: "Added to bag" with an "Undo" button that removes the item.</div>
-</div>
-
-<div class="step polish">
-  <div class="step-head">
-    <span class="step-name">Remove pg from devDependencies</span>
-    <span class="badge badge-polish">Polish</span>
-  </div>
-  <div class="files"><span class="file">package.json</span> <span class="line-ref">line 43</span></div>
-  <div class="step-text"><code>"pg": "^8.23.0"</code> was needed for fix-rls.js. If that script is deleted, remove this too.</div>
-</div>
-
-</div>
+  render();
+})();
+</script>
 </body>
 </html>

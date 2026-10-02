@@ -16,6 +16,7 @@ import ProductDetails from "./Pages/ProductDetails";
 import Cart from "./Pages/Cart";
 import Checkout from "./Pages/Checkout";
 import OrderConfirmed from "./Pages/OrderConfirmed";
+import TrackOrder from "./Pages/TrackOrder";
 import Gallery from "./Pages/Gallery";
 import Contact from "./Pages/Contact";
 import Favorites from "./Pages/Favorites";
@@ -72,6 +73,7 @@ function App() {
             <Route path="/cart" element={<Cart />} />
             <Route path="/checkout" element={<Checkout />} />
             <Route path="/order-confirmed" element={<OrderConfirmed />} />
+            <Route path="/track-order" element={<TrackOrder />} />
             <Route path="/gallery" element={<Gallery />} />
             <Route path="/contact" element={<Contact />} />
             <Route path="/favorites" element={<Favorites />} />

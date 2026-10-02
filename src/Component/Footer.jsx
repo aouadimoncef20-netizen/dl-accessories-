@@ -91,6 +91,11 @@ function Footer() {
           </h5>
           <ul className="space-y-4 font-body-md text-secondary">
             <li>
+              <Link to="/track-order" className="hover:text-primary transition-colors duration-300">
+                {t("order_track")}
+              </Link>
+            </li>
+            <li>
               <Link to="/contact" className="hover:text-primary transition-colors duration-300">
                 {t("footer_contact_us")}
               </Link>

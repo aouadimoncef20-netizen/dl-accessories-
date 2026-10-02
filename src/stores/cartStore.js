@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
+import { deliveryFor, taxFor } from "../lib/shipping";
 
 const useCartStore = create(
   persist(
@@ -7,18 +8,44 @@ const useCartStore = create(
       items: [],
       discount: null,
 
-      addItem: (product) => {
+      // Returns { ok } or { ok: false, reason, available } so the product
+      // page can tell the customer why nothing happened.
+      //
+      // The stock check only runs when we actually know the number. Cards that
+      // don't fetch stock (and items restored from an older saved cart) still
+      // add normally rather than being blocked by a guess.
+      addItem: (product, qty = 1) => {
         const { items } = get();
+        const wanted = Math.max(1, Number(qty) || 1);
         const exists = items.find((i) => i.id === product.id);
+
+        // Prefer the stock on the incoming product, fall back to what the cart
+        // already recorded for it.
+        const known =
+          typeof product.stock === "number" ? product.stock : exists?.stock;
+        const limit = typeof known === "number" ? known : null;
+        const inCart = exists?.qty || 0;
+
+        if (limit !== null && inCart + wanted > limit) {
+          return {
+            ok: false,
+            reason: limit === 0 ? "out_of_stock" : "not_enough",
+            available: Math.max(0, limit - inCart),
+          };
+        }
+
         if (exists) {
           set({
             items: items.map((i) =>
-              i.id === product.id ? { ...i, qty: i.qty + 1 } : i
+              i.id === product.id
+                ? { ...i, ...product, qty: i.qty + wanted }
+                : i
             ),
           });
         } else {
-          set({ items: [...items, { ...product, qty: 1 }] });
+          set({ items: [...items, { ...product, qty: wanted }] });
         }
+        return { ok: true };
       },
 
       removeItem: (id) => {
@@ -28,30 +55,29 @@ const useCartStore = create(
       updateQty: (id, qty) => {
         if (qty < 1) {
           get().removeItem(id);
-          return;
+          return { ok: true };
+        }
+        const item = get().items.find((i) => i.id === id);
+        const limit = typeof item?.stock === "number" ? item.stock : null;
+        if (limit !== null && qty > limit) {
+          return { ok: false, reason: "not_enough", available: limit };
         }
         set({
           items: get().items.map((i) =>
             i.id === id ? { ...i, qty } : i
           ),
         });
+        return { ok: true };
       },
 
       clearCart: () => set({ items: [], discount: null }),
 
-      applyDiscount: (code, discount) => {
-        set({ discount: { code, ...discount } });
-      },
-
-      removeDiscount: () => set({ discount: null }),
-
       subtotal: () =>
         get().items.reduce((sum, i) => sum + (i.sale_price || i.price) * i.qty, 0),
 
-      shippingCost: () => {
-        const sub = get().subtotal();
-        return sub >= 75 ? 0 : 12;
-      },
+      // Delivery and tax come from src/lib/shipping.js — one file sets both,
+      // so the basket, the cart summary and the checkout can't disagree.
+      shippingCost: () => deliveryFor(get().subtotal()),
 
       discountAmount: () => {
         const d = get().discount;
@@ -64,7 +90,7 @@ const useCartStore = create(
       tax: () => {
         const sub = get().subtotal();
         const disc = get().discountAmount();
-        return (sub - disc) * 0.08;
+        return taxFor(Math.max(0, sub - disc));
       },
 
       total: () => {

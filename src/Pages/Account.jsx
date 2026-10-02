@@ -1,16 +1,10 @@
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import useAuthStore from "../stores/authStore";
 import useWishlistStore from "../stores/wishlistStore";
 
 function Account() {
-  const { user, profile, signOut, isAdmin, makeAdmin } = useAuthStore();
+  const { user, profile, signOut, isAdmin } = useAuthStore();
   const { items: wishlist } = useWishlistStore();
-  const navigate = useNavigate();
-
-  const handleMakeAdmin = async () => {
-    await makeAdmin();
-    navigate("/admin");
-  };
 
   return (
     <div className="pt-32 pb-section-gap px-margin-mobile md:px-margin-desktop max-w-container-max mx-auto">
@@ -44,14 +38,14 @@ function Account() {
             Sign Out
           </button>
 
-          {!isAdmin && (
-            <button
-              onClick={handleMakeAdmin}
+          {isAdmin && (
+            <Link
+              to="/admin"
               className="flex items-center gap-3 px-4 py-3 rounded-xl font-body-md text-primary bg-primary-container/30 hover:bg-primary-container/50 transition-colors w-full text-left mt-2"
             >
               <span className="material-symbols-outlined text-[20px]">admin_panel_settings</span>
-              Grant Admin Access
-            </button>
+              Admin Dashboard
+            </Link>
           )}
         </div>
 

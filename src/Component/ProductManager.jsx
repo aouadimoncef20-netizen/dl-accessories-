@@ -3,6 +3,7 @@ import useProductStore from "../stores/productStore";
 import supabase from "../lib/supabase";
 import { useToast } from "../Contexts/ToastContext";
 import { formatDZD } from "../lib/currency";
+import { colorsToField, sizesToField, LOW_STOCK } from "../lib/productOptions";
 
 const CATEGORY_OPTIONS = [
   "Watches",
@@ -28,10 +29,27 @@ const EMPTY_FORM = {
   image_url: "",
   description: "",
   stock: "0",
+  colors: "",
+  sizes: "",
   best_seller: false,
   featured: false,
   new_arrival: false,
 };
+
+// One place decides how a stock figure reads, so the badge's colour and its
+// wording can never disagree.
+function stockTone(stock) {
+  if (typeof stock !== "number") return "bg-surface-container text-secondary";
+  if (stock === 0) return "bg-red-100 text-red-700";
+  if (stock <= LOW_STOCK) return "bg-amber-100 text-amber-700";
+  return "bg-green-100 text-green-700";
+}
+
+function stockLabel(stock) {
+  if (typeof stock !== "number") return "No stock figure";
+  if (stock === 0) return "Out of stock";
+  return `${stock} in stock`;
+}
 
 function Toggle({ checked, onChange, label }) {
   return (
@@ -73,7 +91,7 @@ function ProductManager() {
   const [editingId, setEditingId] = useState(null);
   const [submitting, setSubmitting] = useState(false);
   const [uploading, setUploading] = useState(false);
-  const [filter, setFilter] = useState("");
+  const [search, setSearch] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("all");
   const [deleteConfirm, setDeleteConfirm] = useState(null);
   const [imageError, setImageError] = useState(false);
@@ -92,8 +110,8 @@ function ProductManager() {
 
   const filtered = products.filter((p) => {
     const matchesSearch =
-      p.name?.toLowerCase().includes(filter.toLowerCase()) ||
-      p.category?.toLowerCase().includes(filter.toLowerCase());
+      p.name?.toLowerCase().includes(search.toLowerCase()) ||
+      p.category?.toLowerCase().includes(search.toLowerCase());
     const matchesCategory = categoryFilter === "all" || p.category === categoryFilter;
     return matchesSearch && matchesCategory;
   });
@@ -103,31 +121,32 @@ function ProductManager() {
   // ── Image upload handler ──
   const handleImageUpload = useCallback(async (e) => {
     const file = e.target.files?.[0];
+    // Reset the input so picking the same file again still fires onChange
+    e.target.value = "";
     if (!file) return;
 
-    // Validate file type
     if (!file.type.startsWith("image/")) {
       toast.error("Please select an image file");
       return;
     }
 
-    // Validate file size (max 5MB)
     if (file.size > 5 * 1024 * 1024) {
-      toast.error("Image must be less than 5MB");
+      toast.error("Image must be smaller than 5MB");
       return;
     }
 
     setUploading(true);
 
+    // 1st choice: upload to Supabase Storage and use the returned public URL
     try {
-      // Try uploading to Supabase Storage first
-      const fileName = `products/${Date.now()}-${file.name.replace(/[^a-zA-Z0-9.-]/g, "_")}`;
-      const { data: uploadData, error: uploadError } = await supabase.storage
-        .from("product-images")
-        .upload(fileName, file);
+      const safeName = file.name.replace(/[^a-zA-Z0-9.-]/g, "_");
+      const fileName = `products/${Date.now()}-${safeName}`;
 
-      if (!uploadError && uploadData) {
-        // Get public URL
+      const { error: uploadError } = await supabase.storage
+        .from("product-images")
+        .upload(fileName, file, { upsert: true });
+
+      if (!uploadError) {
         const { data: urlData } = supabase.storage
           .from("product-images")
           .getPublicUrl(fileName);
@@ -135,36 +154,46 @@ function ProductManager() {
         if (urlData?.publicUrl) {
           setForm((prev) => ({ ...prev, image_url: urlData.publicUrl }));
           setImageError(false);
-          toast.success("Image uploaded successfully");
+          toast.success("Image uploaded");
           setUploading(false);
           return;
         }
       }
 
-      // Fallback: convert to base64 data URL for small images
-      if (file.size > 1 * 1024 * 1024) {
-        toast.error("Image upload failed. Please paste an image URL instead.");
-        setUploading(false);
-        return;
+      // The bucket is missing → tell the admin exactly what to run
+      if (uploadError && /bucket not found/i.test(uploadError.message)) {
+        toast.error("Storage not set up — run SUPABASE_MIGRATION.sql in Supabase.");
       }
-
-      const reader = new FileReader();
-      reader.onload = (event) => {
-        setForm((prev) => ({ ...prev, image_url: event.target.result }));
-        setImageError(false);
-        toast.success("Image loaded");
-        setUploading(false);
-      };
-      reader.onerror = () => {
-        toast.error("Failed to read image file");
-        setUploading(false);
-      };
-      reader.readAsDataURL(file);
-    } catch (err) {
-      toast.error("Upload failed. Try pasting an image URL.");
-      setUploading(false);
+    } catch {
+      /* fall through to the embedded-image fallback below */
     }
+
+    // 2nd choice: embed small images directly so the admin isn't blocked
+    if (file.size > 1024 * 1024) {
+      toast.error("Upload failed — image too large to embed. Paste an image URL instead.");
+      setUploading(false);
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      setForm((prev) => ({ ...prev, image_url: event.target.result }));
+      setImageError(false);
+      toast.success("Image added (embedded — run the migration for proper uploads)");
+      setUploading(false);
+    };
+    reader.onerror = () => {
+      toast.error("Could not read that image file");
+      setUploading(false);
+    };
+    reader.readAsDataURL(file);
   }, [toast]);
+
+  const cancelEdit = useCallback(() => {
+    setEditingId(null);
+    setForm(EMPTY_FORM);
+    setImageError(false);
+  }, []);
 
   const handleSubmit = useCallback(
     async (e) => {
@@ -209,8 +238,7 @@ function ProductManager() {
 
       setSubmitting(false);
     },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [form, isEditing, editingId, createProduct, updateProduct, fetchCategories, toast]
+    [form, isEditing, editingId, createProduct, updateProduct, fetchCategories, toast, cancelEdit]
   );
 
   const handleEdit = useCallback((product) => {
@@ -221,19 +249,15 @@ function ProductManager() {
       category: product.category || CATEGORY_OPTIONS[0],
       image_url: product.image || "",
       description: product.description || "",
-      stock: product.stock?.toString() || "0",
+      stock: typeof product.stock === "number" ? String(product.stock) : "",
+      colors: colorsToField(product.colors),
+      sizes: sizesToField(product.sizes),
       best_seller: product.best_seller || false,
       featured: product.featured || false,
       new_arrival: product.new_arrival || false,
     });
     setImageError(false);
     window.scrollTo({ top: 0, behavior: "smooth" });
-  }, []);
-
-  const cancelEdit = useCallback(() => {
-    setEditingId(null);
-    setForm(EMPTY_FORM);
-    setImageError(false);
   }, []);
 
   const handleDelete = useCallback(
@@ -264,7 +288,7 @@ function ProductManager() {
     return products.filter((p) => p.category === cat).length;
   };
 
-  const lowStockCount = products.filter((p) => p.stock <= 5 && p.stock > 0).length;
+  const lowStockCount = products.filter((p) => p.stock <= LOW_STOCK && p.stock > 0).length;
   const outOfStockCount = products.filter((p) => p.stock === 0).length;
 
   return (
@@ -383,7 +407,7 @@ function ProductManager() {
                   {Number(form.stock) === 0 && (
                     <p className="text-[11px] text-red-500 mt-1">Out of stock</p>
                   )}
-                  {Number(form.stock) > 0 && Number(form.stock) <= 5 && (
+                  {Number(form.stock) > 0 && Number(form.stock) <= LOW_STOCK && (
                     <p className="text-[11px] text-amber-500 mt-1">Low stock</p>
                   )}
                 </div>
@@ -410,6 +434,41 @@ function ProductManager() {
                   value={form.description}
                   onChange={setField("description")}
                 />
+              </div>
+
+              {/* Options — what the product page offers the customer, and
+                  what ends up on the order line the admin packs from. */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="block font-label-sm text-secondary mb-1.5">
+                    Colours <span className="text-outline-variant">(optional)</span>
+                  </label>
+                  <input
+                    type="text"
+                    className="form-input w-full"
+                    placeholder="Rose Gold:#B76E79, Black:#1C1B1B"
+                    value={form.colors}
+                    onChange={setField("colors")}
+                  />
+                  <p className="text-[11px] text-outline-variant mt-1">
+                    Name:hex, separated by commas. Empty hides the swatches.
+                  </p>
+                </div>
+                <div>
+                  <label className="block font-label-sm text-secondary mb-1.5">
+                    Sizes <span className="text-outline-variant">(optional)</span>
+                  </label>
+                  <input
+                    type="text"
+                    className="form-input w-full"
+                    placeholder="4, 5, 6, 7, 8"
+                    value={form.sizes}
+                    onChange={setField("sizes")}
+                  />
+                  <p className="text-[11px] text-outline-variant mt-1">
+                    Separated by commas. Empty for one-size products.
+                  </p>
+                </div>
               </div>
 
               {/* Tags */}
@@ -463,7 +522,7 @@ function ProductManager() {
                   ) : (
                     <>
                       <span className="material-symbols-outlined text-[20px] text-primary">cloud_upload</span>
-                      <span className="font-label-sm text-secondary">Upload from computer</span>
+                      <span className="font-label-sm text-secondary">Upload image</span>
                     </>
                   )}
                 </button>
@@ -548,8 +607,8 @@ function ProductManager() {
                 type="text"
                 className="form-input pl-9 pr-3 py-2 text-sm w-full sm:w-52"
                 placeholder="Search products..."
-                value={filter}
-                onChange={(e) => setFilter(e.target.value)}
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
               />
             </div>
             <select
@@ -573,15 +632,15 @@ function ProductManager() {
         ) : filtered.length === 0 ? (
           <div className="py-16 text-center">
             <span className="material-symbols-outlined text-4xl text-outline-variant mb-3 block">
-              {filter || categoryFilter !== "all" ? "search_off" : "inventory_2"}
+              {search || categoryFilter !== "all" ? "search_off" : "inventory_2"}
             </span>
             <p className="font-body-md text-secondary mb-1">
-              {filter || categoryFilter !== "all"
+              {search || categoryFilter !== "all"
                 ? "No products match your search"
                 : "No products yet"}
             </p>
             <p className="text-xs text-outline-variant">
-              {filter || categoryFilter !== "all"
+              {search || categoryFilter !== "all"
                 ? "Try adjusting your filters"
                 : "Add your first product using the form above"}
             </p>
@@ -631,14 +690,8 @@ function ProductManager() {
                   </div>
                   <div className="flex items-center gap-1.5 mt-1 flex-wrap">
                     {/* Stock badge */}
-                    <span className={`px-1.5 py-0.5 rounded text-[9px] uppercase tracking-wider font-semibold ${
-                      product.stock === 0
-                        ? "bg-red-100 text-red-700"
-                        : product.stock <= 5
-                          ? "bg-amber-100 text-amber-700"
-                          : "bg-green-100 text-green-700"
-                    }`}>
-                      {product.stock === 0 ? "Out of stock" : `${product.stock} in stock`}
+                    <span className={`px-1.5 py-0.5 rounded text-[9px] uppercase tracking-wider font-semibold ${stockTone(product.stock)}`}>
+                      {stockLabel(product.stock)}
                     </span>
                     {product.featured && (
                       <span className="px-1.5 py-0.5 rounded text-[9px] uppercase tracking-wider bg-primary-container/30 text-primary font-semibold">Featured</span>

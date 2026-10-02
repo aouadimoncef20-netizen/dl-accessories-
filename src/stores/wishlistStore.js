@@ -1,6 +1,5 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
-import useCartStore from "./cartStore";
 
 const useWishlistStore = create(
   persist(
@@ -28,15 +27,6 @@ const useWishlistStore = create(
       },
 
       isSaved: (id) => get().items.some((i) => i.id === id),
-
-      moveToCart: (product) => {
-        get().removeItem(product.id);
-        useCartStore.getState().addItem(product);
-      },
-
-      clearAll: () => set({ items: [] }),
-
-      count: () => get().items.length,
     }),
     { name: "dl-wishlist" }
   )

@@ -2,6 +2,7 @@ import { useEffect, useState, useRef, useCallback } from "react";
 import useProductStore from "../stores/productStore";
 import { useToast } from "../Contexts/ToastContext";
 import { formatDZD } from "../lib/currency";
+import { formatShortDate, totalRevenue } from "../lib/format";
 
 const STATUS_OPTIONS = [
   { value: "pending", label: "Pending", color: "bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-300" },
@@ -10,6 +11,10 @@ const STATUS_OPTIONS = [
   { value: "delivered", label: "Delivered", color: "bg-green-100 text-green-800 dark:bg-green-900/40 dark:text-green-300" },
   { value: "cancelled", label: "Cancelled", color: "bg-red-100 text-red-800 dark:bg-red-900/40 dark:text-red-300" },
 ];
+
+// The dropdown, the filter chips and the counts all read this one list, so
+// adding a status means editing a single line.
+const STATUS_VALUES = ["all", ...STATUS_OPTIONS.map((s) => s.value)];
 
 const STATUS_ICONS = {
   pending: "schedule",
@@ -21,17 +26,6 @@ const STATUS_ICONS = {
 
 function statusMeta(status) {
   return STATUS_OPTIONS.find((s) => s.value === status) || STATUS_OPTIONS[0];
-}
-
-function formatShortDate(iso) {
-  if (!iso) return "—";
-  const d = new Date(iso);
-  return d.toLocaleDateString("en-US", {
-    month: "short",
-    day: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-  });
 }
 
 // Simple notification sound
@@ -123,18 +117,13 @@ function OrderManager() {
     return true;
   });
 
-  const counts = {
-    all: orders.length,
-    pending: orders.filter((o) => o.status === "pending").length,
-    processing: orders.filter((o) => o.status === "processing").length,
-    shipped: orders.filter((o) => o.status === "shipped").length,
-    delivered: orders.filter((o) => o.status === "delivered").length,
-    cancelled: orders.filter((o) => o.status === "cancelled").length,
-  };
-
-  const totalRevenue = orders
-    .filter((o) => o.status !== "cancelled")
-    .reduce((sum, o) => sum + (o.total || 0), 0);
+  const counts = STATUS_VALUES.reduce((acc, status) => {
+    acc[status] =
+      status === "all"
+        ? orders.length
+        : orders.filter((o) => o.status === status).length;
+    return acc;
+  }, {});
 
   const handleStatus = async (orderId, newStatus) => {
     await updateOrderStatus(orderId, newStatus);
@@ -152,7 +141,7 @@ function OrderManager() {
           { label: "Total Orders", value: orders.length, icon: "receipt_long", gradient: "from-rose-50 to-pink-50 dark:from-rose-950/30 dark:to-pink-950/30", iconBg: "bg-rose-100 dark:bg-rose-900/50", iconColor: "text-rose-600" },
           { label: "Pending", value: counts.pending, icon: "pending", gradient: "from-amber-50 to-orange-50 dark:from-amber-950/30 dark:to-orange-950/30", iconBg: "bg-amber-100 dark:bg-amber-900/50", iconColor: "text-amber-600" },
           { label: "Shipped", value: counts.shipped, icon: "local_shipping", gradient: "from-purple-50 to-indigo-50 dark:from-purple-950/30 dark:to-indigo-950/30", iconBg: "bg-purple-100 dark:bg-purple-900/50", iconColor: "text-purple-600" },
-          { label: "Revenue", value: formatDZD(totalRevenue), icon: "payments", gradient: "from-green-50 to-emerald-50 dark:from-green-950/30 dark:to-emerald-950/30", iconBg: "bg-green-100 dark:bg-green-900/50", iconColor: "text-green-600" },
+          { label: "Revenue", value: formatDZD(totalRevenue(orders)), icon: "payments", gradient: "from-green-50 to-emerald-50 dark:from-green-950/30 dark:to-emerald-950/30", iconBg: "bg-green-100 dark:bg-green-900/50", iconColor: "text-green-600" },
         ].map((s) => (
           <div key={s.label} className={`bg-gradient-to-br ${s.gradient} rounded-2xl p-4 md:p-5 border border-outline-variant/10`}>
             <div className={`w-9 h-9 rounded-lg ${s.iconBg} flex items-center justify-center mb-2`}>
@@ -207,7 +196,7 @@ function OrderManager() {
 
         {/* Status filter chips */}
         <div className="flex gap-2 overflow-x-auto pb-4 hide-scrollbar">
-          {["all", "pending", "processing", "shipped", "delivered", "cancelled"].map((s) => (
+          {STATUS_VALUES.map((s) => (
             <button
               key={s}
               onClick={() => setStatusFilter(s)}
@@ -367,6 +356,11 @@ function OrderManager() {
                                 </div>
                                 <div className="flex-1 min-w-0">
                                   <p className="text-on-surface truncate font-medium">{item.name}</p>
+                                  {/* The customer's actual choice — ring size, watch finish.
+                                      Without this the packer has to guess. */}
+                                  {item.variant && (
+                                    <p className="text-[11px] text-primary truncate">{item.variant}</p>
+                                  )}
                                   <p className="text-[11px] text-secondary">Qty: {item.qty}</p>
                                 </div>
                                 <span className="text-primary font-semibold text-sm">{formatDZD(item.price * item.qty)}</span>

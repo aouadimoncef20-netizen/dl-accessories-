@@ -1,0 +1,543 @@
+<title>The Order Desk</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,600;0,700;1,500&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+
+<style>
+  :root{
+    --ground:#FAF6F7;
+    --panel:#FFFFFF;
+    --panel-2:#F4ECEF;
+    --ink:#241A1F;
+    --muted:#6E5A63;
+    --faint:#967F88;
+    --line:#E7D9DF;
+    --line-strong:#D6C3CB;
+    --rose:#A3195B;
+    --rose-ink:#7E0F45;
+    --rose-soft:#FBE9F1;
+    --gold:#8A6524;
+    --gold-soft:#FBF2DF;
+    --ok:#1D7A4C;   --ok-soft:#E7F5ED;
+    --warn:#9A6100; --warn-soft:#FCF1DC;
+    --info:#1F6FB2; --info-soft:#E7F0F9;
+    --violet:#6B4BA8; --violet-soft:#EFEAF8;
+    --bad:#B3261E;  --bad-soft:#FBEBEA;
+    --shadow:0 1px 2px rgba(36,26,31,.05), 0 10px 28px -14px rgba(36,26,31,.2);
+    --radius:14px;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --ground:#151013;
+      --panel:#1E171B;
+      --panel-2:#261D22;
+      --ink:#F5EBEF;
+      --muted:#B7A4AC;
+      --faint:#8E7A82;
+      --line:#33262C;
+      --line-strong:#48353D;
+      --rose:#FF9BC1;
+      --rose-ink:#FFC6DC;
+      --rose-soft:#3A1F2B;
+      --gold:#E3BA6B;
+      --gold-soft:#322610;
+      --ok:#6FDA9F;   --ok-soft:#16301F;
+      --warn:#E9BB66; --warn-soft:#33260F;
+      --info:#86C2F2; --info-soft:#152838;
+      --violet:#C1A9F2; --violet-soft:#241C36;
+      --bad:#F5918B;  --bad-soft:#361A18;
+      --shadow:0 1px 2px rgba(0,0,0,.45), 0 10px 28px -14px rgba(0,0,0,.7);
+    }
+  }
+  :root[data-theme="dark"]{
+    --ground:#151013;
+    --panel:#1E171B;
+    --panel-2:#261D22;
+    --ink:#F5EBEF;
+    --muted:#B7A4AC;
+    --faint:#8E7A82;
+    --line:#33262C;
+    --line-strong:#48353D;
+    --rose:#FF9BC1;
+    --rose-ink:#FFC6DC;
+    --rose-soft:#3A1F2B;
+    --gold:#E3BA6B;
+    --gold-soft:#322610;
+    --ok:#6FDA9F;   --ok-soft:#16301F;
+    --warn:#E9BB66; --warn-soft:#33260F;
+    --info:#86C2F2; --info-soft:#152838;
+    --violet:#C1A9F2; --violet-soft:#241C36;
+    --bad:#F5918B;  --bad-soft:#361A18;
+    --shadow:0 1px 2px rgba(0,0,0,.45), 0 10px 28px -14px rgba(0,0,0,.7);
+  }
+
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:var(--ground);
+    color:var(--ink);
+    font-family:"Plus Jakarta Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+    font-size:16px;
+    line-height:1.65;
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{
+    max-width:1060px;
+    margin:0 auto;
+    padding-inline:20px;
+    padding-block:clamp(40px,7vw,88px);
+    display:flex;
+    flex-direction:column;
+    gap:clamp(40px,5vw,64px);
+  }
+  .col{max-width:66ch;}
+
+  h1,h2,h3{font-family:"Playfair Display",Georgia,serif;font-weight:600;margin:0;text-wrap:balance;}
+  h1{font-size:clamp(38px,6vw,60px);line-height:1.05;letter-spacing:-.015em;}
+  h2{font-size:clamp(25px,3.2vw,33px);line-height:1.15;letter-spacing:-.01em;}
+  h3{font-size:19px;line-height:1.3;}
+  p{margin:0;}
+  a{color:var(--rose);text-decoration-color:color-mix(in srgb,var(--rose) 40%,transparent);text-underline-offset:3px;}
+  a:focus-visible,button:focus-visible{outline:2px solid var(--rose);outline-offset:3px;border-radius:4px;}
+  code,.mono{font-family:"IBM Plex Mono",ui-monospace,Menlo,monospace;font-size:.9em;}
+  code{background:var(--panel-2);border:1px solid var(--line);border-radius:5px;padding:.1em .4em;white-space:nowrap;}
+  strong{font-weight:600;color:var(--ink);}
+
+  .eyebrow{
+    font-family:"IBM Plex Mono",ui-monospace,monospace;
+    font-size:11.5px;font-weight:500;letter-spacing:.14em;text-transform:uppercase;
+    color:var(--rose);margin:0;
+  }
+  .muted{color:var(--muted);}
+  .faint{color:var(--faint);}
+
+  /* ── masthead ── */
+  header{display:flex;flex-direction:column;gap:18px;}
+  header .lede{font-size:clamp(17px,2.1vw,20px);line-height:1.55;color:var(--muted);max-width:60ch;}
+  .rule{height:1px;background:var(--line-strong);border:0;margin:0;}
+
+  /* ── sections ── */
+  section{display:flex;flex-direction:column;gap:22px;}
+  section > .col{display:flex;flex-direction:column;gap:14px;}
+
+  /* ── alert ── */
+  .alert{
+    background:var(--bad-soft);
+    border:1px solid color-mix(in srgb,var(--bad) 30%,transparent);
+    border-left:4px solid var(--bad);
+    border-radius:var(--radius);
+    padding:24px 26px;
+    display:flex;flex-direction:column;gap:14px;
+  }
+  .alert h2{font-size:clamp(22px,2.6vw,27px);color:var(--bad);}
+  .alert .tag{
+    font-family:"IBM Plex Mono",monospace;font-size:11px;letter-spacing:.12em;text-transform:uppercase;
+    color:var(--bad);font-weight:600;
+  }
+  .fixes{display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));}
+  .fix{
+    background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:16px 18px;
+    display:flex;flex-direction:column;gap:7px;
+  }
+  .fix .label{font-family:"IBM Plex Mono",monospace;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);}
+  .fix p{font-size:14.5px;line-height:1.6;}
+
+  /* ── credentials card ── */
+  .creds{
+    background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);
+    box-shadow:var(--shadow);padding:0;overflow:hidden;max-width:560px;
+  }
+  .creds .head{
+    background:var(--rose-soft);border-bottom:1px solid var(--line);
+    padding:12px 20px;font-family:"IBM Plex Mono",monospace;
+    font-size:11.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--rose-ink);font-weight:600;
+  }
+  .creds dl{margin:0;padding:6px 20px 14px;}
+  .creds .row{
+    display:flex;flex-wrap:wrap;gap:4px 18px;align-items:baseline;
+    padding:12px 0;border-bottom:1px dashed var(--line);
+  }
+  .creds .row:last-child{border-bottom:0;}
+  .creds dt{
+    font-family:"IBM Plex Mono",monospace;font-size:11px;letter-spacing:.1em;text-transform:uppercase;
+    color:var(--muted);min-width:92px;
+  }
+  .creds dd{margin:0;font-family:"IBM Plex Mono",monospace;font-size:15px;font-weight:500;word-break:break-all;}
+
+  /* ── steps ── */
+  ol.steps{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:2px;counter-reset:step;}
+  ol.steps li{
+    display:grid;grid-template-columns:38px 1fr;gap:16px;
+    padding:16px 0;border-bottom:1px solid var(--line);
+  }
+  ol.steps li:last-child{border-bottom:0;}
+  ol.steps li::before{
+    counter-increment:step;content:counter(step,decimal-leading-zero);
+    font-family:"IBM Plex Mono",monospace;font-size:12px;font-weight:600;color:var(--rose);
+    padding-top:4px;letter-spacing:.05em;
+  }
+  ol.steps h3{margin-bottom:3px;}
+  ol.steps p{font-size:15px;color:var(--muted);}
+
+  /* ── status rail ── */
+  .rail{
+    display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px;
+  }
+  .stage{
+    background:var(--panel);border:1px solid var(--line);border-top:3px solid var(--stage);
+    border-radius:12px;padding:15px 15px 17px;display:flex;flex-direction:column;gap:7px;
+  }
+  .stage .n{
+    font-family:"IBM Plex Mono",monospace;font-size:10.5px;letter-spacing:.12em;
+    color:var(--stage);font-weight:600;text-transform:uppercase;
+  }
+  .stage h3{font-family:"Plus Jakarta Sans",sans-serif;font-size:15px;font-weight:700;color:var(--stage);}
+  .stage p{font-size:13.5px;line-height:1.5;color:var(--muted);}
+  .stage.s-pending{--stage:var(--warn);}
+  .stage.s-processing{--stage:var(--info);}
+  .stage.s-shipped{--stage:var(--violet);}
+  .stage.s-delivered{--stage:var(--ok);}
+  .stage.s-cancelled{--stage:var(--bad);}
+
+  /* ── checklist ── */
+  ul.check{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:15px;}
+  ul.check li{display:grid;grid-template-columns:26px 1fr;gap:14px;align-items:start;}
+  ul.check .box{
+    width:20px;height:20px;border:1.5px solid var(--line-strong);border-radius:6px;margin-top:3px;
+  }
+  ul.check b{display:block;font-weight:600;}
+  ul.check span{font-size:15px;color:var(--muted);}
+
+  /* ── table ── */
+  .table-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:var(--radius);background:var(--panel);}
+  table{border-collapse:collapse;width:100%;min-width:660px;font-size:14.5px;}
+  caption{text-align:left;padding:14px 18px 0;font-family:"IBM Plex Mono",monospace;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);}
+  th,td{text-align:left;padding:14px 18px;border-bottom:1px solid var(--line);vertical-align:top;}
+  th{
+    font-family:"IBM Plex Mono",monospace;font-size:11px;letter-spacing:.1em;text-transform:uppercase;
+    color:var(--muted);font-weight:500;background:var(--panel-2);
+  }
+  tbody tr:last-child td{border-bottom:0;}
+  td:first-child{font-weight:500;width:28%;}
+  td.nowrap{white-space:nowrap;}
+
+  /* ── callout ── */
+  .note{
+    background:var(--panel-2);border-left:3px solid var(--rose);border-radius:0 12px 12px 0;
+    padding:16px 20px;font-size:15px;color:var(--muted);
+  }
+  .note b{color:var(--ink);}
+
+  /* ── key-value list ── */
+  .kv{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:0;}
+  .kv li{display:flex;flex-wrap:wrap;gap:2px 18px;padding:11px 0;border-bottom:1px dashed var(--line);}
+  .kv li:last-child{border-bottom:0;}
+  .kv .k{
+    font-family:"IBM Plex Mono",monospace;font-size:11px;letter-spacing:.1em;text-transform:uppercase;
+    color:var(--muted);min-width:150px;padding-top:3px;
+  }
+  .kv .v{flex:1 1 260px;font-size:15px;}
+  .amt{font-family:"IBM Plex Mono",monospace;font-weight:600;font-variant-numeric:tabular-nums;color:var(--rose);}
+  .pill{
+    display:inline-block;font-family:"IBM Plex Mono",monospace;font-size:11px;letter-spacing:.06em;
+    padding:2px 8px;border-radius:999px;border:1px solid var(--line-strong);color:var(--muted);background:var(--panel);
+  }
+
+  footer{border-top:1px solid var(--line-strong);padding-top:22px;font-size:13.5px;color:var(--faint);}
+
+  @media (max-width:760px){
+    .rail{grid-template-columns:1fr;gap:8px;}
+    .stage{border-top:0;border-left:3px solid var(--stage);}
+    .creds dl{padding:2px 16px 12px;}
+    ol.steps li{grid-template-columns:30px 1fr;gap:12px;}
+  }
+  @media (prefers-reduced-motion:reduce){
+    *{animation:none!important;transition:none!important;}
+  }
+</style>
+
+<div class="wrap">
+
+  <header>
+    <p class="eyebrow">DL Accessories · Store operations</p>
+    <h1>The Order Desk</h1>
+    <p class="lede">Everything that happens between a customer tapping <em>Place Order</em> and the parcel reaching their door — and exactly what you do at each step.</p>
+    <hr class="rule">
+  </header>
+
+  <!-- ═══════════ BLOCKER ═══════════ -->
+  <section>
+    <div class="alert">
+      <p class="tag">Read this first</p>
+      <h2>Your database is offline</h2>
+      <p>Right now the store cannot load products and cannot save orders. The address the site is configured to use, <code>gjbfxcfvrlhhqbffeujv.supabase.co</code>, no longer exists on the internet — I checked it against two public name servers and it fails to resolve. Until this is fixed, customers see an empty shop and <strong>no order can reach you</strong>.</p>
+      <div class="fixes">
+        <div class="fix">
+          <span class="label">Case A — paused</span>
+          <p><b>Most likely.</b> Sign in at supabase.com, open the project, and restore it ("Resume project"). Free projects pause after about a week with no activity, and a paused project is removed from DNS. Give it two minutes to come back.</p>
+        </div>
+        <div class="fix">
+          <span class="label">Case B — deleted</span>
+          <p>If the project is not in your list at all, it is gone. Create a new one, run <code>SUPABASE_SETUP.sql</code> and then <code>SUPABASE_MIGRATION.sql</code> in its SQL Editor, copy the new Project URL and anon key into the <code>.env</code> file, then run <code>npm run build</code> and redeploy.</p>
+        </div>
+      </div>
+      <p style="font-size:14.5px">Either way, finish by running <code>SUPABASE_MIGRATION.sql</code> — that also creates the image storage bucket, which the product form needs.</p>
+    </div>
+  </section>
+
+  <!-- ═══════════ YOUR WAY IN ═══════════ -->
+  <section>
+    <div class="col">
+      <p class="eyebrow">Your way in</p>
+      <h2>Signing in to the back office</h2>
+      <p>The admin area is a private page on your own site. Sign in once and the browser remembers you.</p>
+    </div>
+
+    <div class="creds">
+      <div class="head">Store administrator</div>
+      <dl>
+        <div class="row">
+          <dt>Address</dt>
+          <dd>your-site.com<span class="muted">/admin</span></dd>
+        </div>
+        <div class="row">
+          <dt>Email</dt>
+          <dd>zaki1@dlaccessories.com</dd>
+        </div>
+        <div class="row">
+          <dt>Password</dt>
+          <dd class="muted" style="font-family:'Plus Jakarta Sans',sans-serif;font-weight:400;font-size:14.5px;line-height:1.55">Deliberately kept out of this page. I gave it to you in our chat — write it down somewhere safe.</dd>
+        </div>
+      </dl>
+    </div>
+
+    <div class="col">
+      <ul class="kv">
+        <li><span class="k">How it behaves</span><span class="v">Open <code>/admin</code> while signed out and you land on a page titled <em>Admin Sign In</em>. After signing in you go straight to the dashboard.</span></li>
+        <li><span class="k">If someone else tries</span><span class="v">A customer who is signed in and opens <code>/admin</code> sees an <em>Admins only</em> screen and cannot get further.</span></li>
+        <li><span class="k">The email is reserved</span><span class="v">Nobody can register it as a normal account — the sign-up form refuses it. There is also no "make me admin" button anywhere in the store any more.</span></li>
+        <li><span class="k">Lost the password</span><span class="v">It can be changed in the file <code>src/lib/adminAuth.js</code>; the instructions are written at the top of that file. Only a scrambled fingerprint of the password is stored in the code, never the password itself.</span></li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- ═══════════ THE CUSTOMER'S JOURNEY ═══════════ -->
+  <section>
+    <div class="col">
+      <p class="eyebrow">From their side</p>
+      <h2>What happens when a customer orders</h2>
+    </div>
+    <ol class="steps">
+      <li>
+        <div>
+          <h3>They fill the bag</h3>
+          <p>From a product page or the shop grid, <em>Add to Bag</em>. The bag survives closing the browser.</p>
+        </div>
+      </li>
+      <li>
+        <div>
+          <h3>They open Checkout</h3>
+          <p>Four things are collected: full name, phone number, address, and wilaya. Payment is fixed — <strong>Cash on Delivery</strong>. There is no card payment on the site at all.</p>
+        </div>
+      </li>
+      <li>
+        <div>
+          <h3>They tap Place Order</h3>
+          <p>The order is written to your database immediately with the status <span class="pill">pending</span>. Their bag empties, and the stock of each product is reduced by the quantity ordered.</p>
+        </div>
+      </li>
+      <li>
+        <div>
+          <h3>They get an order number</h3>
+          <p>A confirmation screen shows <span class="mono">DL-</span> followed by the first eight characters of the order's ID — for example <span class="mono">DL-C1CA0D1F</span>. That number is how you and the customer will talk about the order.</p>
+        </div>
+      </li>
+    </ol>
+  </section>
+
+  <!-- ═══════════ WHERE IT LANDS ═══════════ -->
+  <section>
+    <div class="col">
+      <p class="eyebrow">Your side</p>
+      <h2>Where the order lands</h2>
+      <p>Open <code>/admin</code> and choose <strong>Orders</strong> in the left rail. You never have to go looking for an order — the page goes looking for them.</p>
+      <ul class="kv">
+        <li><span class="k">Refreshes itself</span><span class="v">Every 15 seconds. Leave the page open and new orders appear on their own.</span></li>
+        <li><span class="k">New-order alert</span><span class="v">A green <em>"N new orders received!"</em> message, a chime, and — if you allow it once — a notification from your browser. The Orders tab also keeps a pulsing "new" badge until you open it.</span></li>
+        <li><span class="k">The four tiles</span><span class="v">Total orders, Pending, Shipped, and Revenue. Revenue ignores cancelled orders.</span></li>
+        <li><span class="k">Find one fast</span><span class="v">The search box matches a customer's name, their phone number, the order number, or their address. The status chips across the top filter the list, and the number on each chip is a live count.</span></li>
+      </ul>
+      <div class="note">
+        <b>The alerts only work while the page is open.</b> There is no server behind this shop sending you an SMS or an email — the browser page itself is what watches for new orders. Keep <code>/admin</code> open on a phone or on the shop computer during opening hours, and click <em>Allow</em> the first time it asks about notifications. If you close the tab, nothing will tell you an order arrived; you will simply see it the next time you open the page.
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════ READING AN ORDER ═══════════ -->
+  <section>
+    <div class="col">
+      <p class="eyebrow">Reading an order</p>
+      <h2>Everything one row expands into</h2>
+      <p>Click any order to open it. You get the order number and the exact time it arrived; the customer's name, phone, address and wilaya — the phone number is a link, so on a phone you tap it to dial; every item with its photo, quantity and line price; and the total to collect.</p>
+    </div>
+  </section>
+
+  <!-- ═══════════ STATUS RAIL ═══════════ -->
+  <section>
+    <div class="col">
+      <p class="eyebrow">The five statuses</p>
+      <h2>Moving an order along</h2>
+      <p>Every order starts at <em>Pending</em> and moves only when you move it. Nothing advances by itself. Open the order and tap the status you want — that is the whole system, and it is how you know at a glance which parcels still need you.</p>
+    </div>
+    <div class="rail">
+      <div class="stage s-pending">
+        <span class="n">Status 1</span>
+        <h3>Pending</h3>
+        <p>The order has just arrived and nobody has touched it. This is your to-do list.</p>
+      </div>
+      <div class="stage s-processing">
+        <span class="n">Status 2</span>
+        <h3>Processing</h3>
+        <p>You have seen it, checked stock, and it is being packed.</p>
+      </div>
+      <div class="stage s-shipped">
+        <span class="n">Status 3</span>
+        <h3>Shipped</h3>
+        <p>It has left you — handed to the courier or the delivery company.</p>
+      </div>
+      <div class="stage s-delivered">
+        <span class="n">Status 4</span>
+        <h3>Delivered</h3>
+        <p>The customer has the parcel and has paid the courier. This is a finished, paid order.</p>
+      </div>
+      <div class="stage s-cancelled">
+        <span class="n">Status 5</span>
+        <h3>Cancelled</h3>
+        <p>It is not happening — refused, unreachable, returned. Cancelled orders are left out of Revenue.</p>
+      </div>
+    </div>
+    <div class="col">
+      <div class="note">Changing a status is a note to yourself. It does not message the customer — nothing is sent automatically. The one place a customer can see it is <em>My Orders</em> on their own account, if they have one.</div>
+    </div>
+  </section>
+
+  <!-- ═══════════ DAILY ROUTINE ═══════════ -->
+  <section>
+    <div class="col">
+      <p class="eyebrow">The routine</p>
+      <h2>A day at the order desk</h2>
+      <p>Four habits in the right order. The second one is the one that saves money.</p>
+    </div>
+    <ul class="check">
+      <li>
+        <span class="box" aria-hidden="true"></span>
+        <div>
+          <b>Morning — filter to Pending</b>
+          <span>That list is the day's packing list. Nothing else on the page needs you yet.</span>
+        </div>
+      </li>
+      <li>
+        <span class="box" aria-hidden="true"></span>
+        <div>
+          <b>Call before you ship</b>
+          <span>Ring every new customer, confirm the address and the amount to collect. This single call is the cheapest way to avoid a parcel that comes back to you.</span>
+        </div>
+      </li>
+      <li>
+        <span class="box" aria-hidden="true"></span>
+        <div>
+          <b>Mark Processing, then Shipped</b>
+          <span>Processing when it is confirmed and packed, Shipped the moment it leaves with the courier.</span>
+        </div>
+      </li>
+      <li>
+        <span class="box" aria-hidden="true"></span>
+        <div>
+          <b>Evening — close the loop</b>
+          <span>Filter <em>Delivered</em> and mark what arrived. Filter <em>Cancelled</em> and see what fell through. Treat the Revenue tile as turnover, not as cash in your hand — money is only real once a delivery is paid.</span>
+        </div>
+      </li>
+    </ul>
+  </section>
+
+  <!-- ═══════════ CUSTOMER VISIBILITY ═══════════ -->
+  <section>
+    <div class="col">
+      <p class="eyebrow">Their view</p>
+      <h2>What the customer can see</h2>
+      <ul class="kv">
+        <li><span class="k">If they signed in</span><span class="v"><code>/my-orders</code> lists the order with the status you set and the total.</span></li>
+        <li><span class="k">If they ordered as a guest</span><span class="v">They still get the confirmation screen with their order number, but the order will <strong>not</strong> appear under My Orders on their account. Ask them to keep the number — it is their only record.</span></li>
+        <li><span class="k">What they never see</span><span class="v">Your other customers' orders, your internal notes, or anything at all inside <code>/admin</code>.</span></li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- ═══════════ MONEY ═══════════ -->
+  <section>
+    <div class="col">
+      <p class="eyebrow">The money</p>
+      <h2>What the customer pays</h2>
+      <ul class="kv">
+        <li><span class="k">Currency</span><span class="v">Algerian dinar throughout — <span class="amt">168,750 DZD</span> style formatting.</span></li>
+        <li><span class="k">Payment method</span><span class="v">Cash on Delivery only. You take no money on the site; the customer pays whoever hands them the parcel.</span></li>
+        <li><span class="k">Added at checkout</span><span class="v">The site adds <strong>8%</strong> to the subtotal, shown as tax. Shipping is free once the subtotal passes 75 DZD — in dinar that threshold is so low it is always met, so shipping is effectively always free.</span></li>
+        <li><span class="k">So the amount to collect</span><span class="v">Exactly the total on the order card. Nothing else is owed on delivery.</span></li>
+        <li><span class="k">Worth a decision</span><span class="v">The 8% tax and the 75 DZD free-shipping threshold look like leftovers from a dollar-based template. In Algeria, delivery is a real cost of a few hundred dinar. Have a look at whether you meant to charge for it — it is a one-line change in <code>src/stores/cartStore.js</code>.</span></li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- ═══════════ TROUBLESHOOTING ═══════════ -->
+  <section>
+    <div class="col">
+      <p class="eyebrow">When something looks wrong</p>
+      <h2>Six things that actually happen</h2>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <caption>What you see → what it means → what to do</caption>
+        <thead>
+          <tr><th>What you see</th><th>What it means</th><th>What to do</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>No orders ever, and the shop page shows no products</td>
+            <td>The database cannot be reached. This is the failure described at the top of this page.</td>
+            <td>Restore or recreate the Supabase project, then run the migration file.</td>
+          </tr>
+          <tr>
+            <td>A customer insists they ordered, but nothing is in the list</td>
+            <td>Their order was placed while the database was down. The site kept it in their own browser so their confirmation still worked — but it never reached you.</td>
+            <td>Ask for the order number <span class="mono">DL-XXXXXXXX</span> and the phone they used, then search both. Re-enter the order by hand if it is real.</td>
+          </tr>
+          <tr>
+            <td>An order sits at Pending for days</td>
+            <td>Nothing moves an order automatically — only you do.</td>
+            <td>Open it and set the status. A stale Pending list is just a list you have not worked yet.</td>
+          </tr>
+          <tr>
+            <td>The Revenue tile looks bigger than what you have been paid</td>
+            <td>Revenue counts every order that was not cancelled, including ones still in transit unpaid.</td>
+            <td>Read it as turnover. For real cash, filter <em>Delivered</em>.</td>
+          </tr>
+          <tr>
+            <td>Uploading a product photo fails</td>
+            <td>The image storage bucket does not exist yet.</td>
+            <td>Run <code>SUPABASE_MIGRATION.sql</code> in the Supabase SQL Editor. Pasting an image URL keeps working meanwhile.</td>
+          </tr>
+          <tr>
+            <td>You are locked out of <code>/admin</code></td>
+            <td>You are signed in with a customer account, not the admin one.</td>
+            <td>Sign out and sign in with <span class="mono">zaki1@dlaccessories.com</span>. If the password is lost, change it in <code>src/lib/adminAuth.js</code>.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <footer>
+    Written for DL Accessories, matching the store as it is currently built. The one thing standing between you and a working order desk is the database at the top of this page.
+  </footer>
+
+</div>

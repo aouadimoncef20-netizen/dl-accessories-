@@ -5,17 +5,7 @@ import useProductStore from "../stores/productStore";
 import ProductManager from "../Component/ProductManager";
 import OrderManager from "../Component/OrderManager";
 import { formatDZD } from "../lib/currency";
-
-function formatDate(iso) {
-  if (!iso) return "—";
-  const d = new Date(iso);
-  return d.toLocaleDateString("en-US", {
-    month: "short",
-    day: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-  });
-}
+import { formatShortDate, totalRevenue } from "../lib/format";
 
 const STATUS_COLORS = {
   pending: "bg-amber-100 text-amber-800",
@@ -48,9 +38,7 @@ function AdminDashboard() {
   const pendingOrders = orders.filter((o) => o.status === "pending");
   const shippedOrders = orders.filter((o) => o.status === "shipped");
   const deliveredOrders = orders.filter((o) => o.status === "delivered");
-  const totalRevenue = orders
-    .filter((o) => o.status !== "cancelled")
-    .reduce((sum, o) => sum + (o.total || 0), 0);
+  const revenue = totalRevenue(orders);
   const todayOrders = orders.filter((o) => {
     const d = new Date(o.created_at);
     const today = new Date();
@@ -190,7 +178,7 @@ function AdminDashboard() {
                 },
                 {
                   label: "Revenue",
-                  value: formatDZD(totalRevenue),
+                  value: formatDZD(revenue),
                   icon: "payments",
                   gradient: "from-blue-50 to-indigo-50 dark:from-blue-950/30 dark:to-indigo-950/30",
                   iconBg: "bg-blue-100 dark:bg-blue-900/50",
@@ -313,7 +301,7 @@ function AdminDashboard() {
                             <span className="text-outline-variant text-xs">·</span>
                             <p className="font-body-md text-on-surface text-sm truncate">{order.customer_name}</p>
                           </div>
-                          <p className="text-[11px] text-secondary">{formatDate(order.created_at)} · {order.items?.length || 0} item{(order.items?.length || 0) !== 1 ? "s" : ""}</p>
+                          <p className="text-[11px] text-secondary">{formatShortDate(order.created_at)} · {order.items?.length || 0} item{(order.items?.length || 0) !== 1 ? "s" : ""}</p>
                         </div>
                         <div className="text-right flex-shrink-0">
                           <p className="font-label-md text-primary">{formatDZD(order.total)}</p>

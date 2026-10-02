@@ -5,6 +5,7 @@ import useProductStore from "../stores/productStore";
 import useAuthStore from "../stores/authStore";
 import SEO from "../Component/SEO";
 import { formatDZD } from "../lib/currency";
+import { SHOW_TAX_LINE } from "../lib/shipping";
 import useTranslation from "../i18n/useTranslation";
 
 function Checkout() {
@@ -17,8 +18,10 @@ function Checkout() {
   const clearCart = useCartStore((s) => s.clearCart);
   const createOrder = useProductStore((s) => s.createOrder);
   const decrementStock = useProductStore((s) => s.decrementStock);
+  const checkStock = useProductStore((s) => s.checkStock);
   const user = useAuthStore((s) => s.user);
   const [errors, setErrors] = useState({});
+  const [stockProblems, setStockProblems] = useState([]);
   const [submitting, setSubmitting] = useState(false);
   const { t } = useTranslation();
 
@@ -49,7 +52,15 @@ function Checkout() {
     e.preventDefault();
     if (!validate()) return;
     setSubmitting(true);
-    await new Promise((resolve) => setTimeout(resolve, 1500));
+    setStockProblems([]);
+
+    // Ask the database what is actually left before we promise anything.
+    const stock = await checkStock(items);
+    if (!stock.ok) {
+      setStockProblems(stock.problems);
+      setSubmitting(false);
+      return;
+    }
 
     const order = await createOrder({
       user_id: user?.id || null,
@@ -57,23 +68,43 @@ function Checkout() {
       phone: form.phone,
       address: form.address,
       state: form.state,
+      // `variant` (ring size / watch finish) is what the customer chose —
+      // it has to reach the order or the admin cannot pack the right thing.
       items: items.map((i) => ({
         id: i.id,
         name: i.name,
         price: i.price,
         qty: i.qty,
         image: i.image,
+        ...(i.variant ? { variant: i.variant } : {}),
       })),
       total: total,
       status: "pending",
     });
 
-    // Decrement stock for ordered items
-    await decrementStock(items.map((i) => ({ id: i.id, qty: i.qty })));
+    const saved = order.saved !== false;
+
+    // Only touch stock for an order that really landed in the database.
+    if (saved) {
+      await decrementStock(items.map((i) => ({ id: i.id, qty: i.qty })));
+    }
 
     setSubmitting(false);
+
+    if (!saved) {
+      // Keep the basket intact so the customer can try again, and send them
+      // to an honest "we couldn't save this" screen instead of a fake
+      // confirmation.
+      navigate("/order-confirmed", {
+        state: { saved: false, form, orderId: order.id, itemCount: items.length },
+      });
+      return;
+    }
+
     clearCart();
-    navigate("/order-confirmed", { state: { form, orderId: order.id } });
+    navigate("/order-confirmed", {
+      state: { saved: true, form, orderId: order.id },
+    });
   };
 
   return (
@@ -131,6 +162,24 @@ function Checkout() {
               </div>
             </section>
 
+            {stockProblems.length > 0 && (
+              <div role="alert" className="rounded-2xl border border-error/40 bg-error/5 p-5">
+                <p className="font-label-md text-error mb-2">{t("checkout_stock_changed")}</p>
+                <ul className="space-y-1 text-sm text-on-surface-variant list-disc list-inside">
+                  {stockProblems.map((p, i) => (
+                    <li key={i}>
+                      {p.available > 0
+                        ? `${p.name} — ${t("checkout_only_left").replace("{n}", p.available)}`
+                        : `${p.name} — ${t("checkout_out_of_stock")}`}
+                    </li>
+                  ))}
+                </ul>
+                <Link to="/cart" className="inline-block mt-3 font-label-sm text-primary underline underline-offset-4">
+                  {t("checkout_return_cart")}
+                </Link>
+              </div>
+            )}
+
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 pt-4">
               <Link to="/cart" className="flex items-center gap-2 text-secondary hover:text-primary transition-colors">
                 <span className="material-symbols-outlined">chevron_left</span>
@@ -181,10 +230,12 @@ function Checkout() {
                   <span className="text-secondary">{t("checkout_shipping")}</span>
                   <span className="text-on-surface">{shippingCost === 0 ? t("checkout_free") : formatDZD(shippingCost)}</span>
                 </div>
-                <div className="flex justify-between items-center text-body-md">
-                  <span className="text-secondary">{t("summary_taxes")}</span>
-                  <span className="text-on-surface">{formatDZD(tax)}</span>
-                </div>
+                {SHOW_TAX_LINE && (
+                  <div className="flex justify-between items-center text-body-md">
+                    <span className="text-secondary">{t("summary_taxes")}</span>
+                    <span className="text-on-surface">{formatDZD(tax)}</span>
+                  </div>
+                )}
                 <div className="flex justify-between items-center pt-6 mt-4 border-t border-outline-variant/50">
                   <span className="font-headline-sm text-headline-sm">{t("checkout_total")}</span>
                   <div className="text-right">

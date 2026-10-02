@@ -4,15 +4,12 @@ import { persist } from "zustand/middleware";
 const useThemeStore = create(
   persist(
     (set, get) => ({
-      mode: "light", // "light" | "dark" | "system"
+      // "light" | "dark". A saved cart from an older version may still say
+      // "system"; applyTheme below honours it, but nothing sets it any more.
+      mode: "light",
 
       init: () => {
         const { mode } = get();
-        applyTheme(mode);
-      },
-
-      setMode: (mode) => {
-        set({ mode });
         applyTheme(mode);
       },
 
@@ -21,16 +18,6 @@ const useThemeStore = create(
         const next = current === "dark" ? "light" : "dark";
         set({ mode: next });
         applyTheme(next);
-      },
-
-      resolved: () => {
-        const { mode } = get();
-        if (mode === "system") {
-          return window.matchMedia("(prefers-color-scheme: dark)").matches
-            ? "dark"
-            : "light";
-        }
-        return mode;
       },
     }),
     { name: "dl-theme" }

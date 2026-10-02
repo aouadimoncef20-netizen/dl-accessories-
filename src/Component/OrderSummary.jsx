@@ -1,10 +1,12 @@
 import { Link } from "react-router-dom";
 import { formatDZD } from "../lib/currency";
+import { SHOW_TAX_LINE, deliveryFor, taxFor } from "../lib/shipping";
 import useTranslation from "../i18n/useTranslation";
 
 function OrderSummary({ subtotal, showCheckoutButton = true }) {
-  const shipping = subtotal >= 75 ? 0 : 12.0;
-  const tax = subtotal * 0.08;
+  // Same source as the checkout — see src/lib/shipping.js.
+  const shipping = deliveryFor(subtotal);
+  const tax = taxFor(subtotal);
   const total = subtotal + shipping + tax;
   const { t } = useTranslation();
 
@@ -20,10 +22,12 @@ function OrderSummary({ subtotal, showCheckoutButton = true }) {
           <span className="font-body-md">{t("summary_shipping")}</span>
           <span className="font-body-md">{shipping === 0 ? t("checkout_free") : formatDZD(shipping)}</span>
         </div>
-        <div className="flex justify-between text-on-surface-variant">
-          <span className="font-body-md">{t("summary_taxes")}</span>
-          <span className="font-body-md">{formatDZD(tax)}</span>
-        </div>
+        {SHOW_TAX_LINE && (
+          <div className="flex justify-between text-on-surface-variant">
+            <span className="font-body-md">{t("summary_taxes")}</span>
+            <span className="font-body-md">{formatDZD(tax)}</span>
+          </div>
+        )}
       </div>
       <div className="pt-6 border-t border-outline-variant/20 mb-8 flex justify-between items-end">
         <span className="font-headline-sm text-headline-sm">{t("summary_total")}</span>

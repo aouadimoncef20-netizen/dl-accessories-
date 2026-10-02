@@ -13,6 +13,7 @@ function Login() {
   const [loading, setLoading] = useState(false);
 
   const from = location.state?.from?.pathname || "/account";
+  const isAdminLogin = from.startsWith("/admin");
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -37,8 +38,12 @@ function Login() {
         </Link>
 
         <div className="bg-surface rounded-3xl p-8 md:p-10 soft-glow">
-          <h1 className="font-headline-md text-headline-md text-center mb-2">Welcome Back</h1>
-          <p className="text-secondary text-center mb-8 font-body-md">Sign in to your account</p>
+          <h1 className="font-headline-md text-headline-md text-center mb-2">
+            {isAdminLogin ? "Admin Sign In" : "Welcome Back"}
+          </h1>
+          <p className="text-secondary text-center mb-8 font-body-md">
+            {isAdminLogin ? "Sign in to manage your store" : "Sign in to your account"}
+          </p>
 
           {error && (
             <div className="bg-error-container/50 text-error rounded-xl p-4 mb-6 font-label-sm">
@@ -50,11 +55,13 @@ function Login() {
             <div>
               <label className="font-label-sm text-on-surface-variant uppercase tracking-wider mb-1 block">Email</label>
               <input type="email" value={email} onChange={(e) => setEmail(e.target.value)}
+                autoComplete="email" autoCapitalize="none" spellCheck="false"
                 className="w-full form-input font-body-md" placeholder="you@example.com" required />
             </div>
             <div>
               <label className="font-label-sm text-on-surface-variant uppercase tracking-wider mb-1 block">Password</label>
               <input type="password" value={password} onChange={(e) => setPassword(e.target.value)}
+                autoComplete="current-password"
                 className="w-full form-input font-body-md" placeholder="••••••••" required />
             </div>
             <button type="submit" disabled={loading}

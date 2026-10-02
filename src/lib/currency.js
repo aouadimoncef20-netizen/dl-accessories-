@@ -1,4 +1,4 @@
-const DZD_RATE = 135; // 1 USD ≈ 135 DZD
+export const DZD_RATE = 135; // 1 USD ≈ 135 DZD
 
 export function usdToDzd(usd) {
   return Math.round(usd * DZD_RATE);

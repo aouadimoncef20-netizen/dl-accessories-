@@ -8,11 +8,6 @@ const useLanguageStore = create(
     (set, get) => ({
       lang: "en",
 
-      setLang: (lang) => {
-        set({ lang });
-        applyDir(lang);
-      },
-
       toggle: () => {
         const current = get().lang;
         const idx = LANGS.indexOf(current);
