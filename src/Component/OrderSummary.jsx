@@ -46,7 +46,7 @@ function OrderSummary({ subtotal, showCheckoutButton = true }) {
       <div className="space-y-4 pt-4 border-t border-outline-variant/10">
         {[
           { icon: "verified_user", text: t("summary_ssl") },
-          { icon: "local_shipping", text: t("summary_shipping_free") },
+          { icon: "local_shipping", text: t("summary_delivery_note") },
           { icon: "published_with_changes", text: t("summary_returns") },
         ].map((item, i) => (
           <div key={i} className="flex items-center gap-3 text-on-surface-variant">

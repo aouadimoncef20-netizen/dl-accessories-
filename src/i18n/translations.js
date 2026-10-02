@@ -238,7 +238,7 @@ const translations = {
     summary_total: "Total",
     summary_checkout: "Checkout Securely",
     summary_ssl: "Secure 256-bit SSL encrypted checkout",
-    summary_shipping_free: "Free delivery anywhere in Algeria",
+    summary_delivery_note: "Delivery anywhere in Algeria",
     summary_returns: "Easy 30-day returns and exchanges",
 
     // Common
@@ -486,7 +486,7 @@ const translations = {
     summary_total: "Total",
     summary_checkout: "Payer en Sécurité",
     summary_ssl: "Paiement sécurisé SSL 256 bits",
-    summary_shipping_free: "Livraison gratuite partout en Algérie",
+    summary_delivery_note: "Livraison partout en Algérie",
     summary_returns: "Retours et échanges faciles sous 30 jours",
 
     // Common
@@ -733,7 +733,7 @@ const translations = {
     summary_total: "الإجمالي",
     summary_checkout: "إتمام الشراء بأمان",
     summary_ssl: "دفع آمن بتشفير SSL 256 بت",
-    summary_shipping_free: "توصيل مجاني لكل ولايات الوطن",
+    summary_delivery_note: "التوصيل إلى كل ولايات الوطن",
     summary_returns: "مرتجعات واستبدال سهل خلال 30 يوماً",
 
     // Common

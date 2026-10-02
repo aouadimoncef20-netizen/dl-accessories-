@@ -3,18 +3,20 @@
  * One place to change delivery and tax. The basket, the cart summary and the
  * checkout all read from here, so they can never disagree with each other.
  *
- * Decided 29 September 2026:
- *   • Delivery is free — nothing is added to the order total.
+ * Decided 2 October 2026:
+ *   • Delivery is a flat 500 DZD on every order. There is no free-delivery
+ *     threshold — a small basket and a large one cost the same to send.
  *   • No tax line. The price shown on the product is the price paid, which is
  *     how Algerian shops normally present it — nice and simple for a customer
  *     paying cash on the doorstep.
  *
- * ── To charge for delivery ───────────────────────────────────────────────
- * Type the two numbers below in DINARS, the way you'd say them out loud.
- * A flat 600 DZD, waived once the basket passes 5,000 DZD, is:
+ * ── To change what delivery costs ────────────────────────────────────────
+ * DELIVERY_FEE_DZD is typed in DINARS, the way you'd say it out loud. Set it
+ * to 0 to go back to free delivery. To waive the fee on larger baskets, set
+ * FREE_DELIVERY_OVER_DZD to the threshold in dinars:
  *
- *     export const DELIVERY_FEE_DZD = 600;
- *     export const FREE_DELIVERY_OVER_DZD = 5000;
+ *     export const DELIVERY_FEE_DZD = 500;
+ *     export const FREE_DELIVERY_OVER_DZD = 5000;   // free from 5,000 DZD up
  *
  * That is the whole change — no other file needs touching. (Under the hood
  * the shop keeps prices in USD and converts them for display; the numbers in
@@ -24,7 +26,7 @@
 import { DZD_RATE, usdToDzd } from "./currency";
 
 /** Delivery charge in DZD. 0 = free delivery, and no fee line is added. */
-export const DELIVERY_FEE_DZD = 0;
+export const DELIVERY_FEE_DZD = 500;
 
 /** Baskets of at least this many DZD get free delivery. 0 = no threshold. */
 export const FREE_DELIVERY_OVER_DZD = 0;
