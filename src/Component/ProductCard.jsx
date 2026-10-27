@@ -15,12 +15,21 @@ export default function ProductCard({
   name,
   category,
   price,
+  salePrice,
+  isPack,
   image,
   link,
 }) {
   const navigate = useNavigate();
   const { isSaved, toggleItem } = useWishlistStore();
   const liked = isSaved(id);
+
+  // A sale price only counts when it is actually lower — otherwise the card
+  // would advertise a "discount" that costs the customer more.
+  const onSale =
+    typeof salePrice === "number" && salePrice > 0 && salePrice < price;
+  const charged = onSale ? salePrice : price;
+  const percentOff = onSale ? Math.round((1 - salePrice / price) * 100) : 0;
 
   return (
     <motion.div
@@ -48,6 +57,23 @@ export default function ProductCard({
           )}
         </Link>
 
+        {/* The two things worth saying before a click: it's on sale, and it's
+            a set rather than one piece. */}
+        {(onSale || isPack) && (
+          <div className="absolute top-4 left-4 flex flex-col items-start gap-2">
+            {onSale && (
+              <span className="bg-error text-white text-[10px] font-label-sm uppercase tracking-widest px-2.5 py-1 rounded-full">
+                {percentOff > 0 ? `-${percentOff}%` : "Promo"}
+              </span>
+            )}
+            {isPack && (
+              <span className="bg-primary text-white text-[10px] font-label-sm uppercase tracking-widest px-2.5 py-1 rounded-full">
+                Pack
+              </span>
+            )}
+          </div>
+        )}
+
         <div className="absolute inset-x-0 bottom-0 p-4 translate-y-full group-hover:translate-y-0 transition-transform duration-300">
           <motion.button
             type="button"
@@ -64,7 +90,7 @@ export default function ProductCard({
           type="button"
           onClick={(e) => {
             e.preventDefault();
-            toggleItem({ id, name, category, price, image });
+            toggleItem({ id, name, category, price: charged, image });
           }}
           whileTap={{ scale: 0.85 }}
           className={`absolute top-4 right-4 backdrop-blur-md p-2 rounded-full transition-colors ${
@@ -84,8 +110,15 @@ export default function ProductCard({
         <h3 className="font-headline-sm text-[20px] text-on-surface group-hover:text-primary transition-colors">
           {name}
         </h3>
-        <p className="font-label-md text-on-surface-variant">
-          {formatDZD(price)}
+        <p className="font-label-md text-on-surface-variant flex items-center gap-2">
+          <span className={onSale ? "text-error font-semibold" : ""}>
+            {formatDZD(charged)}
+          </span>
+          {onSale && (
+            <span className="line-through text-xs text-outline-variant">
+              {formatDZD(price)}
+            </span>
+          )}
         </p>
       </Link>
     </motion.div>

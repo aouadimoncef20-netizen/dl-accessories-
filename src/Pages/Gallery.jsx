@@ -1,10 +1,17 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import PageTransition from "../Component/PageTransition";
 import SEO from "../Component/SEO";
 import ScrollReveal from "../Component/ScrollReveal";
 import useTranslation from "../i18n/useTranslation";
+import supabase from "../lib/supabase";
 
+/*
+ * The six photographs below are the fallback: they are what the page shows
+ * while the database answers, and what it keeps showing if the gallery has
+ * not been set up yet (or the network is down). The shop's own images live in
+ * `gallery_images` and are managed from Admin → Gallery.
+ */
 const galleryData = [
   { title: "The Morning Glow", desc: "Capturing the soft transition of light at dawn, where golden accessories meet delicate skin.", category: "Collection 01", image: "https://lh3.googleusercontent.com/aida-public/AB6AXuC0fdVuaWHrMYmk9n0WEFAviDMkQNrKUBWgqh28DdGj_7NovCkd4wuIRGYyULhO1fee3AoaC-GOQw1H7p1sfhBN_dBfvCUW6NkpGXI8gtmL9onBbYPPcVmm5XH2UV_cGc-KCSVKAqOtWx2x5VBCQ3BvR9wdABPl1UdFzqlAsvhFjp7rUuYYF6pFY631OoSaP-yzN6hKAkLwr0AbXtd0uC_dnDd4KBTyXoSz6fIrn66WOHIgpmpN7_tB" },
   { title: "Precision", desc: "A study in horological excellence. Minimalist design meets Swiss-inspired engineering.", category: "Watches", image: "https://lh3.googleusercontent.com/aida-public/AB6AXuCn31R8u_ygpvxbF9yi0c37Gt1xeUMZ1JyXhLQZHcsD3a81A6Zl0LH9KZykV-FYRkRTq7HVy3bjxImdzRce8dPubbV74g-CAK_9-bqctS8D3cEfHdoTx-4Yrg7r9bj55JJ7KVGfl0FpWXfgcBiQiUYKBKgp55H3PKz48ga5KgnrAv5-yEjpQaDn4K0_8ne440Fdn61eJ2jEwELL2pudel1Q_vpXwsLkV6E6FIdSyyJfIzkqVv4KNc7c" },
@@ -16,9 +23,50 @@ const galleryData = [
 
 function Gallery() {
   const [lightboxIndex, setLightboxIndex] = useState(null);
+  const [images, setImages] = useState(galleryData);
   const { t } = useTranslation();
   const openLightbox = (index) => setLightboxIndex(index);
   const closeLightbox = () => setLightboxIndex(null);
+
+  useEffect(() => {
+    let alive = true;
+
+    (async () => {
+      try {
+        const { data, error } = await supabase
+          .from("gallery_images")
+          .select("title, description, category, image_url, sort_order")
+          .eq("active", true)
+          .order("sort_order", { ascending: true })
+          .order("created_at", { ascending: false });
+
+        if (error) throw error;
+        if (!alive || !Array.isArray(data) || data.length === 0) return;
+
+        setImages(
+          data
+            .filter((row) => row.image_url)
+            .map((row) => ({
+              title: row.title || "",
+              desc: row.description || "",
+              category: row.category || "",
+              image: row.image_url,
+            }))
+        );
+      } catch {
+        // Keep the built-in photographs — a gallery outage must not leave the
+        // page empty.
+      }
+    })();
+
+    return () => {
+      alive = false;
+    };
+  }, []);
+
+  // The lightbox index belongs to the old list if the database answer
+  // replaced it while a photo was open.
+  const current = lightboxIndex !== null ? images[lightboxIndex] : null;
 
   return (
     <>
@@ -41,7 +89,7 @@ function Gallery() {
 
         <div className="px-margin-mobile md:px-margin-desktop max-w-container-max mx-auto">
           <div className="masonry-grid">
-            {galleryData.map((item, index) => (
+            {images.map((item, index) => (
               <ScrollReveal key={index} delay={index * 0.1} direction="up" distance={30} className="masonry-item">
               <div className="gallery-item group cursor-pointer" onClick={() => openLightbox(index)}>
                 <div className="relative overflow-hidden bg-surface-container-low rounded-lg custom-shadow">
@@ -84,18 +132,18 @@ function Gallery() {
       </main>
       </PageTransition>
 
-      {lightboxIndex !== null && (
+      {current && (
         <div className="fixed inset-0 z-[100] bg-white/95 backdrop-blur-sm flex items-center justify-center p-4 md:p-8" onClick={closeLightbox}>
           <button className="absolute top-8 right-8 text-on-surface hover:opacity-50 transition-opacity z-10" onClick={closeLightbox}>
             <span className="material-symbols-outlined text-4xl">close</span>
           </button>
           <div className="max-w-4xl w-full h-full flex flex-col md:flex-row items-center gap-6 md:gap-12 overflow-y-auto md:overflow-hidden py-8 md:py-12" onClick={(e) => e.stopPropagation()}>
             <div className="w-full md:w-2/3 h-full flex items-center justify-center">
-              <img className="max-w-full max-h-full object-contain rounded-sm custom-shadow" src={galleryData[lightboxIndex].image} alt={galleryData[lightboxIndex].title} />
+              <img className="max-w-full max-h-full object-contain rounded-sm custom-shadow" src={current.image} alt={current.title} />
             </div>
             <div className="w-full md:w-1/3 text-left">
-              <h3 className="font-headline-md text-headline-md mb-4 text-primary">{galleryData[lightboxIndex].title}</h3>
-              <p className="font-body-md text-body-md text-on-surface-variant mb-8">{galleryData[lightboxIndex].desc}</p>
+              <h3 className="font-headline-md text-headline-md mb-4 text-primary">{current.title}</h3>
+              <p className="font-body-md text-body-md text-on-surface-variant mb-8">{current.desc}</p>
               <div className="flex items-center gap-4">
                 <Link to="/collections" className="flex-1 px-8 py-3 bg-primary text-on-primary rounded-full font-label-md text-label-md text-center">
                   {t("gallery_shop_item")}

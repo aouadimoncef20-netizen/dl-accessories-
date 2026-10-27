@@ -1,6 +1,5 @@
 import { create } from "zustand";
 import {
-  ADMIN_EMAIL,
   adminSession,
   isAdminEmail,
   verifyAdminPassword,
@@ -48,7 +47,7 @@ function saveUsers(users) {
 
 function checkIsAdmin(user) {
   if (!user) return false;
-  if (user.email === ADMIN_EMAIL) return true;
+  if (isAdminEmail(user.email)) return true;
   if (user.role === "admin") return true;
   // Check the persisted users list in case the session was stale
   const users = getUsers();
@@ -156,7 +155,11 @@ const useAuthStore = create((set, get) => ({
     // ── 2. Store admin: the built-in account ──
     if (isAdminEmail(normalized)) {
       const ok = await verifyAdminPassword(password);
-      if (!ok) throw new Error("Invalid email or password.");
+      if (!ok) {
+        throw new Error(
+          "That email and password don't match the store admin. The admin email is zaki1@dlaccessories.com — check the password too."
+        );
+      }
       const session = adminSession();
       set({ user: session, profile: null, isAdmin: true });
       persist(session);

@@ -3,90 +3,127 @@
  * One place to change delivery and tax. The basket, the cart summary and the
  * checkout all read from here, so they can never disagree with each other.
  *
- * Delivery is priced BY WILAYA. Keeping 58 separate prices would be 58 things
- * to get wrong, so the wilayas are grouped into four bands — change a band's
- * `dzd` and every wilaya listed under it moves with it.
+ * Delivery is priced BY WILAYA, from the courier's own price card — one number
+ * per wilaya, not four rough bands. The 58 numbers below are that card,
+ * photographed at the DHD desk. They are dinars, like every other price in the
+ * shop: the number here is the number the customer pays.
  *
- *        ▶  THE NUMBERS TO CHECK ARE THE `dzd` VALUES BELOW  ◀
+ * Two ways to receive a parcel, two prices:
+ *   • to the door   → `WILAYA_HOME_PRICES`, straight off the card
+ *   • stop desk     → the same card, plus the shop's stop-desk surcharge
  *
- * They are starting figures, not your courier's card, so read them off against
- * what you actually pay before going live. They are dinars, like every other
- * price in the shop — the number here is the number the customer pays.
- *
- * Decided 2 October 2026:
- *   • Four bands, priced per wilaya, delivering anywhere in the country.
- *   • No tax line. The price shown on the product is the price paid, which is
- *     how Algerian shops normally present it — nice and simple for a customer
- *     paying cash on the doorstep.
- *
- * To move a wilaya between bands, cut its code from one `wilayas` list and
- * paste it into another. The code for a name is in src/lib/wilayas.js. Every
- * wilaya from 01 to 58 must appear in exactly one band — a wilaya that is
- * missing from all four can be chosen at checkout but has no price, and the
- * order cannot be completed.
+ * ──  THE ADMIN EDITS THESE IN THE DASHBOARD, NOT HERE  ──
+ * The live prices are rows in `delivery_zones` (Admin → Delivery). This table
+ * is the fallback for the first paint, for a database that hasn't had
+ * SUPABASE_UPGRADE.sql run yet, and for an offline visitor. place_order()
+ * prices the order from the same table, so the server never has to trust a
+ * number the browser worked out.
  */
 
 /**
- * One entry per delivery band. `dzd` is what the customer pays; `wilayas`
- * holds the official codes of every wilaya in that band.
+ * What the courier charges to bring a parcel to the customer's door, by wilaya
+ * code (the official two-digit number — see src/lib/wilayas.js for the names).
  */
-export const DELIVERY_ZONES = [
-  {
-    key: "centre",
-    dzd: 400,
-    // Alger and the ring of wilayas a courier rides out to the same day.
-    wilayas: ["09", "16", "35", "42"],
-  },
-  {
-    key: "north",
-    dzd: 600,
-    // The northern belt — the coast and the plains behind it.
-    wilayas: [
-      "02", "04", "05", "06", "10", "12", "13", "14", "15", "18",
-      "19", "21", "22", "23", "24", "25", "26", "27", "29", "31",
-      "34", "36", "40", "41", "43", "44", "46", "48",
-    ],
-  },
-  {
-    key: "plateau",
-    dzd: 800,
-    // The high plateaux and the northern edge of the desert.
-    wilayas: [
-      "03", "07", "08", "17", "20", "28", "30", "32",
-      "38", "39", "45", "47", "51", "55", "57", "58",
-    ],
-  },
-  {
-    key: "south",
-    dzd: 1200,
-    // The deep south — the long hauls.
-    wilayas: ["01", "11", "33", "37", "49", "50", "52", "53", "54", "56"],
-  },
+export const WILAYA_HOME_PRICES = {
+  "01": 1100, "02": 700, "03": 900, "04": 800, "05": 800,
+  "06": 700, "07": 900, "08": 1100, "09": 500, "10": 650,
+  "11": 1300, "12": 800, "13": 800, "14": 800, "15": 650,
+  "16": 400, "17": 900, "18": 700, "19": 700, "20": 800,
+  "21": 700, "22": 700, "23": 800, "24": 800, "25": 700,
+  "26": 700, "27": 700, "28": 800, "29": 700, "30": 1000,
+  "31": 700, "32": 1000, "33": 1300, "34": 700, "35": 600,
+  "36": 800, "37": 1300, "38": 800, "39": 900, "40": 800,
+  "41": 800, "42": 600, "43": 700, "44": 700, "45": 1000,
+  "46": 700, "47": 1000, "48": 700, "49": 1300, "50": 900,
+  "51": 1300, "52": 1300, "53": 1300, "54": 900, "55": 900,
+  "56": 900, "57": 1000, "58": 1000,
+};
+
+/**
+ * Collecting a parcel from the courier's desk costs less to run than a door
+ * drop, so the shop adds a flat amount on top of the card price instead of
+ * reprinting 58 numbers.
+ *
+ * Blida, Boumerdès and Tipaza are the shop's own doorstep — the driver is
+ * already going there — so their desk parcels carry the larger surcharge.
+ */
+export const STOP_DESK_EXTRA_DZD = 100;
+export const STOP_DESK_EXTRA_LOCAL_DZD = 150;
+export const STOP_DESK_LOCAL_WILAYAS = ["09", "35", "42"];
+
+/**
+ * ── The shop's own deliveries ────────────────────────────────────────────
+ * Two kinds of order never go through DHD: university campuses and Réghaïa.
+ * The shop delivers those itself, so they are their own checkout modes with
+ * their own prices instead of a wilaya band.
+ */
+
+/**
+ * The campuses we deliver to ourselves, free of charge.
+ *
+ * `name` is what the customer picks and what lands on the order; `city` is
+ * the extra line that helps the driver find it. Add or remove a line and the
+ * checkout menu follows — this list is the only place to edit it.
+ */
+export const UNIVERSITY_CAMPUSES = [
+  { code: "usthb", name: "USTHB", city: "Bab Ezzouar, Alger" },
+  { code: "ummto", name: "UMMTO", city: "Tizi Ouzou" },
+  { code: "unim", name: "UNIM", city: "" },
+  { code: "inch", name: "INCH", city: "" },
+  { code: "ingm", name: "INGM", city: "" },
+  { code: "kolea", name: "Koléa", city: "Tipaza" },
+  { code: "alger1", name: "Université d'Alger 1", city: "Alger" },
+  { code: "alger2", name: "Université d'Alger 2", city: "Alger" },
 ];
 
+/** What a delivery outside Réghaïa town costs, in dinars. */
+export const REGHAIA_OUTSKIRTS_DZD = 200;
+
+/** The campus behind a code, or undefined if the code isn't one. */
+export function findUniversity(code) {
+  return UNIVERSITY_CAMPUSES.find((c) => c.code === code);
+}
+
 /**
- * ── Places that always ship free ─────────────────────────────────────────
- * Delivery costs the customer nothing to these, whichever wilaya they sit in
- * — the shop covers the courier. UMMTO is in Tizi Ouzou and Koléa is in
- * Tipaza, so this can't be done with the wilaya prices above; it needs its
- * own list.
+ * The three ways an order can reach a customer. The checkout asks for one of
+ * these first, then shows only the fields that mode needs — a campus order
+ * has no wilaya, a Réghaïa order has no commune.
+ */
+export const DELIVERY_MODES = {
+  UNIVERSITY: "university",
+  REGHAIA: "reghaia",
+  WILAYA: "wilaya",
+};
+
+/**
+ * What delivery costs for the chosen checkout mode, in dinars, or null while
+ * the answer still depends on a missing field.
  *
- * The customer picks one at checkout, which is the point: a typed address
- * can't be trusted for this. "USTHB", "usthb" and "Bab Ezzouar" would
- * otherwise be one free delivery and two paid ones for the same campus.
- *
- * Add or remove a line and the checkout menu follows.
+ *   University → free (the shop delivers)
+ *   Réghaïa    → free in town, 200 DZD in the outskirts
+ *   Wilaya     → the band price for that wilaya
+ */
+export function deliveryForCheckout({
+  mode,
+  wilayaCode,
+  reghaiaZone,
+  deliveryType = "domicile",
+} = {}) {
+  if (mode === DELIVERY_MODES.UNIVERSITY) return 0;
+  if (mode === DELIVERY_MODES.REGHAIA) {
+    return reghaiaZone === "outskirts" ? REGHAIA_OUTSKIRTS_DZD : 0;
+  }
+  if (mode === DELIVERY_MODES.WILAYA) return feeForWilaya(wilayaCode, deliveryType);
+  return null;
+}
+
+/**
+ * Kept for the older basket code paths that still pass a "free point".
+ * The checkout now reads UNIVERSITY_CAMPUSES directly.
  */
 export const FREE_DELIVERY_POINTS = [
   { code: "reghaia", name: "Réghaïa (ville)" },
-  { code: "usthb", name: "USTHB" },
-  { code: "ummto", name: "UMMTO" },
-  { code: "unim", name: "UNIM" },
-  { code: "inch", name: "INCH" },
-  { code: "ingm", name: "INGM" },
-  { code: "kolea", name: "Koléa" },
-  { code: "alger1", name: "Alger 1" },
-  { code: "alger2", name: "Alger 2" },
+  ...UNIVERSITY_CAMPUSES.map((c) => ({ code: c.code, name: c.name })),
 ];
 
 /** The name of a free-delivery point, or "" if that code isn't one. */
@@ -102,32 +139,67 @@ export const FREE_DELIVERY_OVER_DZD = 0;
 export const TAX_PERCENT = 0;
 
 /**
+ * The two-digit wilaya code, however it arrived ("16", " 16 ", 16).
+ * An unknown code comes back as "" — which is never mistaken for a price.
+ */
+export function normalizeWilayaCode(code) {
+  return String(code ?? "").replace(/\D/g, "").slice(0, 2).padStart(2, "0");
+}
+
+/**
+ * What the card says for a door delivery in this wilaya, in dinars — or null
+ * when we have no such wilaya.
+ */
+export function homePriceFor(code) {
+  const key = normalizeWilayaCode(code);
+  if (!key || key === "00") return null;
+  const price = WILAYA_HOME_PRICES[key];
+  return typeof price === "number" ? price : null;
+}
+
+/** How much the shop adds for a desk collection in this wilaya. */
+export function stopDeskExtraFor(code) {
+  return STOP_DESK_LOCAL_WILAYAS.includes(normalizeWilayaCode(code))
+    ? STOP_DESK_EXTRA_LOCAL_DZD
+    : STOP_DESK_EXTRA_DZD;
+}
+
+/** What a stop-desk delivery to this wilaya costs, in dinars. */
+export function stopDeskPriceFor(code) {
+  const home = homePriceFor(code);
+  if (home === null) return null;
+  return home + stopDeskExtraFor(code);
+}
+
+/**
  * What delivery to this wilaya costs, in dinars — or null when we don't yet
  * know where the order is going, which is the normal state on the basket page.
  *
  * Null is deliberately not the same as 0. Zero means "this customer pays
  * nothing for delivery"; null means "nobody has told us the address", and the
  * screens must say so rather than quietly showing a free delivery.
+ *
+ * `deliveryType` is 'domicile' (to the door, the default) or 'bureau' (the
+ * customer collects it from the courier's desk).
  */
-export function feeForWilaya(code) {
+export function feeForWilaya(code, deliveryType = "domicile") {
   if (!code) return null;
-  const zone = DELIVERY_ZONES.find((z) => z.wilayas.includes(String(code)));
-  return zone ? zone.dzd : null;
+  return deliveryType === "bureau" ? stopDeskPriceFor(code) : homePriceFor(code);
 }
 
 /**
  * What delivery costs for this basket, in dinars. Everything here is already
- * dinars — the basket, the bands, the threshold — so nothing is converted.
+ * dinars — the basket, the card, the threshold — so nothing is converted.
  */
-export function deliveryFor(subtotal, wilayaCode, pointCode) {
+export function deliveryFor(subtotal, wilayaCode, pointCode, deliveryType = "domicile") {
   // A free delivery point settles it on its own — it doesn't matter which
-  // wilaya the campus is in, so we don't even look at the price bands.
+  // wilaya the campus is in, so we don't even look at the price card.
   if (freePointName(pointCode)) return 0;
 
-  const fee = feeForWilaya(wilayaCode);
+  const fee = feeForWilaya(wilayaCode, deliveryType);
   if (fee === null) return null;
 
-  // A band priced at 0 is a band that ships free.
+  // A wilaya priced at 0 is a wilaya that ships free.
   if (fee <= 0) return 0;
 
   if (FREE_DELIVERY_OVER_DZD > 0 && subtotal >= FREE_DELIVERY_OVER_DZD) return 0;

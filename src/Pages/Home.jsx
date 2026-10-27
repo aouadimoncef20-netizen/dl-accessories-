@@ -1,6 +1,6 @@
 import { useRef } from "react";
 import { Link } from "react-router-dom";
-import { motion, useScroll, useTransform } from "framer-motion";
+import { motion, useScroll, useTransform, useReducedMotion } from "framer-motion";
 import CategoryCard from "../Component/CategoryCard";
 import TestimonialCard from "../Component/TestimonialCard";
 import HomeProductCard from "../Component/HomeProductCard";
@@ -8,17 +8,32 @@ import { CardSkeleton } from "../Component/LoadingSkeleton";
 import PageTransition from "../Component/PageTransition";
 import SEO from "../Component/SEO";
 import ScrollReveal from "../Component/ScrollReveal";
+import SectionHeader from "../Component/SectionHeader";
+import ScrollArrows from "../Component/ScrollArrows";
+import Marquee from "../Component/Marquee";
 import { images } from "../Data/images";
 import useProducts from "../Hooks/useProducts";
 import useTranslation from "../i18n/useTranslation";
 import { formatDZD } from "../lib/currency";
+
+// A photograph whose file name contains a space (most of them do) has to be
+// percent-encoded or the browser asks for a different URL than the one that
+// exists. ProductCard and HomeProductCard already do this; the best-seller
+// strip below used the raw string, so it alone showed broken images.
+const safeSrc = (url) => {
+  if (!url) return url;
+  try { return encodeURI(decodeURI(url)); } catch { return encodeURI(url); }
+};
 
 const categories = [
   { name: "Watches", image: images.categories.Watches },
   { name: "Bracelets", image: images.categories.Bracelets },
   { name: "Rings", image: images.categories.Rings },
   { name: "Earrings", image: images.categories.Earrings },
-  { name: "Sets", image: images.categories.Sets },
+  // "Packs" (not "Sets"): the tile must link to a filter the shop can answer.
+  // There is no "Sets" category in the admin, so that tile opened an empty
+  // collection; Packs is the real thing it was pointing at.
+  { name: "Packs", image: images.categories.Sets },
   { name: "Nails", image: images.categories.Nails },
   { name: "Lashes", image: "https://lh3.googleusercontent.com/aida-public/AB6AXuDSvmpss7xhzs__hqie98CLYq6xWuSp9Qt72ClqUKjbJIfNO1yTajwihgaFCrw8AK1F1HrVrZ_cwXCHzQepY-hL9rqlmqqEMhaGrktNtgMyQjN3nFukjA_oXdp9C_ptkDyJDt0mjmA266l0wuez7bB04VmefzNEckmRnEDJG7-2FTomjTIAQz0LFbMr6TZQ1q-lj5nAzvqTWZubdjgAqV48NUpDYXi3axL1IKhb2sR_fGV1jdMODBAc" },
 ];
@@ -53,16 +68,22 @@ const Home = () => {
   const bestSellersScrollRef = useRef(null);
   const heroRef = useRef(null);
   const { products: newArrivals, loading: arrivalsLoading } = useProducts({ newArrival: true });
-  const { products: bestSellers, loading: sellersLoading } = useProducts({ bestSeller: true });
+  const { products: bestSellers, loading: sellersLoading } = useProducts({
+    bestSeller: true,
+    limit: 10,
+  });
   const { t } = useTranslation();
+  const reduced = useReducedMotion();
 
-  // Hero parallax
+  // Hero parallax. The photograph drifts up more slowly than the page and
+  // dissolves as the next section arrives — enough to feel layered, not enough
+  // to feel like a gimmick. With reduced motion the photo simply sits still.
   const { scrollYProgress } = useScroll({
     target: heroRef,
     offset: ["start start", "end start"],
   });
   const heroY = useTransform(scrollYProgress, [0, 1], [0, 200]);
-  const heroOpacity = useTransform(scrollYProgress, [0, 0.6], [1, 0]);
+  const heroOpacity = useTransform(scrollYProgress, [0, 0.75], [1, 0]);
   const heroScale = useTransform(scrollYProgress, [0, 1], [1, 1.15]);
 
   const handleScroll = (dir) => {
@@ -77,6 +98,15 @@ const Home = () => {
     bestSellersScrollRef.current?.scrollBy({ left: dir === "left" ? -300 : 300, behavior: "smooth" });
   };
 
+  const shopAll = (key) => (
+    <Link
+      to="/collections"
+      className="link-quiet hidden font-label-sm uppercase tracking-widest text-secondary transition-colors hover:text-primary md:inline-block"
+    >
+      {t(key)}
+    </Link>
+  );
+
   return (
     <PageTransition>
     <div className="Home">
@@ -85,101 +115,160 @@ const Home = () => {
         description="Curated accessories for the modern muse — watches, jewelry, nails, and lashes crafted for timeless elegance."
       />
 
-      {/* SECTION 1: HERO — with parallax */}
-      <section ref={heroRef} className="relative h-screen w-full overflow-hidden">
-        <motion.div className="absolute inset-0" style={{ y: heroY, scale: heroScale }}>
-          <img src={images.hero} alt="Hero" className="w-full h-full object-cover" />
-        </motion.div>
-        <div className="absolute inset-0 bg-gradient-to-r from-black/40 via-black/15 to-transparent" />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-black/10" />
+      {/* ── HERO ──────────────────────────────────────────────
+          Three layers: the photograph drifting slowly (ken burns) inside a
+          parallax frame, two scrims that keep white type readable whatever
+          the photo is doing, and the type itself, which fades as the visitor
+          starts to read the page. */}
+      <section
+        ref={heroRef}
+        className="relative flex min-h-[100svh] w-full items-center overflow-hidden"
+      >
         <motion.div
-          className="relative z-10 h-full flex items-center"
-          style={{ opacity: heroOpacity }}
+          className="absolute inset-0"
+          style={reduced ? undefined : { y: heroY, scale: heroScale }}
         >
-          <div className="max-w-2xl px-margin-mobile md:px-margin-desktop pt-20">
-            <motion.span
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 0.2 }}
-              className="inline-block font-label-sm text-white/70 uppercase tracking-[0.25em] mb-6 border-s-2 border-primary-container ps-4"
-            >
-              {t("hero_tag")}
-            </motion.span>
-            <motion.h1
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 0.4 }}
-              className="font-display-lg text-[44px] md:text-display-lg text-white mb-6 leading-tight drop-shadow-lg"
-            >
-              {t("hero_title_1")} <span className="italic font-light">{t("hero_title_2")}</span>
-            </motion.h1>
-            <motion.p
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 0.6 }}
-              className="font-body-lg text-body-lg text-white/90 mb-10 max-w-lg drop-shadow-md leading-relaxed"
-            >
-              {t("hero_desc")}
-            </motion.p>
-            <motion.div
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 0.8 }}
-            >
-              <Link to="/collections" className="inline-flex items-center gap-3 bg-white text-primary px-8 md:px-10 py-4 rounded-full font-label-md uppercase tracking-widest hover:bg-primary hover:text-white transition-all duration-500 shadow-xl shadow-black/10">
-                {t("hero_cta")}
-                <span className="material-symbols-outlined text-lg">arrow_forward</span>
-              </Link>
-            </motion.div>
+          <img
+            src={images.hero}
+            alt=""
+            aria-hidden="true"
+            fetchPriority="high"
+            className="ken-burns h-full w-full object-cover"
+          />
+        </motion.div>
+
+        <div className="absolute inset-0 bg-gradient-to-r from-black/60 via-black/25 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/65 via-transparent to-black/30" />
+        <div className="grain absolute inset-0" />
+
+        <motion.div
+          className="relative z-10 w-full pb-24 pt-28 md:pb-16"
+          style={reduced ? undefined : { opacity: heroOpacity }}
+        >
+          <div className="mx-auto w-full max-w-container-max px-margin-mobile md:px-margin-desktop">
+            <div className="max-w-2xl">
+              <motion.span
+                initial={{ opacity: 0, y: 16 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.7, delay: 0.15, ease: [0.16, 1, 0.3, 1] }}
+                className="mb-6 flex items-center gap-3 font-label-sm uppercase tracking-[0.28em] text-white/75"
+              >
+                <span aria-hidden="true" className="h-px w-10 bg-white/50" />
+                {t("hero_tag")}
+              </motion.span>
+
+              <motion.h1
+                initial={{ opacity: 0, y: 24 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.9, delay: 0.3, ease: [0.16, 1, 0.3, 1] }}
+                className="text-balance font-display-lg text-[40px] leading-[1.05] tracking-[-0.02em] text-white sm:text-[52px] lg:text-[68px]"
+              >
+                {t("hero_title_1")}{" "}
+                <span className="font-light italic">{t("hero_title_2")}</span>
+              </motion.h1>
+
+              <motion.p
+                initial={{ opacity: 0, y: 24 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.9, delay: 0.45, ease: [0.16, 1, 0.3, 1] }}
+                className="mt-6 max-w-lg text-pretty font-body-lg text-body-lg leading-relaxed text-white/85"
+              >
+                {t("hero_desc")}
+              </motion.p>
+
+              <motion.div
+                initial={{ opacity: 0, y: 24 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.9, delay: 0.6, ease: [0.16, 1, 0.3, 1] }}
+                className="mt-10 flex flex-wrap items-center gap-3 md:gap-4"
+              >
+                <Link
+                  to="/collections"
+                  className="group inline-flex items-center gap-3 rounded-full bg-white px-7 py-4 font-label-md uppercase tracking-widest text-primary shadow-[0_18px_45px_-20px_rgba(0,0,0,0.8)] transition-colors duration-500 hover:bg-primary hover:text-white md:px-9"
+                >
+                  {t("hero_cta")}
+                  <span className="material-symbols-outlined text-lg transition-transform duration-300 group-hover:translate-x-1 rtl:rotate-180">
+                    arrow_forward
+                  </span>
+                </Link>
+
+                <Link
+                  to="/track-order"
+                  className="group inline-flex items-center gap-2.5 rounded-full border border-white/35 px-6 py-4 font-label-md uppercase tracking-widest text-white/85 backdrop-blur-sm transition-colors duration-300 hover:border-white hover:bg-white/10 hover:text-white"
+                >
+                  <span className="material-symbols-outlined text-lg">local_shipping</span>
+                  {t("hero_cta_secondary")}
+                </Link>
+              </motion.div>
+            </div>
           </div>
         </motion.div>
+
+        {/* New in / bestseller notes. Kept off small screens, where they would
+            sit on top of the headline rather than beside it. */}
         <motion.div
           initial={{ opacity: 0, x: 20 }}
           animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.8, delay: 1 }}
-          className="hidden lg:block absolute right-8 md:right-16 top-1/2 -translate-y-1/2 z-10 space-y-5"
+          transition={{ duration: 0.9, delay: 0.8, ease: [0.16, 1, 0.3, 1] }}
+          className="absolute right-8 top-1/2 z-10 hidden -translate-y-1/2 space-y-4 xl:right-16 xl:block"
         >
-          <div className="bg-white/15 backdrop-blur-xl border border-white/25 rounded-2xl px-6 py-5 text-white w-52 shadow-xl">
-            <p className="text-label-sm text-white/60 uppercase tracking-widest mb-1.5">{t("hero_new_in")}</p>
+          <div className="w-52 rounded-2xl border border-white/20 bg-white/10 px-6 py-5 text-white shadow-xl backdrop-blur-xl transition-colors duration-300 hover:bg-white/15">
+            <p className="mb-1.5 text-label-sm uppercase tracking-widest text-white/60">{t("hero_new_in")}</p>
             <p className="font-headline-sm text-headline-sm leading-tight">{t("hero_new_in_item")}</p>
           </div>
-          <div className="bg-white/15 backdrop-blur-xl border border-white/25 rounded-2xl px-6 py-5 text-white w-52 shadow-xl">
-            <p className="text-label-sm text-white/60 uppercase tracking-widest mb-1.5">{t("hero_bestseller")}</p>
+          <div className="w-52 rounded-2xl border border-white/20 bg-white/10 px-6 py-5 text-white shadow-xl backdrop-blur-xl transition-colors duration-300 hover:bg-white/15">
+            <p className="mb-1.5 text-label-sm uppercase tracking-widest text-white/60">{t("hero_bestseller")}</p>
             <p className="font-headline-sm text-headline-sm leading-tight">{t("hero_bestseller_item")}</p>
           </div>
         </motion.div>
-        <motion.div
+
+        {/* A line that fills downward, again and again — quieter than a
+            bouncing chevron, and it points at the page rather than the icon. */}
+        <motion.a
+          href="#curated"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ duration: 1, delay: 1.2 }}
-          className="absolute bottom-8 left-1/2 -translate-x-1/2 z-10 flex flex-col items-center gap-2 text-white/50"
+          transition={{ duration: 1, delay: 1 }}
+          className="absolute bottom-7 left-1/2 z-10 hidden -translate-x-1/2 flex-col items-center gap-3 text-white/60 transition-colors hover:text-white sm:flex"
         >
-          <span className="font-label-sm text-xs uppercase tracking-widest">{t("hero_scroll")}</span>
-          <span className="material-symbols-outlined text-lg animate-bounce">expand_more</span>
-        </motion.div>
+          <span className="font-label-sm text-[10px] uppercase tracking-[0.35em]">{t("hero_scroll")}</span>
+          <span className="relative block h-12 w-px overflow-hidden bg-white/25">
+            <span className="scroll-cue-line absolute inset-x-0 top-0 block h-full bg-white/80" />
+          </span>
+        </motion.a>
       </section>
 
-      {/* SECTION 2: CURATED SELECTIONS */}
-      <section className="bg-background py-section-gap section-divider">
-        <div className="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop">
+      {/* ── MARQUEE ── the pause between the photograph and the shop */}
+      <Marquee
+        items={[t("marquee_1"), t("marquee_2"), t("marquee_3"), t("marquee_4")]}
+        duration={42}
+      />
+
+      {/* ── CURATED SELECTIONS ── */}
+      <section id="curated" className="scroll-mt-24 bg-background py-20 md:py-section-gap section-divider">
+        <div className="mx-auto max-w-container-max px-margin-mobile md:px-margin-desktop">
           <ScrollReveal>
-            <div className="flex justify-between items-center mb-12">
-              <div>
-                <span className="font-label-sm text-primary uppercase tracking-[0.25em] mb-2 block">{t("cat_label")}</span>
-                <h2 className="font-display-lg text-display-lg-mobile md:text-headline-md text-on-surface">{t("cat_title")}</h2>
-              </div>
-              <div className="flex items-center gap-4">
-                <Link to="/collections" className="hidden md:flex items-center gap-1.5 font-label-sm text-secondary uppercase tracking-widest hover:text-primary transition-colors border-b border-outline-variant/30 pb-0.5 hover:border-primary/30">{t("cat_view_all")}</Link>
-                <div className="hidden md:flex gap-2">
-                  <button onClick={() => handleCategoryScroll("left")} className="w-10 h-10 rounded-full border border-outline/20 flex items-center justify-center text-on-surface-variant hover:bg-white hover:border-primary/30 hover:text-primary transition-all duration-300" aria-label="Scroll left"><span className="material-symbols-outlined text-lg">chevron_left</span></button>
-                  <button onClick={() => handleCategoryScroll("right")} className="w-10 h-10 rounded-full border border-outline/20 flex items-center justify-center text-on-surface-variant hover:bg-white hover:border-primary/30 hover:text-primary transition-all duration-300" aria-label="Scroll right"><span className="material-symbols-outlined text-lg">chevron_right</span></button>
-                </div>
-              </div>
-            </div>
+            <SectionHeader
+              eyebrow={t("cat_label")}
+              title={t("cat_title")}
+              action={shopAll("cat_view_all")}
+              actions={<ScrollArrows onScroll={handleCategoryScroll} />}
+              className="mb-12"
+            />
           </ScrollReveal>
-          <div ref={categoryScrollRef} className="flex gap-6 overflow-x-auto hide-scrollbar scroll-smooth pb-2 -mx-4 px-4">
+
+          <div
+            ref={categoryScrollRef}
+            className="hide-scrollbar -mx-4 flex gap-6 overflow-x-auto scroll-smooth px-4 pb-2"
+          >
             {categories.map((cat, idx) => (
-              <ScrollReveal key={cat.name} delay={idx * 0.08} direction="up" distance={30} className="min-w-[90px] max-w-[120px] flex-shrink-0">
+              <ScrollReveal
+                key={cat.name}
+                delay={idx * 0.08}
+                direction="up"
+                distance={30}
+                className="min-w-[90px] max-w-[120px] flex-shrink-0"
+              >
                 <CategoryCard name={cat.name} image={cat.image} />
               </ScrollReveal>
             ))}
@@ -187,83 +276,113 @@ const Home = () => {
         </div>
       </section>
 
-      {/* SECTION 3: NEW ARRIVALS */}
-      <section className="bg-surface-container-low py-section-gap overflow-hidden">
-        <div className="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop">
+      {/* ── NEW ARRIVALS ── */}
+      <section className="overflow-hidden bg-surface-container-low py-20 md:py-section-gap">
+        <div className="mx-auto max-w-container-max px-margin-mobile md:px-margin-desktop">
           <ScrollReveal>
-            <div className="flex justify-between items-center mb-12">
-              <div>
-                <span className="font-label-sm text-primary uppercase tracking-[0.25em] mb-2 block">{t("arrivals_label")}</span>
-                <h2 className="font-display-lg text-display-lg-mobile md:text-headline-md text-on-surface">{t("arrivals_title")}</h2>
-              </div>
-              <div className="flex items-center gap-4">
-                <Link to="/collections" className="hidden md:flex items-center gap-1.5 font-label-sm text-secondary uppercase tracking-widest hover:text-primary transition-colors border-b border-outline-variant/30 pb-0.5 hover:border-primary/30">{t("arrivals_shop_all")}</Link>
-                <div className="hidden md:flex gap-2">
-                  <button onClick={() => handleScroll("left")} className="w-10 h-10 rounded-full border border-outline/20 flex items-center justify-center text-on-surface-variant hover:bg-white hover:border-primary/30 hover:text-primary transition-all duration-300" aria-label="Scroll left"><span className="material-symbols-outlined text-lg">chevron_left</span></button>
-                  <button onClick={() => handleScroll("right")} className="w-10 h-10 rounded-full border border-outline/20 flex items-center justify-center text-on-surface-variant hover:bg-white hover:border-primary/30 hover:text-primary transition-all duration-300" aria-label="Scroll right"><span className="material-symbols-outlined text-lg">chevron_right</span></button>
-                </div>
-              </div>
-            </div>
+            <SectionHeader
+              eyebrow={t("arrivals_label")}
+              title={t("arrivals_title")}
+              action={shopAll("arrivals_shop_all")}
+              actions={<ScrollArrows onScroll={handleScroll} />}
+              className="mb-12"
+            />
           </ScrollReveal>
-          <div ref={scrollRef} className="flex gap-4 overflow-x-auto hide-scrollbar scroll-smooth pb-2 -mx-4 px-4">
+
+          <div
+            ref={scrollRef}
+            className="hide-scrollbar -mx-4 flex gap-4 overflow-x-auto scroll-smooth px-4 pb-2"
+          >
             {arrivalsLoading ? (
               Array.from({ length: 4 }).map((_, i) => (
-                <div key={i} className="min-w-[200px] md:min-w-[220px] flex-shrink-0"><CardSkeleton /></div>
+                <div key={i} className="min-w-[200px] flex-shrink-0 md:min-w-[220px]">
+                  <CardSkeleton />
+                </div>
               ))
             ) : (
               newArrivals.map((item, idx) => (
-                <ScrollReveal key={item.id} delay={idx * 0.1} direction="right" distance={40} className="min-w-[200px] md:min-w-[220px] max-w-[280px] flex-shrink-0">
+                <ScrollReveal
+                  key={item.id}
+                  delay={idx * 0.1}
+                  direction="right"
+                  distance={40}
+                  className="min-w-[200px] max-w-[280px] flex-shrink-0 md:min-w-[220px]"
+                >
                   <HomeProductCard product={item} />
                 </ScrollReveal>
               ))
             )}
           </div>
-          <div className="flex justify-center mt-8 md:hidden">
-            <Link to="/collections" className="inline-flex items-center gap-1.5 font-label-sm text-primary uppercase tracking-widest border-b border-primary/30 pb-0.5 hover:border-primary transition-all">{t("arrivals_shop_all_mobile")}<span className="material-symbols-outlined text-base">arrow_forward</span></Link>
+
+          <div className="mt-8 flex justify-center md:hidden">
+            <Link
+              to="/collections"
+              className="inline-flex items-center gap-1.5 border-b border-primary/30 pb-0.5 font-label-sm uppercase tracking-widest text-primary transition-all hover:border-primary"
+            >
+              {t("arrivals_shop_all_mobile")}
+              <span className="material-symbols-outlined text-base rtl:rotate-180">arrow_forward</span>
+            </Link>
           </div>
         </div>
       </section>
 
-      {/* SECTION 4: BEST SELLERS */}
-      <section className="py-section-gap section-divider">
-        <div className="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop">
+      {/* ── BEST SELLERS ── */}
+      <section className="py-20 md:py-section-gap section-divider">
+        <div className="mx-auto max-w-container-max px-margin-mobile md:px-margin-desktop">
           <ScrollReveal>
-            <div className="flex justify-between items-center mb-12">
-              <div>
-                <span className="font-label-sm text-primary uppercase tracking-[0.25em] mb-2 block">{t("sellers_label")}</span>
-                <h2 className="font-display-lg text-display-lg text-on-surface">{t("sellers_title")}</h2>
-              </div>
-              <div className="flex items-center gap-4">
-                <Link to="/collections" className="hidden md:flex items-center gap-1.5 font-label-sm text-secondary uppercase tracking-widest hover:text-primary transition-colors border-b border-outline-variant/30 pb-0.5 hover:border-primary/30">{t("sellers_shop_all")}</Link>
-                <div className="hidden md:flex gap-2">
-                  <button onClick={() => handleBestSellersScroll("left")} className="w-10 h-10 rounded-full border border-outline/20 flex items-center justify-center text-on-surface-variant hover:bg-white hover:border-primary/30 hover:text-primary transition-all duration-300" aria-label="Scroll left"><span className="material-symbols-outlined text-lg">chevron_left</span></button>
-                  <button onClick={() => handleBestSellersScroll("right")} className="w-10 h-10 rounded-full border border-outline/20 flex items-center justify-center text-on-surface-variant hover:bg-white hover:border-primary/30 hover:text-primary transition-all duration-300" aria-label="Scroll right"><span className="material-symbols-outlined text-lg">chevron_right</span></button>
-                </div>
-              </div>
-            </div>
+            <SectionHeader
+              eyebrow={t("sellers_label")}
+              title={t("sellers_title")}
+              action={shopAll("sellers_shop_all")}
+              actions={<ScrollArrows onScroll={handleBestSellersScroll} />}
+              className="mb-12"
+            />
           </ScrollReveal>
-          <div ref={bestSellersScrollRef} className="flex gap-6 overflow-x-auto hide-scrollbar scroll-smooth pb-2 -mx-4 px-4">
+
+          <div
+            ref={bestSellersScrollRef}
+            className="hide-scrollbar -mx-4 flex gap-6 overflow-x-auto scroll-smooth px-4 pb-2"
+          >
             {sellersLoading ? (
               Array.from({ length: 3 }).map((_, i) => (
-                <div key={i} className="min-w-[240px] flex-shrink-0"><CardSkeleton /></div>
+                <div key={i} className="min-w-[240px] flex-shrink-0">
+                  <CardSkeleton />
+                </div>
               ))
             ) : (
               bestSellers.map((item, idx) => (
-                <ScrollReveal key={item.id} delay={idx * 0.1} direction="right" distance={40} className="min-w-[240px] max-w-[280px] flex-shrink-0">
-                  <Link to={`/product/${item.id}`} className="group cursor-pointer block">
-                    <div className="relative aspect-[3/4] bg-surface-container-low rounded-2xl overflow-hidden mb-5 shadow-sm">
+                <ScrollReveal
+                  key={item.id}
+                  delay={idx * 0.1}
+                  direction="right"
+                  distance={40}
+                  className="min-w-[240px] max-w-[280px] flex-shrink-0"
+                >
+                  <Link to={`/product/${item.id}`} className="group block cursor-pointer">
+                    <div className="relative mb-5 aspect-[3/4] overflow-hidden rounded-2xl bg-surface-container-low shadow-sm">
                       {item.image ? (
-                        <img src={item.image} alt={item.name} loading="lazy" className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
+                        <img
+                          src={safeSrc(item.image)}
+                          alt={item.name}
+                          loading="lazy"
+                          className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-[1.06]"
+                        />
                       ) : (
-                        <div className="w-full h-full flex items-center justify-center bg-surface-container-low text-secondary">
+                        <div className="flex h-full w-full items-center justify-center bg-surface-container-low text-secondary">
                           <span className="material-symbols-outlined text-3xl">image</span>
                         </div>
                       )}
-                      <span className="absolute top-4 left-4 bg-primary-container/20 text-on-background text-[10px] font-label-sm uppercase tracking-widest px-3 py-1.5 rounded-full">{t("sellers_badge")}</span>
+                      <span className="absolute left-4 top-4 rounded-full bg-primary-container/25 px-3 py-1.5 text-[10px] font-label-sm uppercase tracking-widest text-on-background backdrop-blur-sm">
+                        {t("sellers_badge")}
+                      </span>
                     </div>
                     <div className="text-center">
-                      <h3 className="font-headline-sm text-lg text-on-surface group-hover:text-primary transition-colors mb-1">{item.name}</h3>
-                      <p className="font-label-md text-on-surface-variant">{formatDZD(item.sale_price || item.price)}</p>
+                      <h3 className="mb-1 font-headline-sm text-lg text-on-surface transition-colors group-hover:text-primary">
+                        {item.name}
+                      </h3>
+                      <p className="font-label-md text-on-surface-variant">
+                        {formatDZD(item.sale_price || item.price)}
+                      </p>
                     </div>
                   </Link>
                 </ScrollReveal>
@@ -273,16 +392,21 @@ const Home = () => {
         </div>
       </section>
 
-      {/* SECTION 5: MOOD BOARD */}
-      <section className="py-section-gap bg-surface-container-low overflow-hidden">
-        <div className="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop">
+      {/* ── MOOD BOARD ── */}
+      <section className="overflow-hidden bg-surface-container-low py-20 md:py-section-gap">
+        <div className="mx-auto max-w-container-max px-margin-mobile md:px-margin-desktop">
           <ScrollReveal>
-            <div className="text-center mb-16">
-              <span className="font-label-sm text-primary uppercase tracking-[0.25em] mb-3 block">{t("mood_label")}</span>
-              <h2 className="font-display-lg text-display-lg text-on-surface">{t("mood_title")}</h2>
-            </div>
+            <SectionHeader
+              eyebrow={t("mood_label")}
+              title={t("mood_title")}
+              align="center"
+              className="mb-14"
+            />
           </ScrollReveal>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 auto-rows-[160px] md:auto-rows-[200px]">
+
+          {/* The tiles are revealed one by one, alternating up and down, so the
+              wall assembles rather than appearing all at once. */}
+          <div className="grid auto-rows-[150px] grid-cols-2 gap-3 md:auto-rows-[200px] md:grid-cols-4 md:gap-4">
             {moodImages.map((img, idx) => (
               <ScrollReveal
                 key={idx}
@@ -291,8 +415,13 @@ const Home = () => {
                 distance={30}
                 className={img.className}
               >
-                <div className="rounded-xl overflow-hidden group cursor-pointer h-full">
-                  <img src={img.src} alt={`Mood ${idx + 1}`} loading="lazy" className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 ease-out" />
+                <div className="group h-full cursor-pointer overflow-hidden rounded-xl">
+                  <img
+                    src={img.src}
+                    alt={`Mood ${idx + 1}`}
+                    loading="lazy"
+                    className="h-full w-full object-cover transition-transform duration-[900ms] ease-out group-hover:scale-110"
+                  />
                 </div>
               </ScrollReveal>
             ))}
@@ -300,55 +429,85 @@ const Home = () => {
         </div>
       </section>
 
-      {/* SECTION 6: REVIEWS */}
-      <section className="py-section-gap section-divider">
-        <div className="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop">
+      {/* ── REVIEWS ── */}
+      <section className="py-20 md:py-section-gap section-divider">
+        <div className="mx-auto max-w-container-max px-margin-mobile md:px-margin-desktop">
           <ScrollReveal>
-            <div className="text-center mb-16">
-              <span className="font-label-sm text-primary uppercase tracking-[0.25em] mb-3 block">{t("reviews_label")}</span>
-              <h2 className="font-display-lg text-display-lg text-on-surface mb-3">{t("reviews_title")}</h2>
-              <p className="font-body-md text-secondary max-w-md mx-auto">{t("reviews_desc")}</p>
-            </div>
+            <SectionHeader
+              eyebrow={t("reviews_label")}
+              title={t("reviews_title")}
+              description={t("reviews_desc")}
+              align="center"
+              className="mb-14"
+            />
           </ScrollReveal>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8">
-            {testimonials.map((t, idx) => (
-              <ScrollReveal key={t.name} delay={idx * 0.15} direction="up" distance={40}>
-                <TestimonialCard quote={t.quote} name={t.name} image={t.image} />
+
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-3 lg:gap-8">
+            {testimonials.map((item, idx) => (
+              <ScrollReveal key={item.name} delay={idx * 0.15} direction="up" distance={40}>
+                <TestimonialCard quote={item.quote} name={item.name} image={item.image} />
               </ScrollReveal>
             ))}
           </div>
         </div>
       </section>
 
-      {/* SECTION 7: INSTAGRAM */}
-      <section className="py-section-gap bg-surface-container-low">
-        <div className="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop">
+      {/* ── INSTAGRAM ── */}
+      <section className="bg-surface-container-low py-20 md:py-section-gap">
+        <div className="mx-auto max-w-container-max px-margin-mobile md:px-margin-desktop">
           <ScrollReveal>
-            <div className="flex items-center justify-between mb-12">
-              <div>
-                <span className="font-label-sm text-primary uppercase tracking-[0.25em] mb-2 block">{t("instagram_label")}</span>
-                <h2 className="font-display-lg text-display-lg-mobile md:text-headline-md text-on-surface">@DL.ACCESSORIES</h2>
-              </div>
-              <a href="https://www.instagram.com/dl.accessoires.reghaia/" target="_blank" rel="noopener noreferrer" className="hidden md:inline-flex items-center gap-2 font-label-sm text-primary uppercase tracking-widest border-b border-primary/30 pb-0.5 hover:border-primary transition-all">
-                {t("follow_us")} <span className="material-symbols-outlined text-base">open_in_new</span>
-              </a>
-            </div>
+            <SectionHeader
+              eyebrow={t("instagram_label")}
+              title="@DL.ACCESSORIES"
+              action={
+                <a
+                  href="https://www.instagram.com/dl.accessoires.reghaia/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="link-quiet hidden font-label-sm uppercase tracking-widest text-primary md:inline-flex md:items-center md:gap-2"
+                >
+                  {t("follow_us")}
+                  <span className="material-symbols-outlined text-base">open_in_new</span>
+                </a>
+              }
+              className="mb-12"
+            />
           </ScrollReveal>
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-2 md:gap-3">
+
+          <div className="grid grid-cols-2 gap-2 md:grid-cols-3 md:gap-3 lg:grid-cols-6">
             {instagramImages.map((src, idx) => (
               <ScrollReveal key={idx} delay={idx * 0.06} direction="up" distance={20}>
-                <a href="https://www.instagram.com/dl.accessoires.reghaia/" target="_blank" rel="noopener noreferrer" className="relative group overflow-hidden rounded-xl aspect-square bg-surface-container-low block">
-                  <img src={src} alt={`Instagram ${idx + 1}`} loading="lazy" className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
-                  <div className="absolute inset-0 bg-primary/15 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
-                    <span className="material-symbols-outlined text-white text-3xl drop-shadow-lg">favorite</span>
+                <a
+                  href="https://www.instagram.com/dl.accessoires.reghaia/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="group relative block aspect-square overflow-hidden rounded-xl bg-surface-container-low"
+                >
+                  <img
+                    src={src}
+                    alt={`Instagram ${idx + 1}`}
+                    loading="lazy"
+                    className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-110"
+                  />
+                  <div className="absolute inset-0 flex items-center justify-center bg-primary/25 opacity-0 backdrop-blur-[2px] transition-opacity duration-300 group-hover:opacity-100">
+                    <span className="material-symbols-outlined text-3xl text-white drop-shadow-lg">
+                      favorite
+                    </span>
                   </div>
                 </a>
               </ScrollReveal>
             ))}
           </div>
-          <div className="flex justify-center mt-8 md:hidden">
-            <a href="https://www.instagram.com/dl.accessoires.reghaia/" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 font-label-sm text-primary uppercase tracking-widest border-b border-primary/30 pb-0.5 hover:border-primary transition-all">
-              {t("follow_us")} @DL.ACCESSORIES <span className="material-symbols-outlined text-base">open_in_new</span>
+
+          <div className="mt-8 flex justify-center md:hidden">
+            <a
+              href="https://www.instagram.com/dl.accessoires.reghaia/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 border-b border-primary/30 pb-0.5 font-label-sm uppercase tracking-widest text-primary transition-all hover:border-primary"
+            >
+              {t("follow_us")} @DL.ACCESSORIES
+              <span className="material-symbols-outlined text-base">open_in_new</span>
             </a>
           </div>
         </div>

@@ -1,5 +1,5 @@
 import { useRef } from "react";
-import { motion, useInView } from "framer-motion";
+import { motion, useInView, useReducedMotion } from "framer-motion";
 
 /**
  * Wraps children with a scroll-triggered entrance animation.
@@ -11,6 +11,10 @@ import { motion, useInView } from "framer-motion";
  *  - distance: how far the element slides (px)
  *  - once: animate only the first time (default true)
  *  - className: extra classes on the wrapper
+ *
+ * A visitor who has asked the system for reduced motion gets the content
+ * itself, in place, at once — the reveal is decoration, and decoration is the
+ * first thing to go when motion is uncomfortable.
  */
 export default function ScrollReveal({
   children,
@@ -23,6 +27,7 @@ export default function ScrollReveal({
   ...props
 }) {
   const ref = useRef(null);
+  const reduced = useReducedMotion();
   const isInView = useInView(ref, { once, margin: "-60px" });
 
   const dirMap = {
@@ -34,6 +39,14 @@ export default function ScrollReveal({
   };
 
   const offset = dirMap[direction] || dirMap.up;
+
+  if (reduced) {
+    return (
+      <div ref={ref} className={className} {...props}>
+        {children}
+      </div>
+    );
+  }
 
   return (
     <motion.div

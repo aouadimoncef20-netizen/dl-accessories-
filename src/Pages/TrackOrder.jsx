@@ -242,6 +242,16 @@ function TrackOrder() {
                   <p className="text-on-surface">{order.customer_name}</p>
                   <p>{order.address}</p>
                   <p>{order.state}</p>
+                  {/* The courier's own number — what to quote when
+                      ringing DHD about this parcel. */}
+                  {order.tracking_number && (
+                    <p className="pt-3">
+                      <span className="block font-label-sm uppercase tracking-widest text-secondary">
+                        {t("order_tracking")}
+                      </span>
+                      <span className="text-on-surface font-medium">{order.tracking_number}</span>
+                    </p>
+                  )}
                   <p className="pt-3 text-primary font-label-sm uppercase tracking-widest">
                     {t("track_payment_cod")}
                   </p>

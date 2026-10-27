@@ -62,7 +62,12 @@ export default function useProducts(filters = {}) {
 
       // Best sellers
       if (filters.bestSeller) {
-        const { data } = await fetchProducts({ isBestseller: true });
+        // A strip on the homepage, not the whole catalogue: if the owner
+        // flags a hundred products, this still draws one row of them.
+        const { data } = await fetchProducts({
+          isBestseller: true,
+          limit: filters.limit ?? 10,
+        });
         setProducts(data);
         setLoading(false);
         return;
@@ -96,6 +101,7 @@ export default function useProducts(filters = {}) {
     filters.sortBy,
     filters.page,
     filters.perPage,
+    filters.limit,
     filters.minPrice,
     filters.maxPrice,
     fetchProducts,

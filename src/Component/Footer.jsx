@@ -43,17 +43,17 @@ function Footer() {
               </Link>
             </li>
             <li>
-              <Link to="/collections" className="hover:text-primary transition-colors duration-300">
+              <Link to="/collections?cat=Best%20Sellers" className="hover:text-primary transition-colors duration-300">
                 {t("footer_bestsellers")}
               </Link>
             </li>
             <li>
-              <Link to="/collections" className="hover:text-primary transition-colors duration-300">
+              <Link to="/collections?cat=Watches" className="hover:text-primary transition-colors duration-300">
                 {t("footer_watches")}
               </Link>
             </li>
             <li>
-              <Link to="/collections" className="hover:text-primary transition-colors duration-300">
+              <Link to="/collections?cat=Packs" className="hover:text-primary transition-colors duration-300">
                 {t("footer_jewelry_sets")}
               </Link>
             </li>

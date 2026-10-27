@@ -37,7 +37,20 @@ function Cart() {
           <div className="lg:col-span-8 space-y-8">
             <div className="space-y-0">
               {items.map((item) => (
-                <CartItem key={item.id} id={item.id} name={item.name} image={item.images?.[0] || item.image} price={item.sale_price || item.price} variant={item.variant} qty={item.qty} onUpdateQty={updateQty} onRemove={removeItem} />
+                // The key is the line, not the product: two colours of the
+                // same bracelet must stay two rows.
+                <CartItem
+                  key={item.lineId || `${item.id}::${item.variant || ""}`}
+                  id={item.lineId || `${item.id}::${item.variant || ""}`}
+                  name={item.name}
+                  image={item.images?.[0] || item.image}
+                  price={item.price}
+                  originalPrice={item.original_price}
+                  variant={item.variant}
+                  qty={item.qty}
+                  onUpdateQty={updateQty}
+                  onRemove={removeItem}
+                />
               ))}
             </div>
             <div className="bg-primary-container/20 p-4 md:p-6 rounded-xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border border-primary-container/40">

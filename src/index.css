@@ -8,6 +8,23 @@
 /* ── Smooth scrolling ── */
 html {
   scroll-behavior: smooth;
+  /* Anchors land below the fixed navbar instead of under it. */
+  scroll-padding-top: 96px;
+  /* A short page and a long one then share the same content width, so the
+     layout does not jump sideways when you move between routes. */
+  scrollbar-gutter: stable;
+}
+
+/* ── Motion tokens ──
+   One rhythm for the whole shop: one easing curve, three durations. Hovers,
+   reveals and page changes then feel drawn by the same hand instead of each
+   component inventing its own timing. */
+:root {
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-out-quint: cubic-bezier(0.22, 1, 0.36, 1);
+  --dur-fast: 180ms;
+  --dur-base: 320ms;
+  --dur-slow: 600ms;
 }
 
 /* ── Light mode tokens (default) ── */
@@ -251,3 +268,143 @@ html {
 
 /* Form inputs RTL */
 [dir="rtl"] .form-input { text-align: right; }
+
+/* ════════════════════════════════════════════════════════════
+   Scroll & motion foundations
+   ════════════════════════════════════════════════════════════ */
+
+/* The page scrollbar is part of the design: thin, quiet, brand-tinted.
+   `.hide-scrollbar` still wins on the carousels because a class plus a
+   pseudo-element outranks a bare pseudo-element. */
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-track { background: hsl(var(--surface-container-low)); }
+::-webkit-scrollbar-thumb {
+  background: hsl(var(--outline-variant));
+  border: 2px solid hsl(var(--surface-container-low));
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover { background: hsl(var(--primary-fixed-dim)); }
+
+@supports (scrollbar-color: auto) {
+  html {
+    scrollbar-color: hsl(var(--outline-variant)) hsl(var(--surface-container-low));
+    scrollbar-width: thin;
+  }
+}
+
+/* A visible keyboard focus ring everywhere, and a quiet one for mice. */
+:focus-visible {
+  outline: 2px solid hsl(var(--primary));
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
+/* Headlines break where the meaning does, not where the box ends. */
+.text-balance { text-wrap: balance; }
+.text-pretty { text-wrap: pretty; }
+
+/* A hairline rule that fades at both ends — used instead of a hard border
+   between editorial sections. */
+.hairline {
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    hsl(var(--outline-variant) / 0.7),
+    transparent
+  );
+}
+
+/* An underline that draws itself from the left on hover. */
+.link-quiet {
+  position: relative;
+  display: inline-block;
+}
+.link-quiet::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: -3px;
+  width: 100%;
+  height: 1px;
+  background: currentColor;
+  transform: scaleX(0);
+  transform-origin: right;
+  transition: transform var(--dur-base) var(--ease-out-expo);
+}
+.link-quiet:hover::after,
+.link-quiet:focus-visible::after {
+  transform: scaleX(1);
+  transform-origin: left;
+}
+
+/* Film grain over photography — a little texture so large flat images do
+   not look like a placeholder. */
+.grain::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.16;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)' opacity='0.55'/%3E%3C/svg%3E");
+}
+
+/* Slow drift for the hero photograph — "alive", not "moving". */
+@keyframes kenBurns {
+  from { transform: scale(1.02) translate3d(0, 0, 0); }
+  to   { transform: scale(1.12) translate3d(0, -1.5%, 0); }
+}
+.ken-burns {
+  animation: kenBurns 22s var(--ease-out-quint) infinite alternate;
+  will-change: transform;
+}
+
+/* The ticker under the hero. The track holds the copy twice and slides by
+   exactly half its width, so the loop has no seam. */
+@keyframes marquee {
+  from { transform: translate3d(0, 0, 0); }
+  to   { transform: translate3d(-50%, 0, 0); }
+}
+.marquee-track {
+  display: flex;
+  width: max-content;
+  animation: marquee 38s linear infinite;
+  will-change: transform;
+}
+.marquee:hover .marquee-track,
+.marquee:focus-within .marquee-track {
+  animation-play-state: paused;
+}
+
+/* Scroll cue: a line that fills downward, forever. */
+@keyframes scrollCue {
+  0%   { transform: scaleY(0); transform-origin: top; opacity: 0.2; }
+  45%  { transform: scaleY(1); transform-origin: top; opacity: 1; }
+  55%  { transform: scaleY(1); transform-origin: bottom; opacity: 1; }
+  100% { transform: scaleY(0); transform-origin: bottom; opacity: 0.2; }
+}
+.scroll-cue-line {
+  animation: scrollCue 2.4s var(--ease-out-quint) infinite;
+}
+
+/* ── Respect the visitor's motion preference ──
+   CSS animations stop here; the framer-motion components ask
+   `useReducedMotion()` for the same answer in JavaScript. */
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+
+  .ken-burns,
+  .marquee-track,
+  .scroll-cue-line {
+    animation: none !important;
+  }
+}

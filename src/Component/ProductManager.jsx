@@ -1,9 +1,17 @@
-import { useEffect, useState, useCallback, useRef } from "react";
+import { useEffect, useState, useCallback, useMemo, useRef } from "react";
 import useProductStore from "../stores/productStore";
 import supabase from "../lib/supabase";
 import { useToast } from "../Contexts/ToastContext";
 import { formatDZD } from "../lib/currency";
 import { colorsToField, sizesToField, LOW_STOCK } from "../lib/productOptions";
+import Pagination from "./Pagination";
+import {
+  buildVariantGrid,
+  parseColors,
+  serializeColors,
+  parseSizes,
+  variantKey,
+} from "../lib/productOptions";
 
 const CATEGORY_OPTIONS = [
   "Watches",
@@ -22,15 +30,16 @@ const CATEGORY_OPTIONS = [
   "Accessories",
 ];
 
-const EMPTY_FORM = {
-  name: "",
+const EMPTY_FORM = {  name: "",
   price: "",
+  sale_price: "",
   category: CATEGORY_OPTIONS[0],
   image_url: "",
   description: "",
   stock: "0",
   colors: "",
   sizes: "",
+  is_pack: false,
   best_seller: false,
   featured: false,
   new_arrival: false,
@@ -78,7 +87,8 @@ function ProductManager() {
   const {
     products,
     categories,
-    fetchProducts,
+    catalogueLoaded,
+    fetchAllProducts,
     fetchCategories,
     createProduct,
     updateProduct,
@@ -93,30 +103,118 @@ function ProductManager() {
   const [uploading, setUploading] = useState(false);
   const [search, setSearch] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("all");
+  // Which stock level to show. "Low" and "out" are the two lists the shop
+  // actually needs to act on before a customer hits a sold-out page.
+  const [stockFilter, setStockFilter] = useState("all");
+  const [page, setPage] = useState(1);
   const [deleteConfirm, setDeleteConfirm] = useState(null);
   const [imageError, setImageError] = useState(false);
+  // How many of each colour × size pair are on the shelf, keyed "red|15".
+  // Kept out of `form` because it is rebuilt whenever the colour or size list
+  // changes, and a stale key must never reappear as a stock figure.
+  const [variantStock, setVariantStock] = useState({});
 
   useEffect(() => {
-    fetchProducts();
+    // The dashboard usually has the catalogue already. This only pays for the
+    // read once, instead of re-downloading every product on each visit to
+    // this tab.
+    if (!catalogueLoaded) fetchAllProducts();
     fetchCategories();
-  }, [fetchProducts, fetchCategories]);
+  }, [catalogueLoaded, fetchAllProducts, fetchCategories]);
 
-  const allCategories = [
-    ...new Set([
-      ...CATEGORY_OPTIONS,
-      ...(categories || []).map((c) => c.name),
-    ]),
-  ].sort();
+  const allCategories = useMemo(
+    () =>
+      [
+        ...new Set([
+          ...CATEGORY_OPTIONS,
+          ...(categories || []).map((c) => c.name),
+        ]),
+      ].sort(),
+    [categories]
+  );
 
-  const filtered = products.filter((p) => {
-    const matchesSearch =
-      p.name?.toLowerCase().includes(search.toLowerCase()) ||
-      p.category?.toLowerCase().includes(search.toLowerCase());
-    const matchesCategory = categoryFilter === "all" || p.category === categoryFilter;
-    return matchesSearch && matchesCategory;
-  });
+  // A search keystroke re-runs this over the whole catalogue. That is cheap
+  // for a few hundred rows — but only if it isn't recomputed on every
+  // unrelated render (a toggle switch, an open dialog, the form re-typing).
+  const searchTerm = search.trim().toLowerCase();
+  const filtered = useMemo(() => {
+    return products.filter((p) => {
+      const matchesSearch =
+        !searchTerm ||
+        p.name?.toLowerCase().includes(searchTerm) ||
+        p.category?.toLowerCase().includes(searchTerm);
+      const matchesCategory =
+        categoryFilter === "all" ||
+        String(p.category || "").trim().toLowerCase() === categoryFilter.toLowerCase();
+
+      // `null` stock means the product has no figure at all — it is not
+      // "out", it is "unknown", so it only shows under "all".
+      const hasFigure = typeof p.stock === "number";
+      const matchesStock =
+        stockFilter === "all" ||
+        (stockFilter === "out" && p.stock === 0) ||
+        (stockFilter === "low" && hasFigure && p.stock > 0 && p.stock <= LOW_STOCK) ||
+        (stockFilter === "in" && hasFigure && p.stock > LOW_STOCK);
+
+      return matchesSearch && matchesCategory && matchesStock;
+    });
+  }, [products, searchTerm, categoryFilter, stockFilter]);
+
+  const stockCounts = useMemo(() => {
+    let low = 0;
+    let out = 0;
+    for (const p of products) {
+      if (typeof p.stock !== "number") continue;
+      if (p.stock === 0) out += 1;
+      else if (p.stock <= LOW_STOCK) low += 1;
+    }
+    return { low, out };
+  }, [products]);
+
+  const lowStock = stockCounts.low;
+  const outOfStock = stockCounts.out;
+
+  // The list is paged, not virtual: drawing 200 cards at once (and asking the
+  // browser for 200 images in the same tick) is what made this tab crawl. 24
+  // keeps a full row count on a wide screen without a wall of thumbnails.
+  const PAGE_SIZE = 24;
+  const pageCount = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
+  const currentPage = Math.min(page, pageCount);
+  const pageStart = filtered.length === 0 ? 0 : (currentPage - 1) * PAGE_SIZE;
+  const visibleProducts = filtered.slice(pageStart, pageStart + PAGE_SIZE);
+
+  // A new search or filter starts the list again at page one.
+  useEffect(() => {
+    setPage(1);
+  }, [searchTerm, categoryFilter, stockFilter]);
 
   const isEditing = editingId !== null;
+
+  /**
+   * The combinations this product is sold in, worked out from what the owner
+   * has typed in the two option boxes. An empty colour list or an empty size
+   * list still produces a usable one-dimensional grid — a bracelet that only
+   * comes in three sizes, or a ring that only comes in two colours.
+   */
+  const { colorList, sizeList, combos } = buildVariantGrid(
+    parseColors(serializeColors(form.colors)),
+    parseSizes(form.sizes)
+  );
+  const hasVariants = combos.length > 0;
+
+  const variantRows = combos.map((c) => {
+    const key = variantKey(c.color, c.size);
+    return { ...c, key, value: variantStock[key] ?? "" };
+  });
+
+  const variantTotal = variantRows.reduce(
+    (sum, r) => sum + (r.value === "" ? 0 : Math.max(0, Number(r.value) || 0)),
+    0
+  );
+
+  const setVariantValue = (key, value) => {
+    setVariantStock((prev) => ({ ...prev, [key]: value.replace(/[^\d]/g, "") }));
+  };
 
   // ── Image upload handler ──
   const handleImageUpload = useCallback(async (e) => {
@@ -192,6 +290,7 @@ function ProductManager() {
   const cancelEdit = useCallback(() => {
     setEditingId(null);
     setForm(EMPTY_FORM);
+    setVariantStock({});
     setImageError(false);
   }, []);
 
@@ -210,11 +309,32 @@ function ProductManager() {
 
       setSubmitting(true);
 
+      // The stock figure the row carries is the total of the grid when the
+      // owner counts by colour and size — one number, always the sum.
+      const payload = {
+        ...form,
+        stock: hasVariants ? variantTotal : form.stock,
+        // One row per combination the owner actually filled in. An empty box
+        // means "we don't sell that pair", which is different from "none
+        // left", so it is left out rather than written as a zero. An empty
+        // grid is still written: if the colours were deleted, the product
+        // stops being counted per colour.
+        variants: variantRows
+          .filter((r) => r.value !== "")
+          .map((r) => ({
+            color: r.color,
+            size: r.size,
+            stock: Math.max(0, Number(r.value) || 0),
+          })),
+        sale_price: form.sale_price,
+        is_pack: form.is_pack,
+      };
+
       if (isEditing) {
-        const { data, error } = await updateProduct(editingId, form);
+        const { data, error } = await updateProduct(editingId, payload);
         if (error) {
           const msg = error.includes("row-level security")
-            ? "Permission denied — check Supabase RLS policies."
+            ? "The database refused this change: only your Supabase admin account can save products. Sign out and back in with zaki1@dlaccessories.com — the offline admin password can look but not save."
             : error;
           toast.error(msg);
         } else {
@@ -222,23 +342,27 @@ function ProductManager() {
           cancelEdit();
         }
       } else {
-        const { data, error } = await createProduct(form);
+        const { data, error } = await createProduct(payload);
         if (error) {
           const msg = error.includes("row-level security")
-            ? "Permission denied — run the RLS fix SQL in your Supabase dashboard."
+            ? "The database refused this product: only your Supabase admin account can add one. Sign out and back in with zaki1@dlaccessories.com — the offline admin password can look but not save."
             : error;
           toast.error(msg);
         } else {
           toast.success(`"${data.name}" added`);
           setForm(EMPTY_FORM);
+          setVariantStock({});
           setImageError(false);
+          // A new product sits at the top of the newest-first list, so show
+          // the page it landed on instead of leaving the admin on page 4.
+          setPage(1);
           fetchCategories();
         }
       }
 
       setSubmitting(false);
     },
-    [form, isEditing, editingId, createProduct, updateProduct, fetchCategories, toast, cancelEdit]
+    [form, isEditing, editingId, createProduct, updateProduct, fetchCategories, toast, cancelEdit, hasVariants, variantTotal, variantRows]
   );
 
   const handleEdit = useCallback((product) => {
@@ -246,16 +370,27 @@ function ProductManager() {
     setForm({
       name: product.name || "",
       price: product.price?.toString() || "",
+      sale_price: product.sale_price ? String(product.sale_price) : "",
       category: product.category || CATEGORY_OPTIONS[0],
       image_url: product.image || "",
       description: product.description || "",
       stock: typeof product.stock === "number" ? String(product.stock) : "",
       colors: colorsToField(product.colors),
       sizes: sizesToField(product.sizes),
+      is_pack: product.is_pack || false,
       best_seller: product.best_seller || false,
       featured: product.featured || false,
       new_arrival: product.new_arrival || false,
     });
+
+    // Re-open the grid exactly as it was saved.
+    const stock = {};
+    for (const v of product.variants || []) {
+      stock[variantKey(v.color, v.size)] =
+        typeof v.stock === "number" ? String(v.stock) : "";
+    }
+    setVariantStock(stock);
+
     setImageError(false);
     window.scrollTo({ top: 0, behavior: "smooth" });
   }, []);
@@ -283,13 +418,19 @@ function ProductManager() {
     setForm((prev) => ({ ...prev, [field]: value }));
   };
 
-  const categoryCount = (cat) => {
-    if (cat === "all") return products.length;
-    return products.filter((p) => p.category === cat).length;
-  };
+  // One pass over the catalogue instead of one pass per category, so the
+  // dropdown's counts cost nothing to render.
+  const categoryCounts = useMemo(() => {
+    const counts = new Map();
+    for (const p of products) {
+      const key = p.category || "";
+      counts.set(key, (counts.get(key) || 0) + 1);
+    }
+    return counts;
+  }, [products]);
 
-  const lowStockCount = products.filter((p) => p.stock <= LOW_STOCK && p.stock > 0).length;
-  const outOfStockCount = products.filter((p) => p.stock === 0).length;
+  const categoryCount = (cat) =>
+    cat === "all" ? products.length : categoryCounts.get(cat) || 0;
 
   return (
     <div className="space-y-6">
@@ -323,18 +464,18 @@ function ProductManager() {
       )}
 
       {/* ── Stock alerts ── */}
-      {(lowStockCount > 0 || outOfStockCount > 0) && (
+      {(lowStock > 0 || outOfStock > 0) && (
         <div className="flex flex-wrap gap-3">
-          {outOfStockCount > 0 && (
+          {outOfStock > 0 && (
             <div className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-900/50">
               <span className="material-symbols-outlined text-[18px] text-red-600">error</span>
-              <span className="font-label-sm text-red-700 dark:text-red-400">{outOfStockCount} out of stock</span>
+              <span className="font-label-sm text-red-700 dark:text-red-400">{outOfStock} out of stock</span>
             </div>
           )}
-          {lowStockCount > 0 && (
+          {lowStock > 0 && (
             <div className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-900/50">
               <span className="material-symbols-outlined text-[18px] text-amber-600">warning</span>
-              <span className="font-label-sm text-amber-700 dark:text-amber-400">{lowStockCount} low stock</span>
+              <span className="font-label-sm text-amber-700 dark:text-amber-400">{lowStock} low stock</span>
             </div>
           )}
         </div>
@@ -375,7 +516,7 @@ function ProductManager() {
                 />
               </div>
 
-              <div className="grid grid-cols-3 gap-4">
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
                 <div>
                   {/* Dinars, not dollars. The number typed here is the number
                       on the shop front — nothing converts it on the way, so
@@ -396,20 +537,68 @@ function ProductManager() {
                   </div>
                 </div>
                 <div>
-                  <label className="block font-label-sm text-secondary mb-1.5">Stock *</label>
-                  <input
-                    type="number"
-                    min="0"
-                    className="form-input w-full"
-                    placeholder="0"
-                    value={form.stock}
-                    onChange={setField("stock")}
-                  />
-                  {Number(form.stock) === 0 && (
-                    <p className="text-[11px] text-red-500 mt-1">Out of stock</p>
-                  )}
-                  {Number(form.stock) > 0 && Number(form.stock) <= LOW_STOCK && (
-                    <p className="text-[11px] text-amber-500 mt-1">Low stock</p>
+                  {/* A promo is a second price, not a discount to work out:
+                      leave it empty and nothing shows on the card. */}
+                  <label className="block font-label-sm text-secondary mb-1.5">
+                    Promo price
+                  </label>
+                  <div className="relative">
+                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-secondary font-label-md">DA</span>
+                    <input
+                      type="number"
+                      step="1"
+                      min="0"
+                      className="form-input w-full pl-10"
+                      placeholder="—"
+                      value={form.sale_price}
+                      onChange={setField("sale_price")}
+                    />
+                  </div>
+                  {form.sale_price !== "" &&
+                    Number(form.sale_price) > 0 &&
+                    Number(form.sale_price) >= Number(form.price) && (
+                      <p className="text-[11px] text-amber-600 mt-1">
+                        Must be below the price to count as a promo
+                      </p>
+                    )}
+                </div>
+                <div>
+                  <label className="block font-label-sm text-secondary mb-1.5">
+                    Stock *
+                    {hasVariants && (
+                      <span className="text-outline-variant font-normal"> (auto)</span>
+                    )}
+                  </label>
+                  {hasVariants ? (
+                    <>
+                      <input
+                        type="number"
+                        readOnly
+                        className="form-input w-full bg-surface-container-low text-on-surface"
+                        value={variantTotal}
+                        aria-describedby="stock-auto-hint"
+                      />
+                      <p id="stock-auto-hint" className="text-[11px] text-outline-variant mt-1">
+                        Sum of the grid below
+                      </p>
+                    </>
+                  ) : (
+                    <>
+                      <input
+                        type="number"
+                        min="0"
+                        className="form-input w-full"
+                        placeholder="0"
+                        value={form.stock}
+                        onChange={setField("stock")}
+                      />
+                      {Number(form.stock) === 0 && (
+                        <p className="text-[11px] text-red-500 mt-1">Out of stock</p>
+                      )}
+                      {Number(form.stock) > 0 && Number(form.stock) <= LOW_STOCK && (
+                        <p className="text-[11px] text-amber-500 mt-1">Low stock</p>
+                      )}
+                    </>
                   )}
                 </div>
                 <div>
@@ -472,6 +661,78 @@ function ProductManager() {
                 </div>
               </div>
 
+              {/* Stock per colour and per size.
+                  A bracelet in red and green, sizes 14–16, is not "nine in
+                  stock" — it is nine red-15s, one red-14 and none in red-16.
+                  One box per combination is the only honest way to record
+                  that, and the total above is always their sum. */}
+              {hasVariants && (
+                <div className="rounded-xl border border-outline-variant/30 p-4">
+                  <div className="flex items-center justify-between mb-3">
+                    <div>
+                      <p className="font-label-md text-on-surface">
+                        Stock by colour and size
+                      </p>
+                      <p className="text-[11px] text-secondary">
+                        Leave a box empty if you don't sell that combination.
+                      </p>
+                    </div>
+                    <span className="text-sm font-label-md text-primary">
+                      {variantTotal} total
+                    </span>
+                  </div>
+
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-sm border-separate border-spacing-1">
+                      <thead>
+                        <tr>
+                          <th className="text-start font-label-sm text-secondary px-1">
+                            {sizeList.length ? "Colour \\ Size" : "Colour"}
+                          </th>
+                          {sizeList.map((s) => (
+                            <th key={s} className="font-label-sm text-secondary text-center px-1">
+                              {s}
+                            </th>
+                          ))}
+                          {!sizeList.length && (
+                            <th className="font-label-sm text-secondary text-center px-1">
+                              Stock
+                            </th>
+                          )}
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {(colorList.length ? colorList : [""]).map((color) => (
+                          <tr key={color || "only"}>
+                            <td className="px-1 text-on-surface whitespace-nowrap">
+                              {color || "Sizes only"}
+                            </td>
+                            {(sizeList.length ? sizeList : [""]).map((size) => {
+                              const key = variantKey(color, size);
+                              const row = variantRows.find((r) => r.key === key);
+                              return (
+                                <td key={key} className="px-0.5">
+                                  <input
+                                    type="number"
+                                    min="0"
+                                    inputMode="numeric"
+                                    value={row?.value ?? ""}
+                                    onChange={(e) => setVariantValue(key, e.target.value)}
+                                    aria-label={`Stock for ${color || "this product"} ${size || ""}`.trim()}
+                                    placeholder="—"
+                                    className="form-input w-16 py-1.5 text-center"
+                                  />
+                                </td>
+                              );
+                            })}
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              )}
+
               {/* Tags */}
               <div className="bg-surface-container-low rounded-xl p-4 space-y-3">
                 <p className="font-label-sm text-secondary uppercase tracking-wider mb-2">Product Tags</p>
@@ -489,6 +750,11 @@ function ProductManager() {
                   checked={form.best_seller}
                   onChange={toggleField("best_seller")}
                   label="Best Seller — Highlight product"
+                />
+                <Toggle
+                  checked={form.is_pack}
+                  onChange={toggleField("is_pack")}
+                  label="Pack — Sold as a set, shown under Packs"
                 />
               </div>
             </div>
@@ -590,37 +856,55 @@ function ProductManager() {
       </div>
 
       {/* ── Product list ── */}
-      <div className="bg-surface rounded-2xl p-5 md:p-6 soft-glow">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-5">
+      <div className="bg-surface rounded-2xl p-4 sm:p-5 md:p-6 soft-glow">
+        <div className="flex flex-col gap-4 mb-5 lg:flex-row lg:items-center lg:justify-between">
           <h2 className="font-headline-sm text-headline-sm flex items-center gap-2">
             <span className="material-symbols-outlined text-primary">inventory_2</span>
             Products
             <span className="px-2.5 py-0.5 rounded-full bg-primary-container/30 text-primary font-label-sm text-xs">
-              {products.length}
+              {filtered.length === products.length
+                ? products.length
+                : `${filtered.length} / ${products.length}`}
             </span>
           </h2>
-          <div className="flex items-center gap-3">
-            <div className="relative flex-1 sm:flex-none">
+
+          {/* Three controls side by side need ~500px. Below that they stack,
+              full width, instead of pushing the panel into a sideways scroll. */}
+          <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2 lg:flex lg:flex-wrap lg:items-center lg:gap-3">
+            <div className="relative sm:col-span-2 lg:col-auto">
               <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-secondary text-[18px]">
                 search
               </span>
               <input
                 type="text"
-                className="form-input pl-9 pr-3 py-2 text-sm w-full sm:w-52"
+                className="form-input pl-9 pr-3 py-2.5 text-sm w-full lg:w-60"
                 placeholder="Search products..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
+                aria-label="Search products"
               />
             </div>
             <select
-              className="form-input py-2 text-sm cursor-pointer"
+              className="form-input py-2.5 text-sm w-full cursor-pointer lg:w-auto"
               value={categoryFilter}
               onChange={(e) => setCategoryFilter(e.target.value)}
+              aria-label="Filter by category"
             >
               <option value="all">All Categories</option>
               {allCategories.map((cat) => (
                 <option key={cat} value={cat}>{cat} ({categoryCount(cat)})</option>
               ))}
+            </select>
+            <select
+              className="form-input py-2.5 text-sm w-full cursor-pointer lg:w-auto"
+              value={stockFilter}
+              onChange={(e) => setStockFilter(e.target.value)}
+              aria-label="Filter by stock"
+            >
+              <option value="all">Any stock</option>
+              <option value="low">Low stock ({lowStock})</option>
+              <option value="out">Out of stock ({outOfStock})</option>
+              <option value="in">In stock</option>
             </select>
           </div>
         </div>
@@ -633,36 +917,41 @@ function ProductManager() {
         ) : filtered.length === 0 ? (
           <div className="py-16 text-center">
             <span className="material-symbols-outlined text-4xl text-outline-variant mb-3 block">
-              {search || categoryFilter !== "all" ? "search_off" : "inventory_2"}
+              {search || categoryFilter !== "all" || stockFilter !== "all"
+                ? "search_off"
+                : "inventory_2"}
             </span>
             <p className="font-body-md text-secondary mb-1">
-              {search || categoryFilter !== "all"
+              {search || categoryFilter !== "all" || stockFilter !== "all"
                 ? "No products match your search"
                 : "No products yet"}
             </p>
             <p className="text-xs text-outline-variant">
-              {search || categoryFilter !== "all"
+              {search || categoryFilter !== "all" || stockFilter !== "all"
                 ? "Try adjusting your filters"
                 : "Add your first product using the form above"}
             </p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-            {filtered.map((product) => (
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
+            {visibleProducts.map((product) => (
               <div
                 key={product.id}
-                className={`relative flex items-center gap-3 p-3 rounded-xl transition-all group ${
+                className={`relative flex items-center gap-3 sm:gap-4 p-3 sm:p-4 rounded-xl transition-all ${
                   editingId === product.id
                     ? "bg-primary-container/20 ring-2 ring-primary/30"
                     : "bg-surface-container-low hover:bg-surface-container hover:shadow-sm"
                 }`}
               >
-                {/* Image */}
-                <div className="w-14 h-14 rounded-lg overflow-hidden bg-surface-container flex-shrink-0 border border-outline-variant/20">
+                {/* Image — lazy, so a page of 24 never asks for images that
+                    are scrolled past (or on another page) in the same tick. */}
+                <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-lg overflow-hidden bg-surface-container flex-shrink-0 border border-outline-variant/20">
                   {product.image ? (
                     <img
                       src={product.image}
                       alt=""
+                      loading="lazy"
+                      decoding="async"
                       className="w-full h-full object-cover"
                       onError={(e) => { e.target.src = "/placeholder-product.svg"; }}
                     />
@@ -675,7 +964,7 @@ function ProductManager() {
 
                 {/* Info */}
                 <div className="flex-1 min-w-0">
-                  <p className="font-body-md text-on-surface text-sm truncate font-medium">{product.name}</p>
+                  <p className="font-body-md text-on-surface text-sm sm:text-[15px] truncate font-medium">{product.name}</p>
                   <div className="flex items-center gap-1.5 mt-0.5">
                     <span className="font-label-sm text-primary font-semibold">
                       {formatDZD(product.price)}
@@ -706,25 +995,50 @@ function ProductManager() {
                   </div>
                 </div>
 
-                {/* Actions */}
-                <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 focus-within:opacity-100 transition-opacity">
+                {/* Actions. Always visible: a phone has no hover, and an Edit
+                    button that only appears under a mouse is a button the shop
+                    owner cannot press at all. */}
+                <div className="flex items-center gap-1 flex-shrink-0">
                   <button
                     onClick={() => handleEdit(product)}
-                    className="p-2 rounded-lg text-secondary hover:bg-primary-container/30 hover:text-primary transition-colors"
+                    className="p-2.5 rounded-lg text-secondary hover:bg-primary-container/30 hover:text-primary transition-colors"
                     title="Edit product"
+                    aria-label={`Edit ${product.name}`}
                   >
-                    <span className="material-symbols-outlined text-[18px]">edit</span>
+                    <span className="material-symbols-outlined text-[20px]">edit</span>
                   </button>
                   <button
                     onClick={() => setDeleteConfirm(product)}
-                    className="p-2 rounded-lg text-secondary hover:bg-error-container hover:text-on-error-container transition-colors"
+                    className="p-2.5 rounded-lg text-secondary hover:bg-error-container hover:text-on-error-container transition-colors"
                     title="Delete product"
+                    aria-label={`Delete ${product.name}`}
                   >
-                    <span className="material-symbols-outlined text-[18px]">delete</span>
+                    <span className="material-symbols-outlined text-[20px]">delete</span>
                   </button>
                 </div>
               </div>
             ))}
+          </div>
+        )}
+
+        {/* Which slice of the catalogue is on screen, and a way through the
+            rest of it. Without this the tab had to draw every product at once. */}
+        {!loading && filtered.length > 0 && (
+          <div className="mt-5 flex flex-col gap-3 border-t border-outline-variant/20 pt-4 sm:flex-row sm:items-center sm:justify-between">
+            <p className="font-label-sm text-secondary">
+              Showing{" "}
+              <span className="font-semibold text-on-surface">
+                {pageStart + 1}–{pageStart + visibleProducts.length}
+              </span>{" "}
+              of <span className="font-semibold text-on-surface">{filtered.length}</span>
+              {filtered.length !== products.length && ` (filtered from ${products.length})`}
+            </p>
+            <Pagination
+              page={currentPage}
+              pageCount={pageCount}
+              onChange={setPage}
+              label="Product pages"
+            />
           </div>
         )}
       </div>

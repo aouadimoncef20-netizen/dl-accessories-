@@ -54,7 +54,10 @@ async function rpc(fn, args) {
     headers: { ...headers, "Content-Type": "application/json" },
     body: JSON.stringify(args),
   });
-  return res.status;
+  const body = await res.text();
+  let json = null;
+  try { json = JSON.parse(body); } catch {}
+  return { status: res.status, json };
 }
 
 console.log(`\nDL Accessories — database check\nProject: ${host}\n`);
@@ -100,9 +103,26 @@ try {
     ? ok("orders.phone_digits", "guest order tracking works")
     : bad("orders.phone_digits", "missing — guest order tracking cannot match an order");
 
-  (await rpc("decrement_product_stock", { p_id: "00000000-0000-0000-0000-000000000000", p_qty: 0 })) === 200
-    ? ok("decrement_product_stock()", "stock can't oversell")
-    : bad("decrement_product_stock()", "missing — the app falls back to the racy read-then-write");
+  // A stranger must not be able to drain a product's stock, so the upgrade
+  // file takes EXECUTE away from `anon`. PostgREST then answers 401/403 with
+  // code 42501 — a refusal, which means the function is there and correctly
+  // locked, not that it is gone. Only PGRST202, "could not find the function
+  // in the schema cache", is an absence.
+  const charge = await rpc("decrement_product_stock", {
+    p_id: "00000000-0000-0000-0000-000000000000",
+    p_qty: 0,
+  });
+  const refused = charge.status === 401 || charge.status === 403 || charge.json?.code === "42501";
+  const absent = charge.status === 404 || charge.json?.code === "PGRST202";
+  if (charge.status === 200) {
+    ok("decrement_product_stock()", "stock can't oversell");
+  } else if (refused) {
+    ok("decrement_product_stock()", "in place — the admin may call it, a stranger is refused");
+  } else if (absent) {
+    bad("decrement_product_stock()", "missing — the app falls back to the racy read-then-write");
+  } else {
+    warn("decrement_product_stock()", `couldn't tell — HTTP ${charge.status}`);
+  }
 
   // The Storage API won't let the public key read bucket metadata
   // (/storage/v1/bucket/… answers 400 to everyone but the service role), so
@@ -120,6 +140,93 @@ try {
   }
 } catch (err) {
   bad("migration check failed", err.message);
+}
+
+/* ── The upgrade ────────────────────────────────────────── */
+console.log("\nUpgrade — SUPABASE_UPGRADE.sql");
+try {
+  // PostgREST answers 400 for a column it cannot find, so a plain select is a
+  // reliable yes/no on whether the file has been pasted yet. Reading an
+  // unknown column never reaches the row policies.
+  const probe = async (label, pathname, missing) => {
+    const res = await get(pathname);
+    res.status === 200
+      ? ok(label)
+      : res.status === 400 || res.status === 404
+        ? bad(label, missing)
+        : warn(label, `couldn't tell — HTTP ${res.status}`);
+  };
+
+  await probe(
+    "products.sale_price / is_pack / variants",
+    "/rest/v1/products?select=sale_price,is_pack,variants&limit=1",
+    "missing — Promo and Packs filters stay empty and stock is counted per product, not per colour and size"
+  );
+  await probe(
+    "orders.customer_note",
+    "/rest/v1/orders?select=customer_note&limit=1",
+    "missing — the customer's message at checkout is saved in notes instead and shown in the order's notes box"
+  );
+  await probe(
+    "delivery_zones.stopdesk_dzd",
+    "/rest/v1/delivery_zones?select=wilaya_code,price_dzd,stopdesk_dzd&limit=1",
+    "missing — stop-desk prices are computed on the fly from shipping.js instead of stored per wilaya"
+  );
+
+  // Did the upgrade file run all the way through? place_order() takes the
+  // customer's message as its last argument, but calling it to find out would
+  // place a real order — and PostgREST won't describe a function to a caller
+  // that can't see the API root. lookup_order() is the safe stand-in: the
+  // upgrade recreates it with a tracking_number column *after* place_order(),
+  // so if that column is there, place_order() was reached too. An empty phone
+  // matches no row (the function filters out an empty phone_digits), so it
+  // reads nothing back.
+  const lookup = await rpc("lookup_order?select=tracking_number", {
+    p_reference: "check-database-probe",
+    p_phone: "",
+  });
+  if (lookup.status === 200 && Array.isArray(lookup.json)) {
+    ok(
+      "the upgrade ran to the end",
+      "lookup_order() carries tracking_number — it is defined after place_order(), so the customer's note is wired up"
+    );
+  } else if (lookup.status === 400 || lookup.status === 404) {
+    bad(
+      "the upgrade ran to the end",
+      "lookup_order() is still the old shape — paste SUPABASE_UPGRADE.sql again, or place_order() never learns the customer's note and tracking stays blank"
+    );
+  } else {
+    warn("couldn't tell how far the upgrade ran", `HTTP ${lookup.status}`);
+  }
+} catch (err) {
+  bad("upgrade check failed", err.message);
+}
+
+/* ── The courier function ───────────────────────────────── */
+console.log("\nCourier function — supabase/functions/dhd");
+try {
+  // A label and a tracking history carry the customer's name, phone and full
+  // address, so the function now insists on a Supabase session belonging to
+  // the admin before it answers either. Asking with the public key alone must
+  // come back 401 — and because that guard runs before the `tracking`
+  // argument is even read, this probe costs no courier call and touches no
+  // order. A 400 means the older function is still the one deployed.
+  const fnUrl = `${URL_BASE.replace(/\/+$/, "")}/functions/v1/dhd?action=track`;
+  const res = await fetch(fnUrl, { headers });
+  if (res.status === 401) {
+    ok("labels and tracking need the admin's sign-in", "the new function is deployed");
+  } else if (res.status === 404) {
+    warn("the dhd function isn't deployed", "courier booking and label printing are off");
+  } else if (res.status === 400 || res.status === 200) {
+    bad(
+      "anyone can read labels and tracking",
+      "the older function is still deployed — run: supabase functions deploy dhd"
+    );
+  } else {
+    warn("couldn't tell which function is deployed", `HTTP ${res.status}`);
+  }
+} catch (err) {
+  warn("couldn't reach the courier function", err.message);
 }
 
 /* ── Accounts ───────────────────────────────────────────── */

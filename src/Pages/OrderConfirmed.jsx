@@ -1,12 +1,25 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Link, useLocation, Navigate } from "react-router-dom";
 import SEO from "../Component/SEO";
 import useTranslation from "../i18n/useTranslation";
+import { formatDZD } from "../lib/currency";
 
 function OrderConfirmed() {
   const location = useLocation();
-  const order = location.state;
   const { t } = useTranslation();
+
+  // The checkout hands the order over in router state. A refresh (or coming
+  // back from the tracking page) loses that state, so a copy is kept in this
+  // tab — the customer should not be bounced home after a real order.
+  const [order] = useState(() => {
+    if (location.state) return location.state;
+    try {
+      const raw = sessionStorage.getItem("dl_last_order");
+      return raw ? JSON.parse(raw) : null;
+    } catch {
+      return null;
+    }
+  });
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -90,6 +103,18 @@ function OrderConfirmed() {
       <div className="inline-block bg-surface-container-low rounded-2xl p-8 mb-12 soft-glow">
         <p className="font-label-sm text-secondary uppercase tracking-widest mb-2">{t("order_number")}</p>
         <p className="font-headline-md text-primary">{displayOrderId}</p>
+
+        {/* The courier's own number, shown only once the parcel is
+            really booked. Printing an empty line would promise the
+            customer something that doesn't exist yet. */}
+        {order.tracking && (
+          <p className="mt-4 pt-4 border-t border-outline-variant/30">
+            <span className="block font-label-sm text-secondary uppercase tracking-widest mb-1">
+              {t("order_tracking")}
+            </span>
+            <span className="font-headline-sm text-primary">{order.tracking}</span>
+          </p>
+        )}
       </div>
 
       {/* Order details */}
@@ -98,8 +123,21 @@ function OrderConfirmed() {
         <div className="space-y-2 font-body-md text-secondary">
           <p>{order.form.fullName}</p>
           <p>{order.form.address}</p>
-          <p>{order.form.state}</p>
+          <p>{order.form.commune ? `${order.form.commune}, ${order.form.state}` : order.form.state}</p>
+          {order.deliveryType === "bureau" && (
+            <p className="text-primary">{t("checkout_delivery_desk")}</p>
+          )}
           <p className="pt-4">{order.form.phone}</p>
+          {typeof order.total === "number" && (
+            <p className="pt-2 flex items-center justify-between border-t border-outline-variant/30 mt-4">
+              <span className="font-label-sm uppercase tracking-widest text-secondary">
+                {t("checkout_total")}
+              </span>
+              <span className="font-headline-sm text-primary">
+                {formatDZD(order.total)}
+              </span>
+            </p>
+          )}
           <p className="pt-2 font-label-sm uppercase tracking-widest text-primary">
             {t("checkout_cash")}
           </p>

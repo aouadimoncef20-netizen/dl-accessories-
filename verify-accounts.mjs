@@ -241,7 +241,10 @@ const browser = await chromium.launch();
   const errors = [];
   page.on("pageerror", (e) => errors.push(e.message));
 
-  let orderBody = null;
+  // place_order() is the whole order now: it reads the prices, checks stock,
+  // prices the delivery and writes the row in one transaction, so the browser
+  // no longer POSTs to /rest/v1/orders at all.
+  let placeOrderBody = null;
   let stockCallBody = null;
 
   await page.route("**/*.supabase.co/**", async (route) => {
@@ -254,6 +257,16 @@ const browser = await chromium.launch();
         body: JSON.stringify(body),
       });
 
+    if (url.includes("/rpc/place_order")) {
+      placeOrderBody = req.postDataJSON();
+      return json({
+        id: "deadbeef-1234-5678-9abc-def012345678",
+        created_at: "2026-09-29T09:00:00Z",
+        status: "pending",
+        total: 4500,
+        items: placeOrderBody?.p_items || [],
+      });
+    }
     if (url.includes("/rpc/decrement_product_stock")) {
       stockCallBody = req.postDataJSON();
       return json(10);
@@ -293,23 +306,29 @@ const browser = await chromium.launch();
   });
 
   await page.goto(`${BASE}/checkout`, { waitUntil: "networkidle" });
+  // Checkout now asks how the parcel travels before it asks who is ordering —
+  // the name and address fields only appear once a mode is picked. This test
+  // predates that change and was looking for inputs that weren't on screen.
+  await page.locator('[role="radiogroup"] button[role="radio"]').nth(2).click();
   await page.fill('input[name="fullName"]', "Amina Test");
   await page.fill('input[name="phone"]', "0555 12 34 56");
   await page.fill('input[name="address"]', "12 Rue des Fleurs");
-  await page.fill('input[name="state"]', "Alger");
+  // The wilaya is a drop-down now: the delivery price is looked up from its
+  // code, so a hand-typed name can't be priced. Pick the first real entry.
+  await page.selectOption("select#state", { index: 1 });
   await page.locator('button[type="submit"]').click();
   await page.waitForTimeout(3000);
 
   const bodyText = (await page.locator("body").textContent()) || "";
   log(/check_circle/.test(bodyText), "a saved order still reaches the confirmation screen");
   log(!/cloud_off/.test(bodyText), "and it is not the 'we could not save it' screen");
-  log(orderBody?.variant === undefined && orderBody?.items?.[0]?.variant === "Size: 6",
-    `the chosen size is saved with the order (${orderBody?.items?.[0]?.variant})`);
-  log(orderBody?.phone_digits === "0555123456",
-    `the digits-only phone is saved for tracking (${orderBody?.phone_digits})`);
+  log(placeOrderBody?.p_items?.[0]?.variant === "Size: 6",
+    `the chosen size is saved with the order (${placeOrderBody?.p_items?.[0]?.variant})`);
+  log(placeOrderBody?.p_phone === "0555 12 34 56",
+    `the phone travels with the order, for the database to strip (${placeOrderBody?.p_phone})`);
   log(
-    stockCallBody?.p_id === "aaaaaaaa-1111-2222-3333-444444444444" && stockCallBody?.p_qty === 1,
-    "stock is taken off through the atomic database function, not a read-then-write"
+    !!placeOrderBody && stockCallBody === null,
+    "the order goes through place_order(), which takes the stock off in the same transaction"
   );
   const cartAfter = await page.evaluate(() => JSON.parse(localStorage.getItem("dl-cart") || "{}"));
   log((cartAfter?.state?.items || []).length === 0, "the basket is emptied once the order is saved");

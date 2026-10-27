@@ -16,8 +16,17 @@ export default function HomeProductCard({ product, link }) {
   const [imgError, setImgError] = useState(false);
 
   const productLink = link || `/product/${product.id}`;
-  const hasDiscount = product.discount > 0;
-  const displayPrice = product.sale_price || product.price;
+  // Same rule as ProductCard: a sale price counts only when it is set and
+  // actually lower, so the card never advertises a "discount" that costs more.
+  const onSale =
+    typeof product.sale_price === "number" &&
+    product.sale_price > 0 &&
+    product.sale_price < product.price;
+  const charged = onSale ? product.sale_price : product.price;
+  const percentOff = onSale
+    ? Math.round((1 - product.sale_price / product.price) * 100)
+    : 0;
+  const isPack = product.is_pack === true;
 
   // Helper to get the primary image
   const primaryImage = product.image;
@@ -48,11 +57,20 @@ export default function HomeProductCard({ product, link }) {
           )}
         </Link>
 
-        {/* Discount badge */}
-        {hasDiscount && (
-          <span className="absolute top-3 left-3 bg-error text-on-error text-[10px] font-label-sm uppercase tracking-widest px-2 py-1 rounded-full">
-            -{product.discount}%
-          </span>
+        {/* Promo and pack badges — the two things worth saying before a click */}
+        {(onSale || isPack) && (
+          <div className="absolute top-3 left-3 flex flex-col items-start gap-2">
+            {onSale && (
+              <span className="bg-error text-on-error text-[10px] font-label-sm uppercase tracking-widest px-2 py-1 rounded-full">
+                {percentOff > 0 ? `-${percentOff}%` : "Promo"}
+              </span>
+            )}
+            {isPack && (
+              <span className="bg-primary text-on-primary text-[10px] font-label-sm uppercase tracking-widest px-2 py-1 rounded-full">
+                Pack
+              </span>
+            )}
+          </div>
         )}
 
         {/* Quick View */}
@@ -77,7 +95,7 @@ export default function HomeProductCard({ product, link }) {
               id: product.id,
               name: product.name,
               category: product.category,
-              price: displayPrice,
+              price: charged,
               image: primaryImage,
             });
           }}
@@ -100,10 +118,10 @@ export default function HomeProductCard({ product, link }) {
           {product.name}
         </h3>
         <div className="flex items-center gap-2">
-          {hasDiscount ? (
+          {onSale ? (
             <>
               <p className="font-label-md text-primary">
-                {formatDZD(displayPrice)}
+                {formatDZD(charged)}
               </p>
               <p className="font-label-sm text-secondary line-through">
                 {formatDZD(product.price)}
@@ -111,7 +129,7 @@ export default function HomeProductCard({ product, link }) {
             </>
           ) : (
             <p className="font-label-md text-on-surface-variant">
-              {formatDZD(displayPrice)}
+              {formatDZD(charged)}
             </p>
           )}
         </div>

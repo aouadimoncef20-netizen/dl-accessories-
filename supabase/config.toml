@@ -1,0 +1,21 @@
+# Supabase CLI configuration for the DL Accessories shop.
+#
+# Only the DHD courier function is declared here. It is called from the
+# storefront (whose key is a `sb_publishable_...` key, not a JWT), so the
+# platform's JWT check has to be off — the function authenticates the request
+# itself: booking is gated by the order id, and reading a label or a tracking
+# history requires a Supabase session belonging to ADMIN_EMAIL.
+#
+# Deploy with:
+#   supabase functions deploy dhd --project-ref <your-project-ref>
+#
+# and set the two secrets once:
+#   supabase secrets set DHD_TOKEN=... DHD_API_URL=...
+#
+# If you deploy from the Supabase dashboard instead, turn
+# "Verify JWT" off for the `dhd` function in its settings.
+
+project_id = "dl-accessories"
+
+[functions.dhd]
+verify_jwt = false

@@ -1,10 +1,28 @@
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import useAuthStore from "../stores/authStore";
 import useWishlistStore from "../stores/wishlistStore";
+import useProductStore from "../stores/productStore";
 
 function Account() {
   const { user, profile, signOut, isAdmin } = useAuthStore();
   const { items: wishlist } = useWishlistStore();
+  const { fetchUserOrders } = useProductStore();
+  // It used to say "0" no matter what, so a customer with three orders was
+  // told they had none on their own dashboard.
+  const [orderCount, setOrderCount] = useState(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    if (!user?.id) {
+      setOrderCount(0);
+      return () => { cancelled = true; };
+    }
+    fetchUserOrders(user.id).then((orders) => {
+      if (!cancelled) setOrderCount(Array.isArray(orders) ? orders.length : 0);
+    });
+    return () => { cancelled = true; };
+  }, [user?.id, fetchUserOrders]);
 
   return (
     <div className="pt-32 pb-section-gap px-margin-mobile md:px-margin-desktop max-w-container-max mx-auto">
@@ -55,7 +73,7 @@ function Account() {
             <h2 className="font-headline-sm text-headline-sm mb-6">Dashboard</h2>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-10">
               {[
-                { label: "Orders", value: "0", icon: "shopping_bag" },
+                { label: "Orders", value: orderCount === null ? "—" : String(orderCount), icon: "shopping_bag" },
                 { label: "Wishlist Items", value: String(wishlist.length), icon: "favorite" },
                 { label: "Member Since", value: user?.created_at ? new Date(user.created_at).toLocaleDateString() : "—", icon: "calendar_today" },
               ].map((stat) => (

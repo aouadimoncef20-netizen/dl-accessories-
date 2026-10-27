@@ -23,7 +23,8 @@
     "check:db": "node check-database.mjs",
     "check:site": "node verify-accounts.mjs",
     "admin:password": "node set-admin-password.mjs",
-    "supabase:sql": "node apply-supabase-sql.mjs"
+    "supabase:sql": "node apply-supabase-sql.mjs",
+    "dhd:sync": "node dhd-sync.mjs"
   },
   "eslintConfig": {
     "extends": [

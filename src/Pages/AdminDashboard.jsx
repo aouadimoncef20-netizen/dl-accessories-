@@ -4,11 +4,16 @@ import useAuthStore from "../stores/authStore";
 import useProductStore from "../stores/productStore";
 import ProductManager from "../Component/ProductManager";
 import OrderManager from "../Component/OrderManager";
+import CustomerManager from "../Component/CustomerManager";
+import GalleryManager from "../Component/GalleryManager";
+import DeliverySettings from "../Component/DeliverySettings";
+import CouponManager from "../Component/CouponManager";
 import { formatDZD } from "../lib/currency";
 import { formatShortDate, totalRevenue } from "../lib/format";
 
 const STATUS_COLORS = {
   pending: "bg-amber-100 text-amber-800",
+  confirmed: "bg-sky-100 text-sky-800",
   processing: "bg-blue-100 text-blue-800",
   shipped: "bg-purple-100 text-purple-800",
   delivered: "bg-green-100 text-green-800",
@@ -17,22 +22,32 @@ const STATUS_COLORS = {
 
 function AdminDashboard() {
   const { signOut, user } = useAuthStore();
-  const { fetchAllOrders, fetchProducts, products } = useProductStore();
+  const { fetchAllOrders, fetchAllProducts, products } = useProductStore();
   const [tab, setTab] = useState("overview");
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
 
+  // The offline admin session (src/lib/adminAuth.js) is the only one that
+  // carries this id — a real Supabase account always has a UUID.
+  const offlineAdmin = user?.id === "store-admin";
+
   useEffect(() => {
-    Promise.all([fetchAllOrders(), fetchProducts()]).then(([o]) => {
+    // The whole catalogue, not the first page: the product tab has to search,
+    // count and filter across every row the shop owns.
+    Promise.all([fetchAllOrders(), fetchAllProducts()]).then(([o]) => {
       setOrders(o);
       setLoading(false);
     });
-  }, [fetchAllOrders, fetchProducts]);
+  }, [fetchAllOrders, fetchAllProducts]);
 
   const tabs = [
     { key: "overview", label: "Overview", icon: "dashboard" },
     { key: "orders", label: "Orders", icon: "receipt_long" },
     { key: "products", label: "Products", icon: "inventory_2" },
+    { key: "customers", label: "Customers", icon: "group" },
+    { key: "gallery", label: "Gallery", icon: "photo_library" },
+    { key: "delivery", label: "Delivery", icon: "local_shipping" },
+    { key: "coupons", label: "Promo codes", icon: "sell" },
   ];
 
   const pendingOrders = orders.filter((o) => o.status === "pending");
@@ -47,10 +62,11 @@ function AdminDashboard() {
 
   return (
     <div className="min-h-screen bg-background flex">
-      {/* Sidebar */}
-      <aside className="hidden md:flex flex-col w-64 bg-surface border-r border-outline-variant/20 p-6 fixed h-full">
+      {/* Sidebar — wider on large screens, and it scrolls on its own so a
+          short laptop window can still reach Sign Out. */}
+      <aside className="hidden md:flex flex-col w-64 lg:w-72 bg-surface border-r border-outline-variant/20 p-5 lg:p-6 fixed h-full overflow-y-auto">
         <Link to="/" className="font-display-lg text-[22px] text-primary mb-2">DL Admin</Link>
-        <p className="font-label-sm text-secondary mb-10">Manage your store</p>
+        <p className="font-label-sm text-secondary mb-8 lg:mb-10">Manage your store</p>
 
         <nav className="flex flex-col gap-1 flex-1">
           {tabs.map((t) => (
@@ -137,8 +153,40 @@ function AdminDashboard() {
         </div>
       </div>
 
-      {/* Main content */}
-      <main className="flex-1 md:ml-64 p-4 md:p-8 pt-28 md:pt-8">
+      {/* Main content — `min-w-0` keeps a wide table or a long product name
+          from stretching the whole page sideways. On big screens the room the
+          dashboard gained is spent on content, not on margins. */}
+      <main className="flex-1 min-w-0 md:ml-64 lg:ml-72 p-4 pt-28 md:p-8 lg:p-10 xl:p-12">
+        {/* The built-in password (src/lib/adminAuth.js) is not a Supabase
+            account, so the database refuses every change it makes: the
+            product form would answer "row-level security" and the listing
+            would never reach the shop. That is a confusing way to find out,
+            so say it up front, on every tab, with the fix in the sentence. */}
+        {offlineAdmin && (
+          <div className="mb-6 flex flex-col gap-3 rounded-2xl border border-amber-300 bg-amber-50 p-4 sm:flex-row sm:items-center sm:gap-4 md:p-5">
+            <span className="material-symbols-outlined text-[26px] text-amber-600">key_off</span>
+            <div className="min-w-0 flex-1">
+              <p className="font-label-md text-amber-900">
+                You're signed in with the offline admin password — changes won't save
+              </p>
+              <p className="mt-1 text-xs leading-relaxed text-amber-800">
+                The database only accepts product, order and price changes from your
+                Supabase account (<span className="font-semibold">{user?.email}</span>).
+                Create that account in Supabase → Authentication → Users (Auto Confirm,
+                same password), then sign out and sign in again — this notice disappears
+                when the real account is in use.
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={signOut}
+              className="shrink-0 rounded-full bg-amber-600 px-5 py-2.5 font-label-sm uppercase tracking-wider text-white transition-opacity hover:opacity-90"
+            >
+              Sign out
+            </button>
+          </div>
+        )}
+
         {/* ═══════════ OVERVIEW TAB ═══════════ */}
         {tab === "overview" && (
           <div className="space-y-8">
@@ -351,6 +399,10 @@ function AdminDashboard() {
 
         {tab === "orders" && <OrderManager />}
         {tab === "products" && <ProductManager />}
+        {tab === "customers" && <CustomerManager />}
+        {tab === "gallery" && <GalleryManager />}
+        {tab === "delivery" && <DeliverySettings />}
+        {tab === "coupons" && <CouponManager />}
       </main>
     </div>
   );
