@@ -81,6 +81,7 @@ function Checkout() {
   const setDiscount = useCartStore((s) => s.setDiscount);
   const clearDiscount = useCartStore((s) => s.clearDiscount);
   const clearCart = useCartStore((s) => s.clearCart);
+  const giftWrap = useCartStore((s) => s.giftWrap);
   const createOrder = useProductStore((s) => s.createOrder);
   const decrementStock = useProductStore((s) => s.decrementStock);
   const checkStock = useProductStore((s) => s.checkStock);
@@ -255,6 +256,24 @@ function Checkout() {
   );
 
   const total = subtotal - discountAmount + (shippingCost || 0) + tax;
+  // While the delivery price is unknown (no wilaya picked yet), `total` is the
+  // goods alone. Saying so beats a number that quietly grows at the till.
+  const totalExcludesDelivery = shippingCost === null;
+
+  // The basket can change after a code is applied — a line removed, a quantity
+  // dropped. A code with a minimum spend stops applying the moment the basket
+  // falls below it, and place_order() would then refuse the whole order. Drop
+  // it here, with the reason, instead of letting the customer find out at the
+  // last step.
+  useEffect(() => {
+    if (!discount) return;
+    const min = Number(discount.min_subtotal) || 0;
+    if (min > 0 && subtotal < min) {
+      clearDiscount();
+      setCouponCode("");
+      setCouponError(t("checkout_coupon_min"));
+    }
+  }, [discount, subtotal, clearDiscount, t]);
 
   const selectMode = (next) => {
     setMode(next);
@@ -474,7 +493,9 @@ function Checkout() {
       // The customer's own words to the shop — shown in the dashboard next to
       // the order. The driver's landmark still rides with the address above;
       // this one is for the owner.
-      customer_note: form.comment.trim() || null,
+      customer_note: [giftWrap ? t("checkout_gift_note") : "", form.comment.trim()]
+        .filter(Boolean)
+        .join(" — ") || null,
       // `variant` (ring size / watch finish) is what the customer chose —
       // it has to reach the order or the admin cannot pack the right thing.
       // `color`/`size` are the same choice as data, so place_order() can take
@@ -1336,6 +1357,14 @@ function Checkout() {
                   <span className="text-secondary">{t("checkout_shipping")}</span>
                   <span className="text-on-surface">{shippingText}</span>
                 </div>
+                {/* Free, but the customer needs to see that the request they
+                    made on the bag page is travelling with the order. */}
+                {giftWrap && (
+                  <div className="flex justify-between items-center text-body-md">
+                    <span className="text-secondary">{t("cart_gift_wrap")}</span>
+                    <span className="text-primary">{t("checkout_free")}</span>
+                  </div>
+                )}
                 {SHOW_TAX_LINE && (
                   <div className="flex justify-between items-center text-body-md">
                     <span className="text-secondary">{t("summary_taxes")}</span>
@@ -1352,6 +1381,11 @@ function Checkout() {
                     {formatDZD(total)}
                   </span>
                 </div>
+                {totalExcludesDelivery && (
+                  <p className="text-end text-xs text-secondary">
+                    {t("checkout_total_before_delivery")}
+                  </p>
+                )}
               </div>
             </div>
           </aside>

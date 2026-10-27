@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { Link } from "react-router-dom";
 import useCartStore from "../stores/cartStore";
 import PageTransition from "../Component/PageTransition";
@@ -12,8 +11,13 @@ function Cart() {
   const removeItem = useCartStore((s) => s.removeItem);
   const updateQty = useCartStore((s) => s.updateQty);
   const subtotal = useCartStore((s) => s.subtotal());
-  const [giftWrap, setGiftWrap] = useState(false);
+  const giftWrap = useCartStore((s) => s.giftWrap);
+  const setGiftWrap = useCartStore((s) => s.setGiftWrap);
   const { t } = useTranslation();
+
+  // Pieces, not rows: a bag holding one ring line of qty 3 is "3 items", not
+  // "1 item" — the lines exist because of colour choices, not quantity.
+  const pieceCount = items.reduce((sum, i) => sum + (Number(i.qty) || 0), 0);
 
   return (
     <PageTransition>
@@ -22,7 +26,7 @@ function Cart() {
       <div className="mb-12">
         <h1 className="font-display-lg text-display-lg-mobile md:text-display-lg mb-2">{t("cart_title")}</h1>
         <p className="text-on-surface-variant font-body-md">
-          {t("cart_items_in", { count: items.length })}
+          {t("cart_items_in", { count: pieceCount })}
         </p>
       </div>
 

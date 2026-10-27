@@ -8,6 +8,7 @@ import {
   serializeColors,
   serializeSizes,
   serializeVariants,
+  stockForVariant,
   variantsTotalStock,
 } from "../lib/productOptions";
 
@@ -799,7 +800,7 @@ const useProductStore = create((set, get) => ({
 
       const { data, error } = await supabase
         .from("products")
-        .select("id, name, stock")
+        .select("id, name, stock, variants")
         .in("id", ids);
 
       if (error) throw error;
@@ -813,15 +814,30 @@ const useProductStore = create((set, get) => ({
           problems.push({ name: item.name, wanted: item.qty, available: 0 });
           continue;
         }
-        // No figure at all means "unknown", not "none" — never block on it.
-        if (row.stock === null || row.stock === undefined) continue;
 
-        const available = Number(row.stock);
-        if (available < Number(item.qty)) {
+        // The number that matters is the one for the colour and size this
+        // customer chose. The row's `stock` is the whole shelf — a sold-out
+        // 15 cm bracelet passes a shelf-total test and then dies at the till,
+        // which is exactly the failure this pre-flight check exists to avoid.
+        const shelf = {
+          stock: typeof row.stock === "number" ? row.stock : null,
+          variants: parseVariants(row.variants),
+        };
+        const available =
+          typeof item.color === "string" || typeof item.size === "string"
+            ? stockForVariant(shelf, item.color, item.size)
+            : typeof row.stock === "number"
+              ? row.stock
+              : null;
+
+        // No figure at all means "unknown", not "none" — never block on it.
+        if (available === null || available === undefined) continue;
+
+        if (Number(available) < Number(item.qty)) {
           problems.push({
             name: row.name || item.name,
             wanted: Number(item.qty),
-            available,
+            available: Number(available),
           });
         }
       }

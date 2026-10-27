@@ -16,6 +16,11 @@ const useCartStore = create(
     (set, get) => ({
       items: [],
       discount: null,
+      // Gift wrapping is a free service here, but the request still has to
+      // travel with the order — the packer is the one who acts on it. It lives
+      // in the basket (not in the cart page's own state) so it survives the
+      // walk to checkout and doesn't reset when the customer goes back.
+      giftWrap: false,
 
       // Returns { ok } or { ok: false, reason, available } so the product
       // page can tell the customer why nothing happened.
@@ -84,7 +89,9 @@ const useCartStore = create(
         return { ok: true };
       },
 
-      clearCart: () => set({ items: [], discount: null }),
+      clearCart: () => set({ items: [], discount: null, giftWrap: false }),
+
+      setGiftWrap: (on) => set({ giftWrap: on === true }),
 
       // A coupon the checkout has checked. `discount_percent` and
       // `discount_amount` are the two shapes the summary understands; the
@@ -110,6 +117,11 @@ const useCartStore = create(
         const d = get().discount;
         if (!d) return 0;
         const sub = get().subtotal();
+        // A code with a minimum spend stops being a discount the moment the
+        // basket falls below that spend — place_order() refuses the order
+        // outright in that case, so showing the discount here would promise a
+        // price the server will not charge.
+        if (Number(d.min_subtotal) > 0 && sub < Number(d.min_subtotal)) return 0;
         const raw = d.discount_percent
           ? sub * (d.discount_percent / 100)
           : d.discount_amount || 0;
